@@ -661,6 +661,9 @@ input::placeholder{color:#8A8F96}
                         </sc-for>
                       </div>
                     </sc-if>
+                    <sc-if value="{{ r.noPub }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:0 18px 12px 92px;font-size:13.5px;color:#6F6A5F;text-wrap:pretty">{{ r.noPubText }}</div>
+                    </sc-if>
                     <sc-if value="{{ r.noDetails }}" hint-placeholder-val="{{ false }}">
                       <div style="padding:0 18px 12px 92px;font-size:13.5px;color:#6F6A5F;text-wrap:pretty">Only the count is recorded in the master list. Import this person's CV (Import from CV) to see the individual activities.</div>
                     </sc-if>
@@ -711,7 +714,7 @@ input::placeholder{color:#8A8F96}
                   <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Year</span><input value="{{ p.draft.y }}" onChange="{{ p.draft.onY }}" inputMode="numeric" style="height:40px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none"></label>
                   <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Portfolio</span><select value="{{ p.draft.p }}" onChange="{{ p.draft.onP }}" style="height:40px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.pOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
                   <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Type</span><select value="{{ p.draft.ty }}" onChange="{{ p.draft.onTy }}" style="height:40px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.tyOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
-                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Credit</span><select value="{{ p.draft.c }}" onChange="{{ p.draft.onC }}" style="height:40px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.cOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Credit</span><select value="{{ p.draft.c }}" onChange="{{ p.draft.onC }}" style="height:40px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.cOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label><label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Policy code</span><select value="{{ p.draft.code }}" onChange="{{ p.draft.onCode }}" style="height:40px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.codeOpts }}" as="o" hint-placeholder-count="8"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
                 </div>
                     <div style="display:flex;gap:10px"><button onClick="{{ p.draft.onSave }}" style="height:36px;padding:0 16px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:600 14.5px 'IBM Plex Sans',sans-serif;cursor:pointer">Save changes</button><button onClick="{{ p.draft.onCancel }}" style="height:36px;padding:0 16px;border-radius:6px;border:1px solid #6B1E24;background:#fff;color:#6B1E24;font:600 14.5px 'IBM Plex Sans',sans-serif;cursor:pointer">Cancel</button></div>
                   </div>
@@ -739,7 +742,7 @@ input::placeholder{color:#8A8F96}
                   <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Year</span><input value="{{ p.draft.y }}" onChange="{{ p.draft.onY }}" inputMode="numeric" style="height:40px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none"></label>
                   <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Portfolio</span><select value="{{ p.draft.p }}" onChange="{{ p.draft.onP }}" style="height:40px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.pOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
                   <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Type</span><select value="{{ p.draft.ty }}" onChange="{{ p.draft.onTy }}" style="height:40px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.tyOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
-                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Credit</span><select value="{{ p.draft.c }}" onChange="{{ p.draft.onC }}" style="height:40px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.cOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Credit</span><select value="{{ p.draft.c }}" onChange="{{ p.draft.onC }}" style="height:40px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.cOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label><label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#6F6A5F">Policy code</span><select value="{{ p.draft.code }}" onChange="{{ p.draft.onCode }}" style="height:40px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.codeOpts }}" as="o" hint-placeholder-count="8"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
                 </div>
                 <div><button onClick="{{ p.draft.onAdd }}" style="height:36px;padding:0 16px;border-radius:6px;border:1px solid #6B1E24;background:#fff;color:#6B1E24;font:600 14.5px 'IBM Plex Sans',sans-serif;cursor:pointer">Add output</button></div>
               </div>
@@ -1126,12 +1129,20 @@ class Component extends DCLogic {
   applyCV(f) {
     const R = this.state.cvReview; if (!R) return;
     R.items.filter(x => x.on).forEach(x => { if (x.kind === 'cnt') this.setCount(f.id, x.key, x.val); else this.setEdit(f.id, x.key, x.val); });
-    const recs = R.pubs.filter(p => p.on).map((p, i) => ({ y: p.y, t: p.t, j: p.j, au: p.au, p: p.p, ty: p.ty, c: p.c, k: 'a' + Date.now().toString(36) + i }));
+    const recs = R.pubs.filter(p => p.on).map((p, i) => ({ y: p.y, t: p.t, j: p.j, au: p.au, p: p.p, ty: p.ty, c: p.c, code: p.code || '', k: 'a' + Date.now().toString(36) + i }));
     if (recs.length) { const nk = this.nk(f.n), list = [...this.addedFor(nk), ...recs]; this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
     const applied = R.items.filter(x => x.on && x.kind === 'cnt' && (R.det || {})[x.key]);
     if (applied.length) { const d0 = { ...(f.det || {}) }; applied.forEach(x => { d0[x.key] = R.det[x.key]; }); this.setEdit(f.id, 'det', d0); }
     const n = R.items.filter(x => x.on).length;
     this.setState({ cvReview: null, cvMsg: 'Applied ' + n + ' update' + (n === 1 ? '' : 's') + ' and ' + recs.length + ' research output' + (recs.length === 1 ? '' : 's') + ' from ' + R.fname + '.' });
+  }
+  resCode(r) {
+    if (r.code) return r.code;
+    const j = [r.j, r.t, r.au].filter(Boolean).join(' ');
+    if (/jafess/i.test(j)) return 'A2';
+    if (r.ty === 'F') return 'A1';
+    if (r.ty === 'G') { if (/proceeding|conference|lecture notes/i.test(j)) return 'A4'; if (/\bbook\b|chapter|volume|press/i.test(j)) return 'A8'; return 'A3'; }
+    return 'OTHER';
   }
   nk(n) { return String(n || '').toLowerCase().replace(/[^a-z0-9]+/g, '_'); }
   updRes(fn, fbData) {
@@ -1149,14 +1160,14 @@ class Component extends DCLogic {
   addResearch(f) {
     const d = this.state.draft || {};
     if (!d.t || !d.y) { alert('Enter at least a year and a title.'); return; }
-    this.addRes(this.nk(f.n), { y: Number(d.y), t: d.t, j: d.j || '', au: '', p: d.p || 'C', ty: d.ty || 'F', c: Number(d.c || 1) });
+    this.addRes(this.nk(f.n), { y: Number(d.y), t: d.t, j: d.j || '', au: '', p: d.p || 'C', ty: d.ty || 'F', c: Number(d.c || 1), code: d.code || '' });
     this.setState({ draft: { y: d.y, p: d.p, ty: d.ty, c: d.c } });
   }
-  startResEdit(r) { this.setState({ resEditKey: r.k, draft: { y: String(r.y), t: r.t, j: r.j || '', p: r.p, ty: r.ty, c: String(r.c) } }); }
+  startResEdit(r) { this.setState({ resEditKey: r.k, draft: { y: String(r.y), t: r.t, j: r.j || '', p: r.p, ty: r.ty, c: String(r.c), code: r.code || '' } }); }
   saveResEdit(f) {
     const d = this.state.draft || {}, k = this.state.resEditKey; if (!k) return;
     if (!d.t || !d.y) { alert('Enter at least a year and a title.'); return; }
-    const rec = { y: Number(d.y), t: d.t, j: d.j || '', p: d.p || 'C', ty: d.ty || 'F', c: Number(d.c || 1) }, nk = this.nk(f.n);
+    const rec = { y: Number(d.y), t: d.t, j: d.j || '', p: d.p || 'C', ty: d.ty || 'F', c: Number(d.c || 1), code: d.code || '' }, nk = this.nk(f.n);
     if (k[0] === 'a') { const list = this.addedFor(nk).map(r => r.k === k ? { ...r, ...rec } : r); this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
     else if (k[0] === 'b') this.updRes(e => ({ ...e, mod: { ...e.mod, [k]: rec } }), () => ({ mod: { [k]: rec } }));
     else { this.delRes(k); this.addRes(nk, { ...rec, au: '' }); }
@@ -1250,7 +1261,7 @@ class Component extends DCLogic {
     const legacy = (f.resAdd || []).map((r, i) => ({ ...r, k: 'l' + nk + '_' + i, src: 'legacy', added: true }));
     const inWin = baseR.concat(addR, legacy).filter(r => r.y >= Y - 5 && r.y <= Y);
     f.resRemoved = inWin.filter(r => (RE.del || {})[r.k]);
-    f.res = inWin.filter(r => !(RE.del || {})[r.k]).sort((a, b) => b.y - a.y);
+    f.res = inWin.filter(r => !(RE.del || {})[r.k]).map(r => ({ ...r, code: this.resCode(r) })).sort((a, b) => b.y - a.y);
     f.icBy = { B: 0, C: 0, D: 0, F: 0, G: 0, H: 0 }; f.icCr = 0;
     f.res.forEach(r => { f.icBy[r.p] += r.c; f.icBy[r.ty] += r.c; f.icCr += r.c; });
     f.progs = [f.bafH > 0 ? 'BAF' : '', f.msafH > 0 ? 'MSAF' : ''].filter(Boolean);
@@ -1485,12 +1496,14 @@ class Component extends DCLogic {
         if (k === 'P9' && f.p9h != null) return { code: k, desc: PD[k][0], detail: [x.n ? x.n + ' entries' : '', f.p9h + ' hours', '36 hours = 1 activity'].filter(Boolean).join(' · '), n: u };
         return { code: k, desc: PD[k][0], detail: [k === 'P10' || k === 'P9' ? x.n + ' recorded' : '', PD[k][1], k === 'P9' ? '' : (k === 'P10' || k === 'P11' ? 'counts as ' + u : ''), x.det].filter(Boolean).join(' · '), n: u };
       });
-      const TYM = { A1: ['F'], A2: ['F'], A3: ['G'], A4: ['G'], A5: ['G'], A8: ['G'] }, DET = f.det || {};
+      const TYM = { A1: 1, A2: 1, A3: 1, A4: 1, A5: 1, A8: 1 }, DET = f.det || {};
       const deco = r => { const k = r.code, key = f.id + ':' + k, items = (DET[k] || []).map(x => ({ t: x.t, sub: x.sub }));
         let src = 'From the imported CV';
-        if (!items.length && TYM[k]) { f.res.filter(o => TYM[k].includes(o.ty)).forEach(o => items.push({ t: o.t, sub: [o.y, o.j].filter(Boolean).join(' · ') })); src = TYM[k][0] === 'F' ? 'Peer-reviewed journal articles in the research list (A1 and A2 together)' : 'Additional peer-/editorial-reviewed outputs in the research list'; }
+        if (TYM[k]) { items.length = 0; f.res.filter(o => o.code === k).forEach(o => items.push({ t: o.t, sub: [o.y, o.j, 'credit ' + o.c].filter(Boolean).join(' · ') })); src = 'From the research list' + (items.length !== r.n ? ' (count above is ' + r.n + ' from the master list)' : ''); }
         const open = this.state.openCode === key;
-        return { ...r, open, chev: open ? '▾' : '▸', onToggle: () => this.setState(s => ({ openCode: s.openCode === key ? null : key })), details: items, hasDetails: open && items.length > 0, noDetails: open && !items.length, detSrc: src + ' · ' + items.length + ' item' + (items.length === 1 ? '' : 's'), rowBg: open ? '#FBF7EC' : '#fff' }; };
+        return { ...r, isPub: !!TYM[k], noPubText: 'No outputs in the research list are classified as ' + k + ' (master list count: ' + r.n + '). Edit an output\'s Policy code to reassign it.', open, chev: open ? '▾' : '▸', onToggle: () => this.setState(s => ({ openCode: s.openCode === key ? null : key })), details: items, hasDetails: open && items.length > 0, noDetails: open && !items.length && !TYM[k], noPub: open && !items.length && !!TYM[k], detSrc: src + ' · ' + items.length + ' item' + (items.length === 1 ? '' : 's'), rowBg: open ? '#FBF7EC' : '#fff' }; };
+      Object.keys(TYM).forEach(k => { if (!aRows.some(r => r.code === k) && f.res.some(o => o.code === k)) aRows.push({ code: k, desc: AD[k], detail: 'Not in the master list · from the research list', n: 0 }); });
+      aRows.sort((x, y) => ord(x.code) - ord(y.code));
       aRows = aRows.map(deco); pRows = pRows.map(deco);
       const b = bases.find(x => x.id === f.id), e = edits[f.id] || {};
       const cur = (k, bv) => e[k] != null ? String(e[k]) : (bv == null ? '' : String(bv));
@@ -1573,7 +1586,7 @@ class Component extends DCLogic {
         research: (() => {
           const PL = { B: 'Basic or discovery', C: 'Applied or integration', D: 'Teaching and learning' }, TL = { F: 'Peer-reviewed journal article', G: 'Additional peer-/editorial-reviewed', H: 'All other ICs' };
           const ed = editing && this.canEdit(), ek = this.state.resEditKey, by = f.icBy;
-          const rows = f.res.map(r => ({ year: r.y, title: r.t, journal: [r.j, r.au].filter(Boolean).join(' · '), tags: PL[r.p] + ' · ' + TL[r.ty], credit: fmt(r.c),
+          const rows = f.res.map(r => ({ year: r.y, title: r.t, journal: [r.j, r.au].filter(Boolean).join(' · '), tags: (r.code !== 'OTHER' ? r.code + ' · ' : 'Other IC · ') + PL[r.p] + ' · ' + TL[r.ty], credit: fmt(r.c),
             badge: r.src !== 'base' ? 'Added in portal' : (r.edited ? 'Edited' : ''), hasBadge: r.src !== 'base' || !!r.edited,
             showActions: ed && ek !== r.k, isEditingRow: ed && ek === r.k,
             onEdit: () => this.startResEdit(r),
@@ -1587,7 +1600,7 @@ class Component extends DCLogic {
         })(),
         draft: (() => { const d = this.state.draft || {}; const sd = k => ev => { const v = ev.target.value; this.setState(s => ({ draft: { ...(s.draft || {}), [k]: v } })); };
           const cs = ['1', '0.5', '0.33', '0.25']; if (d.c && !cs.includes(String(d.c))) cs.push(String(d.c));
-          return { y: d.y || String(year), t: d.t || '', j: d.j || '', p: d.p || 'C', ty: d.ty || 'F', c: d.c || '1', onY: sd('y'), onT: sd('t'), onJ: sd('j'), onP: sd('p'), onTy: sd('ty'), onC: sd('c'),
+          return { y: d.y || String(year), t: d.t || '', j: d.j || '', p: d.p || 'C', ty: d.ty || 'F', c: d.c || '1', onY: sd('y'), onT: sd('t'), onJ: sd('j'), onP: sd('p'), onTy: sd('ty'), onC: sd('c'), code: d.code || '', onCode: sd('code'), codeOpts: [{ key: '', label: 'Automatic' }, { key: 'A1', label: 'A1 · Scopus/ABDC journal' }, { key: 'A2', label: 'A2 · Other indexed journal' }, { key: 'A3', label: 'A3 · Editorial-reviewed journal' }, { key: 'A4', label: 'A4 · Conference proceedings' }, { key: 'A5', label: 'A5 · Teaching case' }, { key: 'A8', label: 'A8 · Book or chapter' }, { key: 'OTHER', label: 'Other IC (no A-code)' }],
             onAdd: () => this.addResearch(f), onSave: () => this.saveResEdit(f), onCancel: () => this.setState({ resEditKey: null, draft: {} }),
             pOpts: [{ key: 'B', label: 'Basic or discovery' }, { key: 'C', label: 'Applied or integration' }, { key: 'D', label: 'Teaching and learning' }],
             tyOpts: [{ key: 'F', label: 'Peer-reviewed journal article' }, { key: 'G', label: 'Additional peer-/editorial-reviewed' }, { key: 'H', label: 'All other ICs' }],
