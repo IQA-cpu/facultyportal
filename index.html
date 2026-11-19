@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F3EE;color:#1A1D21;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:oklch(0.38 0.09 255)}a:hover{color:oklch(0.3 0.1 255)}
+input::placeholder{color:#8A8F96}
+</style>
+</helmet>
+<div style="min-height:100vh;background:#F5F3EE;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.45;color:#1A1D21">
+  <sc-if value="{{ showGate }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
+      <div style="width:100%;max-width:400px;background:#fff;border:1px solid #E3DFD6;border-radius:10px;padding:28px;display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#5B6168;font-weight:500">CamEd Business School</div>
+          <div style="font-family:'Source Serif 4',serif;font-size:26px;font-weight:600">Faculty Portal</div>
+        </div>
+        <sc-if value="{{ gate.loading }}" hint-placeholder-val="{{ true }}"><div style="color:#5B6168">Loading…</div></sc-if>
+        <sc-if value="{{ gate.signin }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="color:#3D4249">Sign in with an authorised email address.</div>
+            <button onClick="{{ gate.onGoogle }}" style="height:42px;border-radius:6px;border:1px solid #D8D3C8;background:#fff;font:500 14px 'IBM Plex Sans',sans-serif;color:#1A1D21;cursor:pointer" style-hover="background:#FAF8F4">Continue with Google</button>
+            <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#8A8F96"><span style="flex:1;height:1px;background:#E3DFD6"></span>or<span style="flex:1;height:1px;background:#E3DFD6"></span></div>
+            <input value="{{ gate.loginEmail }}" onChange="{{ gate.onLoginEmail }}" placeholder="name@cam-ed.com" type="email" style="height:42px;padding:0 12px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
+            <button onClick="{{ gate.onLink }}" style="height:42px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:oklch(0.38 0.09 255);color:#fff;font:500 14px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:oklch(0.32 0.1 255)">Email me a sign-in link</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ gate.denied }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="color:#3D4249;text-wrap:pretty"><strong style="font-weight:600">{{ gate.user }}</strong> is not authorised to use this portal. Ask an administrator to add your email address.</div>
+            <button onClick="{{ gate.onSignOut }}" style="height:40px;border-radius:6px;border:1px solid #D8D3C8;background:#fff;font:500 14px 'IBM Plex Sans',sans-serif;color:#1A1D21;cursor:pointer">Use a different account</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ gate.hasMsg }}" hint-placeholder-val="{{ false }}"><div style="padding:10px 12px;border-radius:6px;background:#FAF8F4;font-size:13px;color:#3D4249">{{ gate.msg }}</div></sc-if>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ showApp }}" hint-placeholder-val="{{ true }}"><div>
+  <header style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;padding:22px 32px 18px;border-bottom:1px solid #E3DFD6;background:#FBFAF7">
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#5B6168;font-weight:500">CamEd Business School</div>
+      <div style="font-family:'Source Serif 4',serif;font-size:28px;font-weight:600;letter-spacing:-0.01em">Faculty Portal</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:12px;color:#5B6168">
+      
+      
+      
+      
+    </div>
+    <sc-if value="{{ showUser }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:12px;color:#5B6168">
+        <sc-if value="{{ hasSaveStatus }}" hint-placeholder-val="{{ false }}"><span style="color:{{ saveColor }}">{{ saveStatus }}</span></sc-if>
+        <span>{{ userLabel }}</span>
+        <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onAdminView }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.38 0.09 255);cursor:pointer">Access &amp; data</button></sc-if>
+        <button onClick="{{ onSignOut }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.38 0.09 255);cursor:pointer">Sign out</button>
+      </div>
+    </sc-if>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#5B6168">Academic year
+        <select value="{{ curYear }}" onChange="{{ onYear }}" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:600 14px 'IBM Plex Sans',sans-serif;color:#1A1D21">
+          <sc-for list="{{ yearOptions }}" as="o" hint-placeholder-count="2"><option value="{{ o.key }}">{{ o.label }}</option></sc-for>
+        </select>
+      </label>
+      <button onClick="{{ onExportXlsx }}" title="Table 3-1, Table 3-2 and Table 8-1 in the AACSB template" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:oklch(0.38 0.09 255);color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;white-space:nowrap;cursor:pointer" style-hover="background:oklch(0.32 0.1 255)">{{ exportLabel }}</button>
+      <sc-if value="{{ canDeleteYear }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ onDeleteYear }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">Delete year</button>
+      </sc-if>
+    </div>
+  </header>
+
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-start">
+    <aside style="flex:1 1 300px;max-width:100%;border-right:1px solid #E3DFD6;background:#FBFAF7;position:sticky;top:0;max-height:100vh;overflow:auto;display:flex;flex-direction:column">
+      <div style="padding:18px 20px 14px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid #E3DFD6;position:sticky;top:0;background:#FBFAF7;z-index:1">
+        <div style="display:flex;gap:8px">
+        <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search faculty" style="flex:1;min-width:0;height:38px;padding:0 12px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
+        <sc-if value="{{ canEdit }}" hint-placeholder-val="{{ true }}">        <button onClick="{{ onAdd }}" title="Add a faculty member to this year" style="flex:none;height:38px;padding:0 12px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:#fff;color:oklch(0.38 0.09 255);font:600 13px 'IBM Plex Sans',sans-serif;white-space:nowrap;cursor:pointer" style-hover="background:oklch(0.96 0.02 255)">+ Add</button></sc-if>
+        </div>
+        <select value="{{ disc }}" onChange="{{ onDisc }}" style="width:100%;height:38px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21">
+          <sc-for list="{{ discOptions }}" as="o" hint-placeholder-count="7">
+            <option value="{{ o.key }}">{{ o.label }}</option>
+          </sc-for>
+        </select>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ clsChips }}" as="c" hint-placeholder-count="6">
+            <button onClick="{{ c.onClick }}" title="{{ c.title }}" style="height:28px;padding:0 10px;border-radius:14px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font:500 12px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ c.label }}</button>
+          </sc-for>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#5B6168">
+          <span>{{ resultLabel }}</span>
+          <button onClick="{{ goOverview }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.38 0.09 255);cursor:pointer">School overview</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;padding:6px 0 24px">
+        <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+          <div style="display:flex;flex-direction:column">
+            <div style="padding:14px 20px 6px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#5B6168;font-weight:600">{{ g.label }}</div>
+            <sc-for list="{{ g.items }}" as="f" hint-placeholder-count="5">
+              <button onClick="{{ f.onClick }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 20px;border:0;border-left:3px solid {{ f.edge }};background:{{ f.bg }};text-align:left;cursor:pointer;font:inherit;color:inherit" style-hover="background:#F0EDE6">
+                <span style="flex:none;width:34px;height:22px;border-radius:4px;background:{{ f.clsColor }};color:#fff;font:600 11px 'IBM Plex Mono',monospace;display:flex;align-items:center;justify-content:center">{{ f.cls }}</span>
+                <span style="flex:1;min-width:0;display:flex;flex-direction:column">
+                  <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.name }}</span>
+                  <span style="font-size:12px;color:#5B6168;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.sub }}</span>
+                </span>
+                <span title="{{ f.statusLabel }}" style="flex:none;width:8px;height:8px;border-radius:4px;background:{{ f.statusColor }}"></span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </aside>
+
+    <main style="flex:999 1 560px;min-width:0;padding:28px 32px 64px;display:flex;flex-direction:column;gap:28px;max-width:1180px">
+      <sc-if value="{{ noData }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:12px 16px;border-radius:6px;background:oklch(0.96 0.04 85);border:1px solid oklch(0.85 0.08 85);color:#5A4A1E">{{ noDataText }}</div>
+      </sc-if>
+      <sc-if value="{{ isAdminView }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-family:'Source Serif 4',serif;font-size:30px;font-weight:600;letter-spacing:-0.01em">Access &amp; data</div>
+            <div style="color:#5B6168;max-width:680px;text-wrap:pretty">Only the email addresses listed here can sign in. Editors can change faculty details; view-only users can read and export.</div>
+          </div>
+          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:14px 18px;border-bottom:1px solid #E3DFD6"><span style="font-weight:600">Authorised users</span><span style="font-size:12px;color:#5B6168">{{ admin.count }}</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid #EEEAE2;background:#FAF8F4">
+              <input value="{{ admin.newEmail }}" onChange="{{ admin.onNewEmail }}" placeholder="name@cam-ed.com" type="email" style="flex:1 1 240px;height:38px;padding:0 12px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none">
+              <select value="{{ admin.newRole }}" onChange="{{ admin.onNewRole }}" style="height:38px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21"><sc-for list="{{ admin.roles }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
+              <button onClick="{{ admin.onAdd }}" style="height:38px;padding:0 16px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:oklch(0.38 0.09 255);color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer">Add user</button>
+            </div>
+            <sc-for list="{{ admin.rows }}" as="u" hint-placeholder-count="3">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 18px;border-bottom:1px solid #F1EEE8">
+                <span style="flex:1 1 240px;min-width:0;overflow:hidden;text-overflow:ellipsis">{{ u.email }}</span>
+                <select value="{{ u.role }}" onChange="{{ u.onRole }}" style="height:32px;padding:0 8px;border:1px solid #D8D3C8;border-radius:5px;background:#fff;font:inherit;font-size:13px;color:#1A1D21"><sc-for list="{{ u.roles }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
+                <sc-if value="{{ u.isOther }}" hint-placeholder-val="{{ true }}"><button onClick="{{ u.onRemove }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">Remove</button></sc-if>
+              </div>
+            </sc-for>
+          </section>
+          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
+            <div style="padding:14px 18px;border-bottom:1px solid #E3DFD6;display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">Data files</span><span style="font-size:12px;color:#5B6168">Uploading replaces the current file for everyone. Faculty edits made in the portal are kept.</span></div>
+            <sc-for list="{{ admin.uploads }}" as="x" hint-placeholder-count="3">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:12px 18px;border-bottom:1px solid #F1EEE8">
+                <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:500">{{ x.label }}</span><span style="font-size:12px;color:#5B6168">{{ x.desc }}</span><span style="font-size:12px;color:oklch(0.38 0.09 255)">{{ x.status }}</span></span>
+                <label style="height:34px;padding:0 14px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);color:oklch(0.38 0.09 255);font-weight:600;font-size:13px;display:flex;align-items:center;cursor:pointer">Upload<input type="file" accept="{{ x.accept }}" onChange="{{ x.onFile }}" style="display:none"></label>
+              </div>
+            </sc-for>
+          </section>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:28px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-family:'Source Serif 4',serif;font-size:30px;font-weight:600;letter-spacing:-0.01em">School overview</div>
+            <div style="color:#5B6168;max-width:680px;text-wrap:pretty">Faculty sufficiency and qualifications for {{ curYear }}, calculated from the faculty list for that year. Select a faculty member to see their profile, intellectual portfolio and a check against the Faculty Classification Policy.</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="3">
+              <div style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+                <div style="font-size:12px;color:#5B6168">{{ k.label }}</div>
+                <div style="display:flex;align-items:baseline;gap:10px">
+                  <span style="font-family:'Source Serif 4',serif;font-size:34px;font-weight:600">{{ k.value }}</span>
+                  <span style="font-size:12px;font-weight:500;color:{{ k.color }}">{{ k.status }}</span>
+                </div>
+                <div style="font-size:12px;color:#5B6168">{{ k.rule }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:8px 28px;font-size:13px;color:#5B6168">
+            <span><strong style="color:#1A1D21;font-weight:600">{{ totals.count }}</strong> faculty</span>
+            <span><strong style="color:#1A1D21;font-weight:600">{{ totals.ft }}</strong> full-time · <strong style="color:#1A1D21;font-weight:600">{{ totals.pt }}</strong> part-time</span>
+            <span><strong style="color:#1A1D21;font-weight:600">{{ totals.fte }}</strong> FTE</span>
+            <span><strong style="color:#1A1D21;font-weight:600">{{ totals.hours }}</strong> teaching hours planned</span>
+          </div>
+
+          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
+            <div style="display:flex;flex-direction:column;gap:2px;padding:16px 18px;border-bottom:1px solid #E3DFD6">
+              <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#5B6168;font-weight:600">Table 3-2</div>
+              <div style="font-weight:600">Deployment of Faculty by Qualification Status in Support of Degree Programs in AY {{ curYear }}</div>
+              <div style="font-size:12px;color:#5B6168">Faculty percent of teaching by program and degree level · metric: teaching hours</div>
+            </div>
+            <div style="overflow-x:auto">
+              <div style="min-width:760px;display:flex;flex-direction:column">
+                <div style="display:grid;grid-template-columns:minmax(220px,2fr) repeat(6,minmax(70px,1fr));gap:12px;padding:10px 18px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:#5B6168;border-bottom:1px solid #EEEAE2;align-items:end">
+                  <span>Degree program</span><span style="text-align:right">SA %</span><span style="text-align:right">PA %</span><span style="text-align:right">SP %</span><span style="text-align:right">IP %</span><span style="text-align:right">A %</span><span style="text-align:right">Total %</span>
+                </div>
+                <sc-for list="{{ progRows }}" as="r" hint-placeholder-count="2">
+                  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 18px;border-bottom:1px solid #EEEAE2">
+                    <div style="display:grid;grid-template-columns:minmax(220px,2fr) repeat(6,minmax(70px,1fr));gap:12px;align-items:baseline">
+                      <span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ r.label }}</span><span style="font-size:12px;color:#5B6168">{{ r.hours }}</span></span>
+                      <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="5">
+                        <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:{{ c.color }}">{{ c.v }}</span>
+                      </sc-for>
+                      <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500">{{ r.total }}</span>
+                    </div>
+                    <span style="display:flex;height:6px;border-radius:2px;overflow:hidden;background:#EEEAE2">
+                      <sc-for list="{{ r.segs }}" as="s" hint-placeholder-count="3"><span title="{{ s.title }}" style="width:{{ s.w }};background:{{ s.color }}"></span></sc-for>
+                    </span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="padding:10px 18px;font-size:12px;color:#5B6168;background:#FAF8F4">{{ progNote }}</div>
+          </section>
+
+          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
+            <div style="display:flex;flex-direction:column;gap:2px;padding:16px 18px;border-bottom:1px solid #E3DFD6">
+              <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#5B6168;font-weight:600">Table 8-1 · Part A</div>
+              <div style="font-weight:600">Summary of Intellectual Contributions · {{ icPeriod }}</div>
+              <div style="font-size:12px;color:#5B6168">{{ icNote }}</div>
+            </div>
+            <div style="overflow-x:auto">
+              <div style="min-width:900px;display:flex;flex-direction:column">
+                <div style="display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(10,minmax(60px,1fr));gap:10px;padding:10px 18px 4px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:#5B6168">
+                  <span></span><span style="grid-column:span 4;border-bottom:1px solid #E3DFD6;padding-bottom:4px">Portfolio of ICs</span><span style="grid-column:span 4;border-bottom:1px solid #E3DFD6;padding-bottom:4px">Types of ICs</span><span style="grid-column:span 2;border-bottom:1px solid #E3DFD6;padding-bottom:4px">% producing ICs</span>
+                </div>
+                <div style="display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(10,minmax(60px,1fr));gap:10px;padding:4px 18px 10px;font-size:11px;color:#5B6168;border-bottom:1px solid #EEEAE2;align-items:end">
+                  <span>Discipline</span><span style="text-align:right">Basic</span><span style="text-align:right">Applied</span><span style="text-align:right">Teaching</span><span style="text-align:right;font-weight:600">Total</span><span style="text-align:right">Peer-rev. journal</span><span style="text-align:right">Add. peer/ editorial</span><span style="text-align:right">All other</span><span style="text-align:right;font-weight:600">Total</span><span style="text-align:right">Particip. faculty</span><span style="text-align:right">FTE</span>
+                </div>
+                <sc-for list="{{ icRows }}" as="r" hint-placeholder-count="7">
+                  <div style="display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(10,minmax(60px,1fr));gap:10px;padding:10px 18px;border-bottom:1px solid #EEEAE2;align-items:baseline;font-weight:{{ r.bold }}">
+                    <span>{{ r.label }}</span>
+                    <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="10"><span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px">{{ c }}</span></sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </section>
+
+          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid #E3DFD6">
+              <div style="font-weight:600">By discipline</div>
+              <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:#5B6168">
+                <sc-for list="{{ legend }}" as="l" hint-placeholder-count="5">
+                  <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;background:{{ l.color }}"></span>{{ l.label }}</span>
+                </sc-for>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <div style="min-width:720px;display:flex;flex-direction:column">
+                <div style="display:grid;grid-template-columns:minmax(160px,1.4fr) 60px 70px 70px 90px minmax(160px,1.6fr);gap:12px;padding:10px 18px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#5B6168;border-bottom:1px solid #EEEAE2">
+                  <span>Discipline</span><span>Faculty</span><span>P ≥60%</span><span>SA ≥40%</span><span>SA–IP ≥90%</span><span>Qualification mix</span>
+                </div>
+                <sc-for list="{{ discRows }}" as="d" hint-placeholder-count="6">
+                  <button onClick="{{ d.onClick }}" style="display:grid;grid-template-columns:minmax(160px,1.4fr) 60px 70px 70px 90px minmax(160px,1.6fr);gap:12px;align-items:center;padding:12px 18px;border:0;border-bottom:1px solid #EEEAE2;background:#fff;text-align:left;font:inherit;color:inherit;cursor:pointer" style-hover="background:#FAF8F4">
+                    <span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ d.label }}</span><span style="font-size:12px;color:#5B6168">{{ d.offered }}</span></span>
+                    <span style="font-family:'IBM Plex Mono',monospace">{{ d.count }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;color:{{ d.pColor }}">{{ d.p }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;color:{{ d.saColor }}">{{ d.sa }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;color:{{ d.qColor }}">{{ d.q }}</span>
+                    <span style="display:flex;height:10px;border-radius:2px;overflow:hidden;background:#EEEAE2">
+                      <sc-for list="{{ d.segs }}" as="s" hint-placeholder-count="3">
+                        <span title="{{ s.title }}" style="width:{{ s.w }};background:{{ s.color }}"></span>
+                      </sc-for>
+                    </span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </section>
+
+          <section style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <div style="font-weight:600">Profiles with gaps against maintenance criteria</div>
+              <div style="font-size:12px;color:#5B6168">Based on engagement recorded for 2021–2026 against each member's current classification. Teaching effectiveness and professional experience count once they are entered in a profile.</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px">
+              <sc-for list="{{ gaps }}" as="f" hint-placeholder-count="4">
+                <button onClick="{{ f.onClick }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #E3DFD6;border-radius:6px;background:#fff;text-align:left;font:inherit;color:inherit;cursor:pointer" style-hover="border-color:#BDB6A8">
+                  <span style="flex:none;width:34px;height:22px;border-radius:4px;background:{{ f.clsColor }};color:#fff;font:600 11px 'IBM Plex Mono',monospace;display:flex;align-items:center;justify-content:center">{{ f.cls }}</span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column">
+                    <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.name }}</span>
+                    <span style="font-size:12px;color:#5B6168">{{ f.gapText }}</span>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+          </section>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:20px">
+            <div style="display:flex;flex-direction:column;gap:6px;min-width:0;flex:1 1 360px">
+              <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:500">{{ p.meta }}</div>
+              <div style="font-family:'Source Serif 4',serif;font-size:36px;line-height:1.1;font-weight:600;letter-spacing:-0.01em;text-wrap:balance">{{ p.name }}</div>
+              <div style="color:#3D4249;font-size:15px">{{ p.specLine }}</div>
+            </div>
+            <div style="flex:none;display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:8px;background:{{ p.clsTint }};border:1px solid {{ p.clsBorder }}">
+              <span style="width:52px;height:40px;border-radius:6px;background:{{ p.clsColor }};color:#fff;font:600 16px 'IBM Plex Mono',monospace;display:flex;align-items:center;justify-content:center">{{ p.cls }}</span>
+              <span style="display:flex;flex-direction:column">
+                <span style="font-weight:600">{{ p.clsName }}</span>
+                <span style="font-size:12px;color:#5B6168">{{ p.pctLine }}</span>
+              </span>
+            </div>
+          </div>
+
+          <sc-if value="{{ canEdit }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px">
+            <button onClick="{{ p.toggleEdit }}" style="flex:none;white-space:nowrap;height:36px;padding:0 16px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:oklch(0.38 0.09 255);color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:oklch(0.32 0.1 255)">{{ p.editLabel }}</button>
+            <sc-if value="{{ p.edited }}" hint-placeholder-val="{{ false }}">
+              <span style="display:flex;align-items:center;gap:12px;font-size:12px;color:#5B6168">
+                <span style="padding:2px 8px;border-radius:10px;background:oklch(0.94 0.03 255);color:oklch(0.38 0.09 255);font-weight:600">{{ p.editedTag }}</span>
+                <sc-if value="{{ p.canRevert }}" hint-placeholder-val="{{ false }}"><button onClick="{{ p.revert }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.38 0.09 255);cursor:pointer">Revert changes</button></sc-if>
+              </span>
+            </sc-if>
+            <button onClick="{{ p.onRemove }}" style="margin-left:auto;border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">{{ p.removeLabel }}</button>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ isEditing }}" hint-placeholder-val="{{ false }}">
+            <section style="background:#fff;border:1px solid oklch(0.8 0.05 255);border-radius:8px;display:flex;flex-direction:column">
+              <div style="padding:14px 18px;border-bottom:1px solid #E3DFD6;display:flex;flex-direction:column;gap:2px">
+                <span style="font-weight:600">Update details</span>
+                <span style="font-size:12px;color:#5B6168">{{ editHint }}</span>
+              </div>
+              <div style="padding:16px 18px;display:flex;flex-direction:column;gap:20px">
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Profile and teaching</div>
+                  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+                    <sc-for list="{{ p.form.profile }}" as="x" hint-placeholder-count="9">
+                      <label style="display:flex;flex-direction:column;gap:4px">
+                        <span style="font-size:12px;color:#5B6168">{{ x.label }}</span>
+                        <sc-if value="{{ x.isSelect }}" hint-placeholder-val="{{ false }}">
+                          <select value="{{ x.value }}" onChange="{{ x.onChange }}" style="height:36px;padding:0 8px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21">
+                            <sc-for list="{{ x.options }}" as="o" hint-placeholder-count="2"><option value="{{ o.key }}">{{ o.label }}</option></sc-for>
+                          </select>
+                        </sc-if>
+                        <sc-if value="{{ x.isInput }}" hint-placeholder-val="{{ true }}">
+                          <input value="{{ x.value }}" onChange="{{ x.onChange }}" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
+                        </sc-if>
+                      </label>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Policy evidence</div>
+                  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+                    <sc-for list="{{ p.form.evidence }}" as="x" hint-placeholder-count="3">
+                      <label style="display:flex;flex-direction:column;gap:4px">
+                        <span style="font-size:12px;color:#5B6168">{{ x.label }}</span>
+                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" placeholder="{{ x.placeholder }}" inputMode="decimal" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
+                        <span style="font-size:11px;color:#8A8F96">{{ x.hint }}</span>
+                      </label>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px">
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Academic engagement (count, 2021–2026)</div>
+                    <sc-for list="{{ p.form.acad }}" as="x" hint-placeholder-count="17">
+                      <label style="display:grid;grid-template-columns:36px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:13px">
+                        <span style="font:500 12px 'IBM Plex Mono',monospace;color:#5B6168">{{ x.code }}</span>
+                        <span>{{ x.label }}</span>
+                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" inputMode="numeric" style="height:30px;width:64px;padding:0 8px;border:1px solid #D8D3C8;border-radius:5px;background:#fff;font:500 13px 'IBM Plex Mono',monospace;text-align:right;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
+                      </label>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Professional engagement (count, 2021–2026)</div>
+                    <sc-for list="{{ p.form.prof }}" as="x" hint-placeholder-count="10">
+                      <label style="display:grid;grid-template-columns:36px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:13px">
+                        <span style="font:500 12px 'IBM Plex Mono',monospace;color:#5B6168">{{ x.code }}</span>
+                        <span>{{ x.label }}</span>
+                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" inputMode="numeric" style="height:30px;width:64px;padding:0 8px;border:1px solid #D8D3C8;border-radius:5px;background:#fff;font:500 13px 'IBM Plex Mono',monospace;text-align:right;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
+                      </label>
+                    </sc-for>
+                    <span style="font-size:11px;color:#8A8F96">CPD hours (P9) are entered under Policy evidence.</span>
+                  </div>
+                </div>
+                <label style="display:flex;flex-direction:column;gap:4px">
+                  <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Basis for qualification (Table 3-1 text)</span>
+                  <span style="font-size:12px;color:#5B6168">Leave blank to use the activity summary shown in grey.</span>
+                  <textarea value="{{ p.form.basis }}" onChange="{{ p.form.onBasis }}" placeholder="{{ p.form.basisAuto }}" rows="6" style="padding:8px 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;resize:vertical;outline:none" style-focus="border-color:oklch(0.38 0.09 255)"></textarea>
+                </label>
+                <label style="display:flex;flex-direction:column;gap:4px">
+                  <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Admin note</span>
+                  <textarea value="{{ p.form.note }}" onChange="{{ p.form.onNote }}" rows="3" style="padding:8px 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;resize:vertical;outline:none" style-focus="border-color:oklch(0.38 0.09 255)"></textarea>
+                </label>
+              </div>
+            </section>
+          </sc-if>
+
+          <sc-if value="{{ p.hasFlag }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:10px 14px;border-radius:6px;background:oklch(0.96 0.04 85);border:1px solid oklch(0.85 0.08 85);font-size:13px;color:#5A4A1E">Data note: {{ p.flag }}</div>
+          </sc-if>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:8px">
+            <sc-for list="{{ p.figures }}" as="k" hint-placeholder-count="4">
+              <div style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:2px">
+                <div style="font-size:12px;color:#5B6168">{{ k.label }}</div>
+                <div style="font-family:'Source Serif 4',serif;font-size:26px;font-weight:600">{{ k.value }}</div>
+                <div style="font-size:12px;color:#5B6168">{{ k.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px 24px;padding:4px 2px">
+            <sc-for list="{{ p.facts }}" as="x" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">{{ x.label }}</span>
+                <span style="text-wrap:pretty">{{ x.value }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><span style="font-weight:600">Time devoted to mission</span><span style="font-size:12px;color:#5B6168">60 / 30 / 10 model</span></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px">
+              <sc-for list="{{ p.split }}" as="s" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span>{{ s.label }}</span><span style="font-family:'IBM Plex Mono',monospace">{{ s.value }}</span></div>
+                  <div style="height:6px;border-radius:3px;background:#EEEAE2;overflow:hidden"><div style="height:100%;width:{{ s.w }};background:oklch(0.38 0.09 255)"></div></div>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+
+          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid #E3DFD6">
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="font-weight:600">Policy check · {{ p.clsName }}</span>
+                <span style="font-size:12px;color:#5B6168">{{ p.section }}</span>
+              </div>
+              <span style="padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600;color:#fff;background:{{ p.verdictColor }}">{{ p.verdict }}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+              <sc-for list="{{ p.checkCols }}" as="col" hint-placeholder-count="2">
+                <div style="padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px;border-right:1px solid #EEEAE2">
+                  <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">{{ col.title }}</div>
+                  <sc-for list="{{ col.items }}" as="c" hint-placeholder-count="2">
+                    <div style="display:flex;gap:10px;align-items:flex-start">
+                      <span style="flex:none;margin-top:3px;min-width:58px;text-align:center;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:600;color:{{ c.color }};background:{{ c.tint }}">{{ c.statusLabel }}</span>
+                      <span style="display:flex;flex-direction:column;gap:1px"><span>{{ c.label }}</span><span style="font-size:12px;color:#5B6168">{{ c.value }}</span></span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ showMatrix }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 18px;border-top:1px solid #EEEAE2;background:#FAF8F4;font-size:12px;color:#5B6168">
+                <span>Engagement criteria met, by category:</span>
+                <sc-for list="{{ p.matrix }}" as="m" hint-placeholder-count="4">
+                  <span title="{{ m.title }}" style="display:flex;align-items:center;gap:6px;padding:3px 8px;border-radius:4px;background:#fff;border:1px solid #E3DFD6"><span style="font:600 11px 'IBM Plex Mono',monospace;color:#1A1D21">{{ m.cls }}</span><span style="color:{{ m.color }};font-weight:600">{{ m.mark }}</span></span>
+                </sc-for>
+              </div>
+            </sc-if>
+          </section>
+
+          <section style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <div style="font-family:'Source Serif 4',serif;font-size:22px;font-weight:600">Intellectual portfolio</div>
+              <div style="font-size:12px;color:#5B6168">Activities recorded in the Faculty Portal, 2021–2026, mapped to Section 2.5 of the policy.</div>
+            </div>
+            <sc-for list="{{ p.tables }}" as="t" hint-placeholder-count="2">
+              <div style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
+                <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 18px;border-bottom:1px solid #E3DFD6">
+                  <span style="font-weight:600">{{ t.title }}</span>
+                  <span style="font-size:12px;color:#5B6168">{{ t.summary }}</span>
+                </div>
+                <sc-if value="{{ t.empty }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:16px 18px;color:#5B6168">{{ t.emptyText }}</div>
+                </sc-if>
+                <sc-for list="{{ t.rows }}" as="r" hint-placeholder-count="3">
+                  <div style="display:grid;grid-template-columns:44px minmax(0,1fr) 56px;gap:12px;align-items:baseline;padding:10px 18px;border-bottom:1px solid #F1EEE8">
+                    <span style="font:500 12px 'IBM Plex Mono',monospace;color:#5B6168">{{ r.code }}</span>
+                    <span style="display:flex;flex-direction:column;gap:1px"><span>{{ r.desc }}</span><span style="font-size:12px;color:#5B6168">{{ r.detail }}</span></span>
+                    <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500">{{ r.n }}</span>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ t.hasOther }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:10px 18px;font-size:12px;color:#5B6168;background:#FAF8F4">{{ t.otherText }}</div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </section>
+
+          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid #E3DFD6">
+              <span style="font-weight:600">Research output</span>
+              <span style="font-size:12px;color:#5B6168">{{ p.research.summary }}</span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 18px;border-bottom:1px solid #EEEAE2;background:#FAF8F4;font-size:12px;color:#5B6168">
+              <sc-for list="{{ p.research.mix }}" as="m" hint-placeholder-count="6"><span>{{ m.label }} <strong style="color:#1A1D21;font-family:'IBM Plex Mono',monospace;font-weight:500">{{ m.value }}</strong></span></sc-for>
+            </div>
+            <sc-if value="{{ p.research.empty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:16px 18px;color:#5B6168">No research outputs recorded for this period.</div>
+            </sc-if>
+            <sc-for list="{{ p.research.rows }}" as="r" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:12px;align-items:baseline;padding:10px 18px;border-bottom:1px solid #F1EEE8">
+                <span style="font:500 12px 'IBM Plex Mono',monospace;color:#5B6168">{{ r.year }}</span>
+                <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                  <span style="text-wrap:pretty">{{ r.title }}</span>
+                  <span style="font-size:12px;color:#5B6168;text-wrap:pretty">{{ r.journal }}</span>
+                  <span style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:11px;color:#8A8F96">
+                    <span>{{ r.tags }}</span>
+                    <sc-if value="{{ r.canRemove }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.onRemove }}" style="border:0;background:none;padding:0;font:500 11px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">Remove</button></sc-if>
+                  </span>
+                </span>
+                <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:500">{{ r.credit }}</span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ isEditing }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:10px;padding:14px 18px;background:#FAF8F4">
+                <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Add research output</span>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
+                  <label style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1"><span style="font-size:12px;color:#5B6168">Title</span><input value="{{ p.draft.t }}" onChange="{{ p.draft.onT }}" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1"><span style="font-size:12px;color:#5B6168">Journal / source</span><input value="{{ p.draft.j }}" onChange="{{ p.draft.onJ }}" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#5B6168">Year</span><input value="{{ p.draft.y }}" onChange="{{ p.draft.onY }}" inputMode="numeric" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#5B6168">Portfolio</span><select value="{{ p.draft.p }}" onChange="{{ p.draft.onP }}" style="height:36px;padding:0 8px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21"><sc-for list="{{ p.draft.pOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#5B6168">Type</span><select value="{{ p.draft.ty }}" onChange="{{ p.draft.onTy }}" style="height:36px;padding:0 8px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21"><sc-for list="{{ p.draft.tyOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#5B6168">Credit</span><select value="{{ p.draft.c }}" onChange="{{ p.draft.onC }}" style="height:36px;padding:0 8px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21"><sc-for list="{{ p.draft.cOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
+                </div>
+                <div><button onClick="{{ p.draft.onAdd }}" style="height:34px;padding:0 14px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:#fff;color:oklch(0.38 0.09 255);font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer">Add output</button></div>
+              </div>
+            </sc-if>
+          </section>
+
+          <sc-if value="{{ p.showNote }}" hint-placeholder-val="{{ false }}">
+            <section style="display:flex;flex-direction:column;gap:6px;padding:14px 18px;border:1px dashed #CFC8BA;border-radius:8px">
+              <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Admin note</span>
+              <span>{{ p.note }}</span>
+            </section>
+          </sc-if>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+  </div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showAdminNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showCategoryMatrix&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { sel: null, q: '', disc: 'All', cls: 'All', editing: false, view: 'main', mode: 'loading', auth: 'loading', role: 'viewer', master: null, research: null, allow: [], upMsg: {}, store: { cur: '2026', years: { '2026': { edits: {}, added: [], removed: [] } } } };
+  KEY = 'camed_faculty_portal_v2'; OLD = 'camed_faculty_portal_edits_v1'; CURKEY = 'camed_portal_year'; REQUIRE_SIGNIN = true; FBV = 'https://www.gstatic.com/firebasejs/10.12.2/';
+  async componentDidMount() {
+    let cfg = null;
+    try { const m = await import(new URL('firebase-config.js', location.href).href); const c = m.firebaseConfig; if (c && c.apiKey && !/^PASTE/.test(c.apiKey)) cfg = c; } catch (err) {}
+    if (cfg) { this.initFirebase(cfg).catch(err => { console.error(err); this.setState({ mode: 'firebase', auth: 'error', authMsg: 'Could not connect to the sign-in service. Check your connection and reload. (' + err.message + ')' }); }); return; }
+    if (this.REQUIRE_SIGNIN) { this.setState({ mode: 'firebase', auth: 'error', authMsg: 'Sign-in is not configured for this site, so the portal is locked. Check that firebase-config.js was uploaded with the project keys.' }); return; }
+    const j = f => fetch(new URL(f, location.href)).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
+    j('faculty-master-2026.json').then(master => this.setState({ master })).catch(err => { console.warn('Faculty list not loaded', err); this.setState({ master: [] }); });
+    j('research-2021-2026.json').then(research => this.setState({ research })).catch(err => console.warn('Research list not loaded', err));
+    let store = this.state.store;
+    try {
+      let st = JSON.parse(localStorage.getItem(this.KEY) || 'null');
+      if (!st) { const old = JSON.parse(localStorage.getItem(this.OLD) || 'null'); st = { cur: '2026', years: { '2026': { edits: old || {} } } }; }
+      store = this.norm(st);
+    } catch (err) {}
+    this.setState({ mode: 'local', auth: 'ok', role: 'admin', store });
+  }
+  componentWillUnmount() { (this.unsub || []).forEach(f => f()); clearTimeout(this.flushT); }
+  async initFirebase(cfg) {
+    this.setState({ mode: 'firebase' });
+    const [A, Au, F] = await Promise.all([import(this.FBV + 'firebase-app.js'), import(this.FBV + 'firebase-auth.js'), import(this.FBV + 'firebase-firestore.js')]);
+    const app = A.initializeApp(cfg);
+    const auth = Au.getAuth(app), db = F.getFirestore(app);
+    this.fb = { Au, F, auth, db };
+    if (Au.isSignInWithEmailLink(auth, location.href)) {
+      const email = localStorage.getItem('camed_signin_email') || prompt('Confirm your email address to finish signing in');
+      try { await Au.signInWithEmailLink(auth, email, location.href); localStorage.removeItem('camed_signin_email'); }
+      catch (err) { this.setState({ authMsg: 'That sign-in link is invalid or has expired. Request a new one.' }); }
+      history.replaceState(null, '', location.pathname);
+    }
+    Au.onAuthStateChanged(auth, u => this.onUser(u));
+  }
+  async onUser(u) {
+    (this.unsub || []).forEach(f => f()); this.unsub = [];
+    if (!u) { this.setState({ auth: 'signedOut', user: null, master: null, research: null }); return; }
+    const { F, db } = this.fb, email = (u.email || '').toLowerCase();
+    this.setState({ auth: 'checking', user: email, authMsg: null });
+    let snap = null;
+    try { snap = await F.getDoc(F.doc(db, 'allowlist', email)); } catch (err) { console.warn(err); }
+    if (!snap || !snap.exists()) { this.setState({ auth: 'denied' }); return; }
+    const role = snap.data().role || 'viewer';
+    const cur = localStorage.getItem(this.CURKEY) || '2026';
+    this.setState(s => ({ auth: 'ok', role, store: { ...s.store, cur } }));
+    this.reloadData();
+    this.unsub.push(F.onSnapshot(F.collection(db, 'years'), qs => {
+      const years = {}; qs.forEach(d => { years[d.id] = d.data(); });
+      this.setState(s => {
+        const cur = s.store.cur, p = this.pend && this.pend[cur], loc = s.store.years[cur];
+        if (p && loc) {
+          const y = { ...(years[cur] || {}), edits: { ...((years[cur] || {}).edits || {}) } };
+          Object.keys(p.edits).forEach(id => { if (loc.edits[id] === undefined) delete y.edits[id]; else y.edits[id] = loc.edits[id]; });
+          if (p.added) y.added = loc.added; if (p.removed) y.removed = loc.removed;
+          years[cur] = y;
+        }
+        return { store: this.norm({ cur, years }) };
+      });
+    }, err => { console.error(err); this.setState({ saveErr: 'Lost connection to the database: ' + err.message }); }));
+    if (role === 'admin') this.loadAllowlist();
+  }
+  async reloadData() {
+    const [m, r] = await Promise.all([this.loadBlob('master'), this.loadBlob('research')]);
+    this.setState({ master: m ? JSON.parse(m) : [], research: r ? JSON.parse(r) : [], needsSeed: !m });
+  }
+  async loadBlob(name) {
+    const { F, db } = this.fb;
+    const h = await F.getDoc(F.doc(db, 'config', name)); if (!h.exists()) return null;
+    const n = h.data().parts || 0;
+    const parts = await Promise.all(Array.from({ length: n }, (_, i) => F.getDoc(F.doc(db, 'config', name + '_' + i))));
+    return parts.map(p => (p.data() || {}).data || '').join('');
+  }
+  async saveBlob(name, str) {
+    const { F, db } = this.fb, size = 800000, n = Math.max(1, Math.ceil(str.length / size));
+    for (let i = 0; i < n; i++) await F.setDoc(F.doc(db, 'config', name + '_' + i), { data: str.slice(i * size, (i + 1) * size) });
+    await F.setDoc(F.doc(db, 'config', name), { parts: n, updated: new Date().toISOString(), by: this.state.user || '' });
+  }
+  async uploadData(kind, ev) {
+    const file = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (!file) return;
+    const msg = t => this.setState(s => ({ upMsg: { ...s.upMsg, [kind]: t } }));
+    try {
+      msg('Uploading…');
+      if (kind === 'template') {
+        const bytes = new Uint8Array(await file.arrayBuffer()); let bin = '';
+        for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+        await this.saveBlob('template', btoa(bin));
+      } else {
+        const data = JSON.parse(await file.text());
+        if (!Array.isArray(data) || !data.length) throw new Error('Expected a list of records');
+        await this.saveBlob(kind, JSON.stringify(data));
+        await this.reloadData();
+      }
+      msg('Uploaded ' + file.name + ' · ' + new Date().toLocaleString());
+    } catch (err) { console.error(err); msg('Upload failed: ' + err.message); }
+  }
+  async getTemplate() {
+    if (this.state.mode !== 'firebase') { const r = await fetch(new URL('aacsb-template.xlsx', location.href)); if (!r.ok) throw new Error('Template not found'); return r.arrayBuffer(); }
+    const b64 = await this.loadBlob('template'); if (!b64) throw new Error('No Excel template uploaded yet. An administrator can upload it under Access & data.');
+    const bin = atob(b64), out = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out.buffer;
+  }
+  async loadAllowlist() {
+    const { F, db } = this.fb; const qs = await F.getDocs(F.collection(db, 'allowlist'));
+    const allow = []; qs.forEach(d => allow.push({ email: d.id, role: d.data().role || 'viewer' }));
+    allow.sort((x, y) => x.email.localeCompare(y.email)); this.setState({ allow });
+  }
+  async addAccess() {
+    const { F, db } = this.fb, e = (this.state.newEmail || '').trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) { alert('Enter a valid email address.'); return; }
+    try { await F.setDoc(F.doc(db, 'allowlist', e), { role: this.state.newRole || 'editor', addedBy: this.state.user, added: new Date().toISOString() }); this.setState({ newEmail: '' }); this.loadAllowlist(); }
+    catch (err) { alert('Could not add: ' + err.message); }
+  }
+  async setRole(email, role) { const { F, db } = this.fb; try { await F.setDoc(F.doc(db, 'allowlist', email), { role }, { merge: true }); this.loadAllowlist(); } catch (err) { alert(err.message); } }
+  async removeAccess(email) {
+    if (email === this.state.user) { alert("You can't remove your own access."); return; }
+    if (!confirm('Remove access for ' + email + '?')) return;
+    const { F, db } = this.fb; try { await F.deleteDoc(F.doc(db, 'allowlist', email)); this.loadAllowlist(); } catch (err) { alert(err.message); }
+  }
+  async signInGoogle() {
+    const { Au, auth } = this.fb; const p = new Au.GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
+    try { await Au.signInWithPopup(auth, p); } catch (err) { if (err.code !== 'auth/popup-closed-by-user') this.setState({ authMsg: 'Google sign-in failed: ' + err.message }); }
+  }
+  async sendLink() {
+    const { Au, auth } = this.fb, email = (this.state.loginEmail || '').trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { this.setState({ authMsg: 'Enter a valid email address.' }); return; }
+    try { await Au.sendSignInLinkToEmail(auth, email, { url: location.origin + location.pathname, handleCodeInApp: true }); localStorage.setItem('camed_signin_email', email); this.setState({ authMsg: 'Sign-in link sent to ' + email + '. Open it on this device.' }); }
+    catch (err) { this.setState({ authMsg: 'Could not send the link: ' + err.message }); }
+  }
+  signOut() { if (this.fb) this.fb.Au.signOut(this.fb.auth); this.setState({ view: 'main', sel: null, editing: false }); }
+  canEdit() { return this.state.mode === 'local' || this.state.role === 'admin' || this.state.role === 'editor'; }
+  norm(s) {
+    s = { ...s, years: { ...(s.years || {}) } };
+    if (!s.years['2026']) s.years['2026'] = {};
+    Object.keys(s.years).forEach(k => { const y = s.years[k]; s.years[k] = { ...y, edits: y.edits || {}, added: y.added || [], removed: y.removed || [] }; });
+    if (!s.years[s.cur]) s.cur = '2026';
+    return s;
+  }
+  save(store) { try { localStorage.setItem(this.KEY, JSON.stringify(store)); } catch (err) {} }
+  clean(v) { return JSON.parse(JSON.stringify(v ?? null)); }
+  updYear(fn) {
+    if (!this.canEdit()) return;
+    this.setState(s => {
+      const st = s.store, old = st.years[st.cur], ny = fn({ ...old });
+      const store = { ...st, years: { ...st.years, [st.cur]: ny } };
+      if (s.mode === 'firebase') this.queue(st.cur, old, ny); else this.save(store);
+      return { store };
+    });
+  }
+  queue(year, old, ny) {
+    const p = ((this.pend ||= {})[year] ||= { edits: {} });
+    new Set([...Object.keys(old.edits || {}), ...Object.keys(ny.edits || {})]).forEach(id => { if (JSON.stringify(old.edits[id]) !== JSON.stringify(ny.edits[id])) p.edits[id] = true; });
+    if (JSON.stringify(old.added) !== JSON.stringify(ny.added)) p.added = true;
+    if (JSON.stringify(old.removed) !== JSON.stringify(ny.removed)) p.removed = true;
+    clearTimeout(this.flushT); this.flushT = setTimeout(() => this.flush(), 700);
+    if (!this.state.saving) this.setState({ saving: true });
+  }
+  async flush() {
+    const { F, db } = this.fb, pend = this.pend || {}; this.pend = {};
+    try {
+      for (const [year, p] of Object.entries(pend)) {
+        const y = this.state.store.years[year]; if (!y) continue;
+        const data = {}, ids = Object.keys(p.edits);
+        if (ids.length) { data.edits = {}; ids.forEach(id => { data.edits[id] = y.edits[id] === undefined ? F.deleteField() : this.clean(y.edits[id]); }); }
+        if (p.added) data.added = this.clean(y.added);
+        if (p.removed) data.removed = this.clean(y.removed);
+        await F.setDoc(F.doc(db, 'years', year), data, { merge: true });
+      }
+      this.setState({ saving: false, saveErr: null });
+    } catch (err) { console.error(err); this.setState({ saving: false, saveErr: 'Could not save: ' + err.message }); }
+  }
+  setEdit(id, k, v) { this.updYear(y => ({ ...y, edits: { ...y.edits, [id]: { ...(y.edits[id] || {}), [k]: v } } })); }
+  setCount(id, k, v) { this.updYear(y => { const c = y.edits[id] || {}; return { ...y, edits: { ...y.edits, [id]: { ...c, cnt: { ...(c.cnt || {}), [k]: v } } } }; }); }
+  revert(id) { this.updYear(y => { const edits = { ...y.edits }; delete edits[id]; return { ...y, edits }; }); }
+  addFaculty() {
+    if (!this.canEdit()) return;
+    const id = 'n' + Date.now().toString(36);
+    const d = this.state.disc !== 'All' ? this.state.disc : 'ACC';
+    const rec = { id, n: 'New faculty member', d, sp: '', deg: 'Master', yr: null, P: 0, S: 0, c: 'A', pct: 0, split: [0, 0, 0], ics: 0, ft: 'FT', fte: 1, a: {}, p: {}, other: 0, note: '', flag: '', isNew: true };
+    this.updYear(y => ({ ...y, added: [...y.added, rec] }));
+    this.setState({ sel: id, editing: true, q: '', cls: 'All', view: 'main' });
+  }
+  removeFaculty(id) {
+    this.updYear(y => {
+      const edits = { ...y.edits }; delete edits[id];
+      const wasAdded = y.added.some(r => r.id === id);
+      return { ...y, edits, added: y.added.filter(r => r.id !== id), removed: wasAdded ? y.removed : [...y.removed, id] };
+    });
+    this.setState({ sel: null, editing: false });
+  }
+  bases(store) {
+    const st = store || this.state.store, y = st.years[st.cur] || { edits: {}, added: [], removed: [] };
+    const base = y.seed || this.master;
+    return base.filter(r => !y.removed.includes(r.id)).concat(y.added);
+  }
+  snapshot(f) {
+    const { id, n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, resAdd } = f;
+    return JSON.parse(JSON.stringify({ id, n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, resAdd: resAdd || [] }));
+  }
+  setCur(cur, extra) { localStorage.setItem(this.CURKEY, cur); this.setState(s => ({ store: { ...s.store, cur }, sel: null, editing: false, ...(extra || {}) })); }
+  async switchYear(v) {
+    const st = this.state.store;
+    if (v === '__new') {
+      if (!this.canEdit()) { this.forceUpdate(); return; }
+      const ny = String(Math.max(...Object.keys(st.years).map(Number)) + 1);
+      if (!confirm('Start ' + ny + ' with a copy of the ' + st.cur + ' faculty list? You can then add, remove or update faculty for ' + ny + ' without changing ' + st.cur + '.')) { this.forceUpdate(); return; }
+      const y = st.years[st.cur];
+      const yd = { seed: this.bases().map(b => this.snapshot(this.apply(b, y.edits[b.id]))), edits: {}, added: [], removed: [], from: st.cur };
+      if (this.state.mode === 'firebase') { try { await this.fb.F.setDoc(this.fb.F.doc(this.fb.db, 'years', ny), this.clean(yd)); } catch (err) { alert('Could not create ' + ny + ': ' + err.message); return; } }
+      else { const store = { ...st, cur: ny, years: { ...st.years, [ny]: yd } }; this.save(store); this.setState({ store }); }
+      this.setCur(ny); return;
+    }
+    if (this.state.mode !== 'firebase') this.save({ ...st, cur: v });
+    this.setCur(v);
+  }
+  async deleteYear() {
+    const st = this.state.store; if (st.cur === '2026' || !this.canEdit()) return;
+    if (!confirm('Delete the ' + st.cur + ' faculty list and all its updates? This affects everyone.')) return;
+    if (this.state.mode === 'firebase') { try { await this.fb.F.deleteDoc(this.fb.F.doc(this.fb.db, 'years', st.cur)); } catch (err) { alert(err.message); return; } this.setCur('2026'); return; }
+    const years = { ...st.years }; delete years[st.cur];
+    const store = { ...st, years, cur: '2026' }; this.save(store); this.setState({ store, sel: null, editing: false });
+  }
+  autoBasis(f) {
+    const L = { A1: 'PRJs (Scopus/ABDC)', A2: 'Other indexed PRJs', A3: 'Editorial-reviewed journals', A4: 'Conference proceedings', A5: 'Teaching cases', A6: 'Commissioned policy documents/reports', A7: 'Research income', A8: 'Books/book chapters', A9: 'Research/consulting grant reports', A10: 'Technologies developed', A11: 'Patents', A12: 'Editorial board memberships', A13: 'Academic advisor roles', A14: 'Formal roles in academic organisations', A15: 'Student research projects supervised', A16: 'Invited presentations/speaker roles', A17: 'Academic awards/fellowships', P1: 'Work in government/industry', P2: 'Practitioner journal publications', P3: 'Practitioner books/chapters', P4: 'Entrepreneur/business owner (2+ yrs)', P5: 'Business/organisational leadership (2+ yrs)', P6: 'Professional association memberships', P7: 'Consultancy projects', P8: 'Training delivered to industry', P9: 'Training/CPD attended', P10: 'Professional events/networking', P11: 'Student industry projects supervised' };
+    const ord = k => +k.slice(1), out = [];
+    const abd = (f.deg.match(/\(([^)]*ABD[^)]*)\)/) || [])[1];
+    if (abd) out.push('- ' + abd.replace(/\s+/g, ''));
+    const ak = Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) <= 14);
+    ak.forEach(k => out.push('- ' + L[k] + ': ' + f.a[k].n + (f.a[k].det && f.a[k].det !== 'Updated in portal' ? ' (' + f.a[k].det + ')' : '')));
+    if (f.other) out.push('- Other ICs (reports, op-eds, etc.): ' + f.other);
+    if (!ak.length && !f.other) out.push('- No ICs recorded (' + (this.curYear() - 5) + '–' + this.curYear() + ')');
+    const pk = Object.keys(f.p).sort((x, y) => ord(x) - ord(y));
+    pk.forEach(k => { const x = f.p[k]; if (k === 'P10') out.push('- ' + L[k] + ': ' + x.n + ' (= ' + x.u + ' activities)'); else if (k === 'P9') out.push('- ' + L[k] + (f.p9h != null ? ': ' + f.p9h + ' hours' : ': ' + x.n)); else out.push('- ' + L[k] + ': ' + x.n); });
+    Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) > 14).forEach(k => out.push('- ' + L[k] + ': ' + f.a[k].n));
+    if (!pk.length) out.push('- No professional engagement recorded');
+    if (f.te != null) out.push('- Teaching effectiveness: ' + f.te + '/7.0');
+    return out.join('\n');
+  }
+  curYear() { return Number(this.state.store.cur); }
+  resIndex() {
+    const R = this.state.research || [];
+    if (this._ri && this._riSrc === R) return this._ri;
+    const ix = {}; R.forEach(r => { (ix[r.n.toLowerCase()] ||= []).push(r); });
+    this._riSrc = R; this._ri = ix; return ix;
+  }
+  icTable(D) {
+    const DISC = [['ACC', 'Accounting'], ['FIN', 'Finance'], ['ECO', 'Economics'], ['MGT', 'Management'], ['LAW', 'Law and Taxation'], ['ICT', 'ICT and Statistics']];
+    return DISC.filter(d => D.some(f => f.d === d[0])).map(([k, name]) => {
+      const r = { key: k, name, B: 0, C: 0, D: 0, F: 0, G: 0, H: 0, pf: 0, pfIC: 0, fte: 0, fteIC: 0 };
+      D.filter(f => f.d === k).forEach(f => {
+        ['B', 'C', 'D', 'F', 'G', 'H'].forEach(c => { r[c] += f.icBy[c]; });
+        const has = f.res.length > 0;
+        r.fte += f.fte; if (has) r.fteIC += f.fte;
+        if (f.P > 0) { r.pf++; if (has) r.pfIC++; }
+      });
+      return r;
+    });
+  }
+  addResearch(id) {
+    const d = this.state.draft || {};
+    if (!d.t || !d.y) { alert('Enter at least a year and a title.'); return; }
+    const rec = { y: Number(d.y), t: d.t, j: d.j || '', au: '', p: d.p || 'C', ty: d.ty || 'F', c: Number(d.c || 1), added: true };
+    const cur = ((this.state.store.years[this.state.store.cur].edits[id] || {}).res) || [];
+    this.setEdit(id, 'res', [...cur, rec]);
+    this.setState({ draft: { y: d.y, p: d.p, ty: d.ty, c: d.c } });
+  }
+  removeResearch(id, i) {
+    const cur = ((this.state.store.years[this.state.store.cur].edits[id] || {}).res) || [];
+    this.setEdit(id, 'res', cur.filter((_, j) => j !== i));
+  }
+  async exportExcel() {
+    if (this.state.exporting) return;
+    this.setState({ exporting: true });
+    try {
+      const st = this.state.store, Y = st.years[st.cur], year = Number(st.cur);
+      const D = this.bases().map(b => this.derive(this.apply(b, Y.edits[b.id])));
+      const DISC = [['ACC', 'Accounting', true], ['FIN', 'Finance', true], ['ECO', 'Economics'], ['MGT', 'Management'], ['LAW', 'Law and Taxation'], ['ICT', 'ICT and Statistics']];
+      const used = DISC.filter(d => D.some(f => f.d === d[0]));
+      const g = (f, k) => (f.a[k] || { n: 0 }).n;
+      const model = {
+        year,
+        disciplines: used.map(([k, name, offered], i) => ({ letter: String.fromCharCode(65 + i), name, offered: !!offered,
+          faculty: D.filter(f => f.d === k).map(f => ({ name: f.n, spec: f.sp, deg: f.deg.split(' (')[0], yr: f.yr, P: f.P, S: f.S, cls: f.c, pct: f.pct, basis: (f.basis && f.basis.trim()) || this.autoBasis(f) })) })),
+        programs: ['bafH', 'msafH'].map(k => { const s = { SA: 0, PA: 0, SP: 0, IP: 0, A: 0 }; let t = 0; D.forEach(f => { const h = f[k] || 0; s[f.c] += h; t += h; }); const o = { total: t ? 1 : 0 }; Object.keys(s).forEach(c => { o[c] = t ? s[c] / t : 0; }); return o; }),
+        ic: this.icTable(D)
+      };
+      const base = location.href;
+      const [jz, mod, buf] = await Promise.all([import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm'), import(new URL('aacsb-export.js', base).href), this.getTemplate()]);
+      const blob = await mod.buildWorkbook(jz.default, buf, model);
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'AACSB Tables ' + year + '.xlsx'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    } catch (err) { console.error(err); alert('Export failed: ' + err.message); }
+    this.setState({ exporting: false });
+  }
+  num(v) { if (v === '' || v == null) return null; const n = Number(v); return isFinite(n) ? n : null; }
+  apply(b, e) {
+    const f = { ...b, a: { ...b.a }, p: { ...b.p }, split: [...b.split], te: b.te ?? null, exp: b.exp ?? null, p9h: b.p9h ?? null, baf: b.baf ?? null, msaf: b.msaf ?? null, edited: false, pEdited: false };
+    if (!e || !Object.keys(e).length) return f;
+    const n = this.num.bind(this);
+    f.edited = true;
+    ['c', 'ft', 'd'].forEach(k => { if (e[k]) f[k] = e[k]; });
+    if (e.name) f.n = e.name;
+    if (e.sp != null) f.sp = e.sp;
+    ['empId', 'title', 'certs', 'courses'].forEach(k => { if (e[k] != null) f[k] = e[k]; });
+    if (e.basis != null) f.basis = e.basis;
+    if (Array.isArray(e.res)) f.resAdd = (b.resAdd || []).concat(e.res);
+    if (e.deg) f.deg = e.deg;
+    if (e.note != null) f.note = e.note;
+    if (n(e.yr) != null) f.yr = n(e.yr);
+    if (n(e.fte) != null) f.fte = n(e.fte);
+    if (n(e.ics) != null) f.ics = n(e.ics);
+    ['st', 'sr', 'ss'].forEach((k, i) => { if (e[k] != null) { f.split[i] = n(e[k]) || 0; f.pct = f.split[0] + f.split[1] + f.split[2]; } });
+    if (e.hours != null || e.role) {
+      const h = n(e.hours) ?? (b.P + b.S), role = e.role || (b.P > 0 || b.S === 0 ? 'P' : 'S');
+      f.P = role === 'P' ? h : 0; f.S = role === 'S' ? h : 0;
+    }
+    if (e.te != null) f.te = n(e.te);
+    if (e.exp != null) f.exp = n(e.exp);
+    if (e.p9h != null) f.p9h = n(e.p9h);
+    if (e.baf != null) f.baf = n(e.baf);
+    if (e.msaf != null) f.msaf = n(e.msaf);
+    if (f.p9h != null) { f.pEdited = true; if (!f.p.P9) f.p.P9 = { n: 0, det: '' }; }
+    Object.entries(e.cnt || {}).forEach(([k, v]) => {
+      const c = n(v) || 0, t = k[0] === 'A' ? f.a : f.p, old = t[k];
+      if (k[0] === 'P') f.pEdited = true;
+      if (!c) { delete t[k]; return; }
+      t[k] = { n: c, det: old && old.n === c ? old.det : 'Updated in portal' };
+      if (k === 'P10') t[k].u = Math.floor(c / 5);
+    });
+    return f;
+  }
+  derive(f) {
+    const g = k => (f.a[k] || f.p[k] || { n: 0 }).n;
+    f.aea = Object.values(f.a).reduce((s, x) => s + x.n, 0);
+    f.a1 = g('A1'); f.p1 = g('P1');
+    f.pubs = g('A1') + g('A2') + g('A3') + g('A5') + g('P2');
+    f.pea = Object.entries(f.p).reduce((s, [k, x]) => s + this.unit(k, x, f), 0);
+    f.peaNA = /P codes not assessed|No Faculty Profile/.test(f.flag) && !f.pEdited;
+    const base = f.deg.split(' (')[0];
+    f.terminal = /PhD|DBA|EdD/.test(base); f.abd = /ABD/.test(f.deg); f.master = f.terminal || /Master/.test(base);
+    const tot = f.P + f.S;
+    f.progAssumed = f.baf == null && f.msaf == null;
+    if (f.progAssumed) { f.bafH = tot; f.msafH = 0; }
+    else if (f.baf == null) { f.msafH = f.msaf; f.bafH = Math.max(0, tot - f.msaf); }
+    else if (f.msaf == null) { f.bafH = f.baf; f.msafH = Math.max(0, tot - f.baf); }
+    else { f.bafH = f.baf; f.msafH = f.msaf; }
+    f.othH = Math.max(0, tot - f.bafH - f.msafH);
+    const Y = this.curYear(), idx = this.resIndex();
+    f.res = (idx[f.n.toLowerCase()] || []).concat(f.resAdd || []).filter(r => r.y >= Y - 5 && r.y <= Y).sort((a, b) => b.y - a.y);
+    f.icBy = { B: 0, C: 0, D: 0, F: 0, G: 0, H: 0 }; f.icCr = 0;
+    f.res.forEach(r => { f.icBy[r.p] += r.c; f.icBy[r.ty] += r.c; f.icCr += r.c; });
+    f.progs = [f.bafH > 0 ? 'BAF' : '', f.msafH > 0 ? 'MSAF' : ''].filter(Boolean);
+    if (!f.progs.length && f.othH > 0) f.progs = ['Other'];
+    return f;
+  }
+
+  unit(k, x, f) {
+    if (k === 'P9') return f && f.p9h != null ? Math.floor(f.p9h / 36) : 0;
+    if (k === 'P10') return x.u;
+    if (k === 'P11') return Math.min(x.n, 2);
+    return x.n;
+  }
+
+  get master() { return this.state.master || []; }
+
+  check(f, c) {
+    const S = (status, label, value) => ({ status, label, value });
+    const degTxt = f.deg + (f.yr ? ' (' + f.yr + ')' : '');
+    const te = f.te == null ? S('nodata', 'Teaching effectiveness ≥ 5.5/7.0', 'Not recorded yet · add it in Update details') : S(f.te >= 5.5 ? 'met' : 'notmet', 'Teaching effectiveness ≥ 5.5/7.0', f.te.toFixed(2) + ' / 7.0 recorded');
+    const na = f.peaNA;
+    let init = [], maint = [];
+    if (c === 'SA') {
+      if (f.terminal) init.push(S('met', 'Terminal degree related to field', degTxt + (f.yr && f.yr >= 2020 ? ' · within six years of conferral' : '')));
+      else if (f.abd) init.push(S('met', 'Doctoral candidate with ABD status', degTxt + ' · ABD valid for max. three years'));
+      else init.push(S('review', 'No terminal degree', degTxt + ' · only permitted under Note 3 (≤10% of faculty)'));
+      maint.push(S(f.aea >= 3 ? 'met' : 'notmet', '3 academic engagement activities', f.aea + ' recorded'));
+      maint.push(S(f.a1 >= 1 ? 'met' : 'notmet', '≥1 PRJ in Scopus-indexed or ABDC-ranked journal', f.a1 + ' A1 publication' + (f.a1 === 1 ? '' : 's')));
+    } else if (c === 'PA') {
+      init.push(f.terminal ? S('met', 'Terminal degree related to field', degTxt) : S('review', 'No terminal degree', degTxt + ' · limited exception for sustained professional engagement'));
+      maint.push(na ? S('nodata', 'Ongoing work in government/industry, or 3 PEAs', 'Professional engagement not assessed') : S(f.p1 > 0 || f.pea >= 3 ? 'met' : 'notmet', 'Ongoing work in government/industry, or 3 PEAs', 'P1: ' + f.p1 + ' · PEAs counted: ' + f.pea));
+    } else if (c === 'SP' || c === 'IP') {
+      init.push(S(f.master ? 'met' : 'notmet', "Master's degree related to field", degTxt));
+      init.push(f.exp == null ? S('nodata', '≥5 years professional experience in field', 'Not recorded yet · add it in Update details') : S(f.exp >= 5 ? 'met' : 'notmet', '≥5 years professional experience in field', f.exp + ' years recorded'));
+      if (c === 'SP') {
+        const tot = f.aea + f.pea;
+        maint.push(S(tot >= 3 ? 'met' : 'notmet', '3 academic or professional engagement activities', f.aea + ' AEA + ' + f.pea + ' PEA'));
+        maint.push(S(f.pubs >= 1 ? 'met' : 'notmet', '≥1 PRJ, practice-oriented or pedagogical publication', f.pubs + ' recorded'));
+      } else {
+        maint.push(na ? S('nodata', 'Ongoing work in government/industry, or 2 PEAs', 'Professional engagement not assessed') : S(f.p1 > 0 || f.pea >= 2 ? 'met' : 'notmet', 'Ongoing work in government/industry, or 2 PEAs', 'P1: ' + f.p1 + ' · PEAs counted: ' + f.pea));
+      }
+    } else {
+      init.push(S('nodata', 'Additional faculty', 'Does not currently meet SA, PA, SP or IP criteria'));
+    }
+    if (c !== 'A') maint.push(te);
+    return { init, maint };
+  }
+
+  verdict(f) {
+    if (f.c === 'A') return { key: 'add', label: 'Additional faculty', color: '#8A8F96' };
+    const { init, maint } = this.check(f, f.c);
+    const all = init.concat(maint);
+    if (all.some(x => x.status === 'notmet')) return { key: 'gap', label: 'Gap against criteria', color: 'oklch(0.52 0.16 28)', n: all.filter(x => x.status === 'notmet').length };
+    if (all.some(x => x.status === 'review')) return { key: 'review', label: 'Review needed', color: 'oklch(0.62 0.13 75)' };
+    return { key: 'ok', label: 'Meets recorded criteria', color: 'oklch(0.5 0.12 150)' };
+  }
+
+  gateVals() {
+    const { mode, auth, user, authMsg, saving, saveErr, role } = this.state, fbOn = mode === 'firebase';
+    const showGate = mode === 'loading' || (fbOn && auth !== 'ok') || (auth === 'ok' && this.state.master == null);
+    return {
+      showGate, showApp: !showGate,
+      editHint: fbOn ? 'Changes save automatically and everyone with access sees them. The profile, policy check and school overview recalculate as you type.' : 'Changes save automatically in this browser and recalculate the profile, policy check and school overview.',
+      gate: { loading: mode === 'loading' || auth === 'loading' || auth === 'checking' || (auth === 'ok' && this.state.master == null), signin: fbOn && auth === 'signedOut', denied: fbOn && auth === 'denied', user: user || '', hasMsg: !!authMsg, msg: authMsg || '',
+        loginEmail: this.state.loginEmail || '', onLoginEmail: e => this.setState({ loginEmail: e.target.value }), onGoogle: () => this.signInGoogle(), onLink: () => this.sendLink(), onSignOut: () => this.signOut() },
+      showUser: fbOn && auth === 'ok', userLabel: (user || '') + ' · ' + ({ admin: 'Administrator', editor: 'Editor', viewer: 'View only' }[role] || role),
+      isAdmin: fbOn && role === 'admin', onAdminView: () => this.setState({ view: 'admin', sel: null, editing: false }), onSignOut: () => this.signOut(),
+      hasSaveStatus: fbOn && (saving || !!saveErr), saveStatus: saveErr || (saving ? 'Saving…' : ''), saveColor: saveErr ? 'oklch(0.5 0.17 28)' : '#5B6168',
+      noData: this.state.master != null && !this.state.master.length, noDataText: fbOn && role === 'admin' ? 'No faculty data in the database yet. Upload it under Access & data.' : 'No faculty data has been uploaded yet.'
+    };
+  }
+  adminVals() {
+    const roles = [{ key: 'admin', label: 'Administrator' }, { key: 'editor', label: 'Editor' }, { key: 'viewer', label: 'View only' }];
+    const up = this.state.upMsg || {};
+    return {
+      rows: (this.state.allow || []).map(x => ({ email: x.email, role: x.role, roles, onRole: e => this.setRole(x.email, e.target.value), onRemove: () => this.removeAccess(x.email), isOther: x.email !== this.state.user })),
+      count: (this.state.allow || []).length + ' authorised',
+      newEmail: this.state.newEmail || '', onNewEmail: e => this.setState({ newEmail: e.target.value }), newRole: this.state.newRole || 'editor', onNewRole: e => this.setState({ newRole: e.target.value }), roles, onAdd: () => this.addAccess(),
+      uploads: [
+        { label: 'Faculty master list', desc: 'faculty-master-2026.json · base faculty records for 2026', accept: '.json,application/json', onFile: e => this.uploadData('master', e), status: up.master || '' },
+        { label: 'Research outputs', desc: 'research-2021-2026.json · used for profiles and Table 8-1', accept: '.json,application/json', onFile: e => this.uploadData('research', e), status: up.research || '' },
+        { label: 'AACSB Excel template', desc: 'aacsb-template.xlsx · filled by the Excel export', accept: '.xlsx', onFile: e => this.uploadData('template', e), status: up.template || '' }
+      ]
+    };
+  }
+  renderVals() {
+    const st = this.state.store, Y = st.years[st.cur] || { edits: {}, added: [], removed: [] }, edits = Y.edits, year = Number(st.cur);
+    const bases = this.bases();
+    const D = bases.map(b => this.derive(this.apply(b, edits[b.id])));
+    const CLS = {
+      SA: { name: 'Scholarly Academic', color: 'oklch(0.4 0.11 255)', sec: 'Section 2.1' },
+      PA: { name: 'Practice Academic', color: 'oklch(0.5 0.09 190)', sec: 'Section 2.2' },
+      SP: { name: 'Scholarly Practitioner', color: 'oklch(0.48 0.12 310)', sec: 'Section 2.3' },
+      IP: { name: 'Instructional Practitioner', color: 'oklch(0.6 0.12 65)', sec: 'Section 2.4' },
+      A: { name: 'Additional Faculty', color: 'oklch(0.6 0.01 250)', sec: 'Section 2' }
+    };
+    const DISC = [['ACC', 'Accounting', true], ['FIN', 'Finance', true], ['ECO', 'Economics'], ['MGT', 'Management'], ['LAW', 'Law and Taxation'], ['ICT', 'ICT and Statistics']];
+    const discName = Object.fromEntries(DISC.map(d => [d[0], d[1]]));
+    const ST = { met: ['Met', 'oklch(0.45 0.12 150)', 'oklch(0.95 0.04 150)'], notmet: ['Not met', 'oklch(0.5 0.17 28)', 'oklch(0.95 0.035 28)'], review: ['Review', 'oklch(0.5 0.11 70)', 'oklch(0.95 0.05 85)'], nodata: ['No data', '#5B6168', '#EEEAE2'] };
+    const { sel, q, disc, cls, editing } = this.state;
+    const showNotes = this.props.showAdminNotes ?? true;
+    const showMatrix = this.props.showCategoryMatrix ?? true;
+    const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+    const fmt = v => (Math.round(v * 100) / 100).toString();
+    const ok = '#3D7A55', bad = 'oklch(0.5 0.17 28)';
+    const open = id => () => { this.setState({ sel: id, editing: false, view: 'main' }); const m = document.querySelector('main'); if (m) window.scrollTo({ top: 0 }); };
+
+    const ql = q.trim().toLowerCase();
+    const filtered = D.filter(f => (disc === 'All' || f.d === disc) && (cls === 'All' || f.c === cls) && (!ql || (f.n + ' ' + f.sp).toLowerCase().includes(ql)));
+    const groups = DISC.map(([k, label]) => ({
+      label,
+      items: filtered.filter(f => f.d === k).map(f => {
+        const v = this.verdict(f), on = f.id === sel;
+        return { name: f.n, cls: f.c, clsColor: CLS[f.c].color, sub: (f.sp || '—') + ' · ' + f.ft + (f.edited ? ' · updated' : ''), statusColor: v.color, statusLabel: v.label, bg: on ? '#EDE9E0' : 'transparent', edge: on ? CLS[f.c].color : 'transparent', onClick: open(f.id) };
+      })
+    })).filter(g => g.items.length);
+
+    const chipKeys = ['All', 'SA', 'PA', 'SP', 'IP', 'A'];
+    const clsChips = chipKeys.map(k => {
+      const on = cls === k, col = k === 'All' ? '#1A1D21' : CLS[k].color;
+      return { label: k, title: k === 'All' ? 'All classifications' : CLS[k].name, bg: on ? col : '#fff', fg: on ? '#fff' : '#3D4249', border: on ? col : '#D8D3C8', onClick: () => this.setState({ cls: k }) };
+    });
+
+    const agg = list => {
+      const s = { P: 0, S: 0, SA: 0, PA: 0, SP: 0, IP: 0, A: 0 };
+      list.forEach(f => { s.P += f.P; s.S += f.S; s[f.c] += f.pct; });
+      s.tot = s.SA + s.PA + s.SP + s.IP + s.A; return s;
+    };
+    const discRows = DISC.map(([k, label, offered]) => {
+      const list = D.filter(f => f.d === k), s = agg(list);
+      const p = pct(s.P, s.P + s.S), sa = pct(s.SA, s.tot), qq = pct(s.tot - s.A, s.tot);
+      return {
+        label, offered: offered ? 'Degrees offered' : 'Supporting discipline', count: list.length,
+        p: p + '%', sa: sa + '%', q: qq + '%', pColor: p >= 60 ? ok : bad, saColor: sa >= 40 ? ok : bad, qColor: qq >= 90 ? ok : bad,
+        segs: ['SA', 'PA', 'SP', 'IP', 'A'].filter(c => s[c]).map(c => ({ w: (s[c] / s.tot * 100) + '%', color: CLS[c].color, title: c + ' ' + pct(s[c], s.tot) + '%' })),
+        onClick: () => this.setState({ disc: k, cls: 'All' })
+      };
+    });
+    const T = agg(D);
+    const oP = pct(T.P, T.P + T.S), oSA = pct(T.SA, T.tot), oQ = pct(T.tot - T.A, T.tot);
+    const kpis = [
+      { label: 'Participating faculty share of teaching', value: oP + '%', rule: 'P / (P + S) ≥ 75% overall, ≥ 60% per discipline', ok: oP >= 75 },
+      { label: 'Scholarly Academic', value: oSA + '%', rule: 'SA / all faculty resources ≥ 40%', ok: oSA >= 40 },
+      { label: 'SA + PA + SP + IP', value: oQ + '%', rule: 'Qualified faculty / all faculty resources ≥ 90%', ok: oQ >= 90 }
+    ].map(k => ({ ...k, status: k.ok ? 'Met' : 'Not met', color: k.ok ? ok : bad }));
+    const totals = { count: D.length, ft: D.filter(f => f.ft === 'FT').length, pt: D.filter(f => f.ft === 'PT').length, fte: D.reduce((s, f) => s + f.fte, 0).toFixed(2), hours: (T.P + T.S).toLocaleString('en-US') };
+    const gaps = D.map(f => ({ f, v: this.verdict(f) })).filter(x => x.v.key === 'gap').map(({ f, v }) => ({ name: f.n, cls: f.c, clsColor: CLS[f.c].color, gapText: v.n + ' criteri' + (v.n === 1 ? 'on' : 'a') + ' not met · ' + discName[f.d], onClick: open(f.id) }));
+    const PROGS = [['bafH', 'Bachelor of Accounting and Finance (BAF)'], ['msafH', 'Master of Science in Accounting and Finance (MSAF)']];
+    const progRows = PROGS.map(([k, label]) => {
+      const s = { SA: 0, PA: 0, SP: 0, IP: 0, A: 0 }; let tot = 0, assumed = 0, n = 0;
+      D.forEach(f => { const h = f[k] || 0; if (!h) return; s[f.c] += h; tot += h; n++; if (f.progAssumed) assumed += h; });
+      const cells = ['SA', 'PA', 'SP', 'IP', 'A'].map(c => ({ v: tot ? Math.round(s[c] / tot * 100) + '%' : '—', color: CLS[c].color }));
+      return { label, cells, total: tot ? '100%' : '—', hours: tot.toLocaleString('en-US') + ' hours · ' + n + ' faculty', segs: ['SA', 'PA', 'SP', 'IP', 'A'].filter(c => s[c]).map(c => ({ w: (s[c] / tot * 100) + '%', color: CLS[c].color, title: c + ' ' + Math.round(s[c] / tot * 100) + '%' })), assumed };
+    });
+    const unassigned = D.filter(f => f.progAssumed && f.P + f.S > 0);
+    const progNote = unassigned.length ? unassigned.length + ' of ' + D.filter(f => f.P + f.S > 0).length + ' teaching faculty have no program split recorded yet; their hours are counted under BAF. Enter BAF and MSAF hours in each profile to update this table.' : 'All teaching hours are assigned to a program.';
+    const icRows0 = this.icTable(D);
+    const icTot = icRows0.reduce((t, r) => { Object.keys(t).forEach(k => { t[k] += r[k]; }); return t; }, { B: 0, C: 0, D: 0, F: 0, G: 0, H: 0, pf: 0, pfIC: 0, fte: 0, fteIC: 0 });
+    const icRow = (r, label, bold) => ({ label, bold: bold ? 600 : 400, cells: [r.B, r.C, r.D, r.B + r.C + r.D, r.F, r.G, r.H, r.F + r.G + r.H].map(fmt).concat([pct(r.pfIC, r.pf) + '%', pct(r.fteIC, r.fte) + '%']) });
+    const icRows = icRows0.map(r => icRow(r, r.name)).concat([icRow(icTot, 'Total', true)]);
+    const icNote = (this.state.research ? (this.state.research.length + ' research outputs loaded') : 'Loading research outputs…') + ' · counted by credit for ' + (year - 5) + '–' + year;
+    const legend = ['SA', 'PA', 'SP', 'IP', 'A'].map(c => ({ label: c + ' · ' + CLS[c].name, color: CLS[c].color }));
+
+    const discOptions = [{ key: 'All', label: 'All disciplines' }].concat(DISC.map(d => ({ key: d[0], label: d[1] })));
+    const resultLabel = filtered.length + ' of ' + D.length + ' faculty';
+
+    let p = null;
+    const f = sel != null ? (D.find(x => x.id === sel) || null) : null;
+    if (f) {
+      const C = CLS[f.c], v = this.verdict(f), ch = this.check(f, f.c);
+      const mapC = x => ({ ...x, statusLabel: ST[x.status][0], color: ST[x.status][1], tint: ST[x.status][2] });
+      const role = f.P > 0 ? 'Participating (P)' : 'Supporting (S)';
+      const AD = { A1: 'Peer-reviewed journals indexed in Scopus or ABDC', A2: 'Other indexed peer-reviewed journals', A3: 'Editorial-reviewed journals', A4: 'Peer-reviewed conference proceedings', A5: 'Teaching case by academic press', A6: 'Policy document or report for government or industry', A7: 'Research income from government or industry', A8: 'Academic book or book chapter', A9: 'Report from research or consulting grants', A10: 'Technologies for practical application in business', A11: 'Patents', A12: 'Editorial board of indexed journals', A13: 'Academic advisor to government or industry', A14: 'Formal role in academic organisations', A15: 'Supervision of student research projects', A16: 'Invited presentations or keynote speeches', A17: 'Academic awards or fellow status' };
+      const PD = { P1: ['Ongoing or regular work in government or industry', ''], P2: ['Practitioner journal publications', '1 publication = 1 activity'], P3: ['Practitioner book or chapter', '1 book = 2; 2 chapters = 1'], P4: ['Entrepreneur or business owner (2+ years)', '2 years = 1 activity'], P5: ['Business or organisational leadership (2+ years)', '2 years = 1 activity'], P6: ['Professional association memberships', '1 membership = 1 activity'], P7: ['Consultancy projects for government or industry', '1 project = 1 activity'], P8: ['Training delivered to government or industry', '8 hours = 1 activity'], P9: ['CPD / training attended', 'Hours not recorded; 36 hours = 1 activity, not counted'], P10: ['Professional events and associations', '5 participations = 1 activity'], P11: ['Supervision of student industry projects', '1 project = 1 activity, max. 2'] };
+      const ord = k => +k.slice(1);
+      const aRows = Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).map(k => ({ code: k, desc: AD[k], detail: f.a[k].det, n: f.a[k].n }));
+      const pRows = Object.keys(f.p).sort((x, y) => ord(x) - ord(y)).map(k => {
+        const x = f.p[k], u = this.unit(k, x);
+        if (k === 'P9' && f.p9h != null) return { code: k, desc: PD[k][0], detail: [x.n ? x.n + ' entries' : '', f.p9h + ' hours', '36 hours = 1 activity'].filter(Boolean).join(' · '), n: u };
+        return { code: k, desc: PD[k][0], detail: [k === 'P10' || k === 'P9' ? x.n + ' recorded' : '', PD[k][1], k === 'P9' ? '' : (k === 'P10' || k === 'P11' ? 'counts as ' + u : ''), x.det].filter(Boolean).join(' · '), n: u };
+      });
+      const b = bases.find(x => x.id === f.id), e = edits[f.id] || {};
+      const cur = (k, bv) => e[k] != null ? String(e[k]) : (bv == null ? '' : String(bv));
+      const set = k => ev => this.setEdit(f.id, k, ev.target.value);
+      const fld = (label, k, bv, extra) => ({ label, value: cur(k, bv), onChange: set(k), isInput: true, isSelect: false, placeholder: '', hint: '', options: [], ...extra });
+      const sel_ = (label, k, bv, options) => ({ label, value: cur(k, bv), onChange: set(k), isInput: false, isSelect: true, options, hint: '' });
+      const form = {
+        profile: [
+          fld('Full name', 'name', b.n),
+          fld('Employee ID', 'empId', b.empId),
+          fld('Academic title', 'title', b.title),
+          fld('Specialty field', 'sp', b.sp),
+          sel_('Discipline', 'd', b.d, DISC.map(d => ({ key: d[0], label: d[1] }))),
+          sel_('Classification', 'c', b.c, ['SA', 'PA', 'SP', 'IP', 'A'].map(k => ({ key: k, label: k + ' · ' + CLS[k].name }))),
+          sel_('Teaching role', 'role', b.P > 0 || b.S === 0 ? 'P' : 'S', [{ key: 'P', label: 'Participating (P)' }, { key: 'S', label: 'Supporting (S)' }]),
+          sel_('Status', 'ft', b.ft, [{ key: 'FT', label: 'Full-time' }, { key: 'PT', label: 'Part-time' }]),
+          fld('Highest degree', 'deg', b.deg),
+          fld('Year earned', 'yr', b.yr),
+          fld('FTE', 'fte', b.fte),
+          fld('Teaching hours ' + year, 'hours', b.P + b.S),
+          fld('of which BAF hours', 'baf', b.baf, { placeholder: 'All hours if blank' }),
+          fld('of which MSAF hours', 'msaf', b.msaf, { placeholder: '0 if blank' }),
+          fld('Professional certifications', 'certs', b.certs, { placeholder: 'e.g. ACCA; CPA' }),
+          fld('Courses taught', 'courses', b.courses, { placeholder: 'Separate with ;' }),
+          fld('Teaching % of time (≤60)', 'st', b.split[0]),
+          fld('Research % of time (≤30)', 'sr', b.split[1]),
+          fld('Service % of time (≤10)', 'ss', b.split[2]),
+          fld('Intellectual contributions ' + (year - 5) + '–' + year, 'ics', b.ics)
+        ],
+        evidence: [
+          fld('Teaching effectiveness (out of 7.0)', 'te', null, { placeholder: 'e.g. 5.8', hint: 'Most recent annual or rolling 2-year average' }),
+          fld('Years of professional experience', 'exp', null, { placeholder: 'e.g. 8', hint: 'In the field of teaching · needed for SP and IP' }),
+          fld('CPD hours attended (P9)', 'p9h', null, { placeholder: 'e.g. 40', hint: '36 hours = 1 activity' })
+        ],
+        acad: Object.keys(AD).map(k => ({ code: k, label: AD[k], value: (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.a[k] ? b.a[k].n : 0), onChange: ev => this.setCount(f.id, k, ev.target.value) })),
+        prof: Object.keys(PD).filter(k => k !== 'P9').map(k => ({ code: k, label: k === 'P10' ? 'Professional events (number of participations)' : PD[k][0], value: (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.p[k] ? b.p[k].n : 0), onChange: ev => this.setCount(f.id, k, ev.target.value) })),
+        note: cur('note', b.note), onNote: set('note'),
+        basis: cur('basis', b.basis), onBasis: set('basis'), basisAuto: this.autoBasis(f)
+      };
+      const matrix = ['SA', 'PA', 'SP', 'IP'].map(c => {
+        const m = this.check(f, c).maint.filter(x => !/Teaching effectiveness/.test(x.label));
+        const st = m.some(x => x.status === 'nodata') ? 'nodata' : m.every(x => x.status === 'met') ? 'met' : 'notmet';
+        return { cls: c, title: CLS[c].name + ': ' + ST[st][0], mark: st === 'met' ? '✓' : st === 'nodata' ? '–' : '✕', color: ST[st][1] };
+      });
+      const caps = [60, 30, 10];
+      p = {
+        name: f.n, cls: f.c, clsName: C.name, clsColor: C.color,
+        clsTint: '#fff', clsBorder: '#E3DFD6',
+        meta: discName[f.d] + ' · ' + (f.ft === 'FT' ? 'Full-time' : 'Part-time') + ' · ' + f.fte.toFixed(2) + ' FTE',
+        specLine: [f.sp, f.deg + (f.yr ? ', ' + f.yr : '')].filter(Boolean).join(' · '),
+        pctLine: f.pct + '% of time devoted to mission',
+        hasFlag: !!f.flag, flag: f.flag,
+        facts: [['Academic title', f.title], ['Employee ID', f.empId], ['Professional certifications', f.certs], ['Courses taught ' + year, f.courses]].filter(x => x[1]).map(([label, value]) => ({ label, value })),
+        figures: [
+          { label: 'Teaching hours ' + year, value: (f.P + f.S).toLocaleString('en-US'), sub: role },
+          { label: 'Programs taught', value: f.progs.join(' · ') || '—', sub: 'BAF ' + f.bafH + ' h · MSAF ' + f.msafH + ' h' + (f.othH ? ' · Other ' + f.othH + ' h' : '') + (f.progAssumed ? ' · split not recorded' : '') },
+          { label: 'Intellectual contributions', value: f.res.length || f.ics, sub: (f.res.length ? fmt(f.icCr) + ' credits · ' : '') + (year - 5) + '–' + year },
+          { label: 'Academic engagement', value: f.aea, sub: 'A-code activities' },
+          { label: 'Professional engagement', value: f.peaNA ? '—' : f.pea, sub: f.peaNA ? 'Not assessed' : 'P-code activities counted' }
+        ],
+        split: ['Teaching', 'Research', 'Service'].map((l, i) => ({ label: l + ' (≤' + caps[i] + '%)', value: f.split[i] + '%', w: (f.split[i] / caps[i] * 100) + '%' })),
+        section: C.sec + ', Faculty Classification Policy · maintenance within the last 6 years',
+        verdict: v.label, verdictColor: v.color,
+        checkCols: [{ title: 'Initial requirement', items: ch.init.map(mapC) }].concat(ch.maint.length ? [{ title: 'Maintenance requirement', items: ch.maint.map(mapC) }] : []),
+        matrix,
+        tables: [
+          { title: 'Academic engagement activities', summary: f.aea + ' activities', rows: aRows, empty: !aRows.length, emptyText: 'No academic engagement recorded (2021–2026)', hasOther: f.other > 0, otherText: 'Other intellectual contributions (reports, op-eds, etc.): ' + f.other + ' · not mapped to an A-code' },
+          { title: 'Professional engagement activities', summary: f.peaNA ? 'Not assessed' : f.pea + ' activities counted', rows: pRows, empty: !pRows.length, emptyText: f.peaNA ? 'Professional engagement not assessed' : 'No professional engagement recorded (2021–2026)', hasOther: false, otherText: '' }
+        ],
+        showNote: showNotes && !!f.note && !editing, note: f.note,
+        research: (() => {
+          const PL = { B: 'Basic or discovery', C: 'Applied or integration', D: 'Teaching and learning' }, TL = { F: 'Peer-reviewed journal article', G: 'Additional peer-/editorial-reviewed', H: 'All other ICs' };
+          const addedBase = (b.resAdd || []).length;
+          let ai = -1;
+          const rows = f.res.map(r => { const isEdit = r.added && (f.resAdd || []).indexOf(r) >= addedBase; const ei = isEdit ? (f.resAdd || []).indexOf(r) - addedBase : -1;
+            return { year: r.y, title: r.t, journal: [r.j, r.au].filter(Boolean).join(' · '), tags: PL[r.p] + ' · ' + TL[r.ty], credit: fmt(r.c), canRemove: editing && isEdit, onRemove: () => this.removeResearch(f.id, ei), added: !!r.added }; });
+          const by = f.icBy;
+          return { rows, has: rows.length > 0, empty: rows.length === 0,
+            summary: rows.length + ' outputs · ' + fmt(f.icCr) + ' credits',
+            mix: [['Basic', by.B], ['Applied', by.C], ['Teaching', by.D], ['Peer-reviewed', by.F], ['Additional', by.G], ['Other', by.H]].map(([l, v]) => ({ label: l, value: fmt(v) })) };
+        })(),
+        draft: (() => { const d = this.state.draft || {}; const sd = k => ev => { const v = ev.target.value; this.setState(s => ({ draft: { ...(s.draft || {}), [k]: v } })); };
+          return { y: d.y || String(year), t: d.t || '', j: d.j || '', p: d.p || 'C', ty: d.ty || 'F', c: d.c || '1', onY: sd('y'), onT: sd('t'), onJ: sd('j'), onP: sd('p'), onTy: sd('ty'), onC: sd('c'), onAdd: () => this.addResearch(f.id),
+            pOpts: [{ key: 'B', label: 'Basic or discovery' }, { key: 'C', label: 'Applied or integration' }, { key: 'D', label: 'Teaching and learning' }],
+            tyOpts: [{ key: 'F', label: 'Peer-reviewed journal article' }, { key: 'G', label: 'Additional peer-/editorial-reviewed' }, { key: 'H', label: 'All other ICs' }],
+            cOpts: ['1', '0.5', '0.33', '0.25'].map(k => ({ key: k, label: k })) }; })(),
+        edited: f.edited || !!f.isNew, editedTag: f.isNew ? 'Added in ' + st.cur : 'Updated in portal', canRevert: f.edited && !f.isNew, form,
+        removeLabel: 'Remove from ' + st.cur,
+        onRemove: () => { if (confirm('Remove ' + f.n + ' from the ' + st.cur + ' faculty list? Other years are not affected.')) this.removeFaculty(f.id); }, editLabel: editing ? 'Done' : 'Update details',
+        toggleEdit: () => this.setState(s => ({ editing: !s.editing })),
+        revert: () => { if (confirm('Discard the ' + st.cur + ' portal updates for ' + f.n + '?')) this.revert(f.id); }
+      };
+    }
+
+    return {
+      query: q, disc, onQuery: e => this.setState({ q: e.target.value }), onDisc: e => this.setState({ disc: e.target.value }),
+      discOptions, clsChips, groups, resultLabel, goOverview: () => this.setState({ sel: null, view: 'main' }),
+      ...this.gateVals(), canEdit: this.canEdit(), isAdminView: this.state.view === 'admin' && this.state.mode === 'firebase', admin: this.adminVals(),
+      progRows, progNote, icRows, icNote, icPeriod: 'Jan ' + (year - 5) + ' – Dec ' + year, isOverview: !f && this.state.view !== 'admin', isProfile: !!f && this.state.view !== 'admin', isEditing: !!f && editing, kpis,
+      editSummary: (() => { const parts = []; const u = Object.keys(edits).filter(k => !Y.added.some(r => String(r.id) === k)).length; if (Y.added.length) parts.push(Y.added.length + ' added'); if (Y.removed.length) parts.push(Y.removed.length + ' removed'); if (u) parts.push(u + ' updated'); return parts.length ? st.cur + ': ' + parts.join(' · ') : 'No portal changes for ' + st.cur; })(),
+      curYear: st.cur, period: 'Engagement period ' + (year - 5) + '–' + year, tableYear: 'AACSB Table 3-1 · Jan–Dec ' + st.cur,
+      yearSource: Y.from ? 'Started from ' + Y.from + ' list' : 'Master list · updated 10 Nov 2026', canDeleteYear: st.cur !== '2026' && this.canEdit(), onDeleteYear: () => this.deleteYear(),
+      yearOptions: Object.keys(st.years).sort((a, b) => b - a).map(k => ({ key: k, label: k })).concat(this.canEdit() ? [{ key: '__new', label: '+ Start ' + (Math.max(...Object.keys(st.years).map(Number)) + 1) }] : []),
+      onYear: ev => this.switchYear(ev.target.value), onExportXlsx: () => this.exportExcel(), exportLabel: this.state.exporting ? 'Preparing…' : 'Export AACSB tables (.xlsx)', onAdd: () => this.addFaculty(),
+      onExport: () => this.exportEdits(), onImport: ev => this.importEdits(ev), totals, discRows, legend, gaps, p: p || {}, showMatrix
+    };
+  }
+}
+</script>
+</body>
+</html>
