@@ -1117,7 +1117,7 @@ class Component extends DCLogic {
     push('edit', 'role', 'Teaching role (P/S)', f.P > 0 || f.S === 0 ? 'P' : 'S', fx.role);
     const dc = DN[String(fx.discipline).toLowerCase()]; if (dc) push('edit', 'd', 'Discipline', f.d, dc);
     if (sum.certs) push('edit', 'certs', 'Professional certifications', f.certs, sum.certs);
-    Object.keys(sum.counts).sort((a, b) => (a[0] === b[0] ? +a.slice(1) - +b.slice(1) : a < b ? -1 : 1)).forEach(k => push('cnt', k, k + ' · ' + (LBL[k] || k), (f.a[k] || f.p[k] || { n: 0 }).n, sum.counts[k]));
+    Object.keys(sum.counts).filter(k => !['A1', 'A2', 'A3', 'A4', 'A5', 'A8'].includes(k)).sort((a, b) => (a[0] === b[0] ? +a.slice(1) - +b.slice(1) : a < b ? -1 : 1)).forEach(k => push('cnt', k, k + ' · ' + (LBL[k] || k), (f.a[k] || f.p[k] || { n: 0 }).n, sum.counts[k]));
     const nrm = t => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
     const have = f.res.map(r => nrm(r.t));
     const pubs = sum.pubs.map(p => { const t = nrm(p.t), dup = have.some(h => h === t || (t.length > 25 && (h.startsWith(t.slice(0, 40)) || t.startsWith(h.slice(0, 40))))); return { ...p, dup, on: !dup }; });
@@ -1131,8 +1131,9 @@ class Component extends DCLogic {
     R.items.filter(x => x.on).forEach(x => { if (x.kind === 'cnt') this.setCount(f.id, x.key, x.val); else this.setEdit(f.id, x.key, x.val); });
     const recs = R.pubs.filter(p => p.on).map((p, i) => ({ y: p.y, t: p.t, j: p.j, au: p.au, p: p.p, ty: p.ty, c: p.c, code: p.code || '', k: 'a' + Date.now().toString(36) + i }));
     if (recs.length) { const nk = this.nk(f.n), list = [...this.addedFor(nk), ...recs]; this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
-    const applied = R.items.filter(x => x.on && x.kind === 'cnt' && (R.det || {})[x.key]);
-    if (applied.length) { const d0 = { ...(f.det || {}) }; applied.forEach(x => { d0[x.key] = R.det[x.key]; }); this.setEdit(f.id, 'det', d0); }
+    const applied = R.items.filter(x => x.on && x.kind === 'cnt' && (R.det || {})[x.key]).map(x => x.key);
+    ['A1', 'A2', 'A3', 'A4', 'A5', 'A8'].forEach(k => { if ((R.det || {})[k]) applied.push(k); });
+    if (applied.length) { const d0 = { ...(f.det || {}) }; applied.forEach(k => { d0[k] = R.det[k]; }); this.setEdit(f.id, 'det', d0); }
     const n = R.items.filter(x => x.on).length;
     this.setState({ cvReview: null, cvMsg: 'Applied ' + n + ' update' + (n === 1 ? '' : 's') + ' and ' + recs.length + ' research output' + (recs.length === 1 ? '' : 's') + ' from ' + R.fname + '.' });
   }
@@ -1169,7 +1170,7 @@ class Component extends DCLogic {
     if (!d.t || !d.y) { alert('Enter at least a year and a title.'); return; }
     const rec = { y: Number(d.y), t: d.t, j: d.j || '', p: d.p || 'C', ty: d.ty || 'F', c: Number(d.c || 1), code: d.code || '' }, nk = this.nk(f.n);
     if (k[0] === 'a') { const list = this.addedFor(nk).map(r => r.k === k ? { ...r, ...rec } : r); this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
-    else if (k[0] === 'b') this.updRes(e => ({ ...e, mod: { ...e.mod, [k]: rec } }), () => ({ mod: { [k]: rec } }));
+    else if (k[0] === 'b' || k[0] === 'r') this.updRes(e => ({ ...e, mod: { ...e.mod, [k]: rec } }), () => ({ mod: { [k]: rec } }));
     else { this.delRes(k); this.addRes(nk, { ...rec, au: '' }); }
     this.setState({ resEditKey: null, draft: {} });
   }
@@ -1233,12 +1234,44 @@ class Component extends DCLogic {
       const c = n(v) || 0, t = k[0] === 'A' ? f.a : f.p, old = t[k];
       if (k[0] === 'P') f.pEdited = true;
       if (!c) { delete t[k]; return; }
-      t[k] = { n: c, det: old && old.n === c ? old.det : 'Updated in portal' };
+      t[k] = { n: c, det: old && old.n === c ? old.det : 'Updated in portal', manual: true };
       if (k === 'P10') t[k].u = Math.floor(c / 5);
     });
     return f;
   }
   derive(f) {
+    const Y = this.curYear(), idx = this.resIndex();
+    const RE = this.state.resEdits || { add: {}, del: {}, mod: {} }, nk = this.nk(f.n);
+    const baseR = (idx[f.n.toLowerCase()] || []).map(r => { const bk = r.k || ('b' + r.no), m = (RE.mod || {})[bk]; return { ...r, ...(m || {}), k: bk, src: 'base', edited: !!m }; });
+    const addR = ((RE.add || {})[nk] || []).map(r => ({ ...r, src: 'added', added: true }));
+    const legacy = (f.resAdd || []).map((r, i) => ({ ...r, k: 'l' + nk + '_' + i, src: 'legacy', added: true }));
+    const inWin = baseR.concat(addR, legacy).filter(r => r.y >= Y - 5 && r.y <= Y);
+    f.resRemoved = inWin.filter(r => (RE.del || {})[r.k]);
+    f.res = inWin.filter(r => !(RE.del || {})[r.k]).map(r => ({ ...r, code: this.resCode(r), autoCode: !r.code })).sort((a, b) => b.y - a.y);
+    f.icBy = { B: 0, C: 0, D: 0, F: 0, G: 0, H: 0 }; f.icCr = 0;
+    f.res.forEach(r => { f.icBy[r.p] += r.c; f.icBy[r.ty] += r.c; f.icCr += r.c; });
+    const PUBC = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A8', 'A9'], DT = f.det || {};
+    const tn = t => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const same = (a, b) => a === b || (a.length > 25 && b.length > 25 && (a.startsWith(b.slice(0, 40)) || b.startsWith(a.slice(0, 40))));
+    f.pubItems = {}; f.indexGuess = 0;
+    {
+      const mA1 = f.a.A1 && !f.a.A1.auto ? f.a.A1.n : 0, cv1 = (DT.A1 || []).map(x => tn(x.t)), cv2 = (DT.A2 || []).map(x => tn(x.t));
+      let left = mA1;
+      f.res.forEach(o => { if (!o.autoCode || o.code !== 'A1') return; const t = tn(o.t);
+        if (cv1.some(c => same(c, t))) { o.code = 'A1'; return; }
+        if (cv2.some(c => same(c, t))) { o.code = 'A2'; return; }
+        f.indexGuess++; if (left > 0) { o.code = 'A1'; left--; } else o.code = 'A2'; });
+    }
+    if (f.res.length || PUBC.some(k => (DT[k] || []).length)) PUBC.forEach(k => {
+      const list = f.res.filter(o => o.code === k).map(o => ({ t: o.t, sub: [o.y, o.j, 'credit ' + o.c, 'research list'].filter(Boolean).join(' · '), n: tn(o.t) }));
+      const fromRes = list.length; let fromCv = 0;
+      (DT[k] || []).forEach(x => { const n = tn(x.t); if (!list.some(l => same(l.n, n))) { list.push({ t: x.t, sub: [x.sub, 'CV only'].filter(Boolean).join(' · '), n }); fromCv++; } });
+      f.pubItems[k] = list;
+      if (f.a[k] && f.a[k].manual) return;
+      const master = f.a[k] ? f.a[k].n : 0, n = list.length;
+      if (!n && !master) { delete f.a[k]; return; }
+      f.a[k] = { n, det: [fromRes ? fromRes + ' in research list' : '', fromCv ? fromCv + ' from CV only' : '', master !== n ? 'master list showed ' + master : '', (k === 'A1' || k === 'A2') && f.indexGuess ? 'indexing not confirmed for ' + f.indexGuess + ' article' + (f.indexGuess === 1 ? '' : 's') + ', check Policy code' : ''].filter(Boolean).join(' · '), master, auto: true };
+    });
     const g = k => (f.a[k] || f.p[k] || { n: 0 }).n;
     f.aea = Object.values(f.a).reduce((s, x) => s + x.n, 0);
     f.a1 = g('A1'); f.p1 = g('P1');
@@ -1254,16 +1287,6 @@ class Component extends DCLogic {
     else if (f.msaf == null) { f.bafH = f.baf; f.msafH = Math.max(0, tot - f.baf); }
     else { f.bafH = f.baf; f.msafH = f.msaf; }
     f.othH = Math.max(0, tot - f.bafH - f.msafH);
-    const Y = this.curYear(), idx = this.resIndex();
-    const RE = this.state.resEdits || { add: {}, del: {}, mod: {} }, nk = this.nk(f.n);
-    const baseR = (idx[f.n.toLowerCase()] || []).map(r => { const m = (RE.mod || {})['b' + r.no]; return { ...r, ...(m || {}), k: 'b' + r.no, src: 'base', edited: !!m }; });
-    const addR = ((RE.add || {})[nk] || []).map(r => ({ ...r, src: 'added', added: true }));
-    const legacy = (f.resAdd || []).map((r, i) => ({ ...r, k: 'l' + nk + '_' + i, src: 'legacy', added: true }));
-    const inWin = baseR.concat(addR, legacy).filter(r => r.y >= Y - 5 && r.y <= Y);
-    f.resRemoved = inWin.filter(r => (RE.del || {})[r.k]);
-    f.res = inWin.filter(r => !(RE.del || {})[r.k]).map(r => ({ ...r, code: this.resCode(r) })).sort((a, b) => b.y - a.y);
-    f.icBy = { B: 0, C: 0, D: 0, F: 0, G: 0, H: 0 }; f.icCr = 0;
-    f.res.forEach(r => { f.icBy[r.p] += r.c; f.icBy[r.ty] += r.c; f.icCr += r.c; });
     f.progs = [f.bafH > 0 ? 'BAF' : '', f.msafH > 0 ? 'MSAF' : ''].filter(Boolean);
     if (!f.progs.length && f.othH > 0) f.progs = ['Other'];
     return f;
@@ -1496,13 +1519,13 @@ class Component extends DCLogic {
         if (k === 'P9' && f.p9h != null) return { code: k, desc: PD[k][0], detail: [x.n ? x.n + ' entries' : '', f.p9h + ' hours', '36 hours = 1 activity'].filter(Boolean).join(' · '), n: u };
         return { code: k, desc: PD[k][0], detail: [k === 'P10' || k === 'P9' ? x.n + ' recorded' : '', PD[k][1], k === 'P9' ? '' : (k === 'P10' || k === 'P11' ? 'counts as ' + u : ''), x.det].filter(Boolean).join(' · '), n: u };
       });
-      const TYM = { A1: 1, A2: 1, A3: 1, A4: 1, A5: 1, A8: 1 }, DET = f.det || {};
+      const TYM = { A1: 1, A2: 1, A3: 1, A4: 1, A5: 1, A6: 1, A8: 1, A9: 1 }, DET = f.det || {};
       const deco = r => { const k = r.code, key = f.id + ':' + k, items = (DET[k] || []).map(x => ({ t: x.t, sub: x.sub }));
         let src = 'From the imported CV';
-        if (TYM[k]) { items.length = 0; f.res.filter(o => o.code === k).forEach(o => items.push({ t: o.t, sub: [o.y, o.j, 'credit ' + o.c].filter(Boolean).join(' · ') })); src = 'From the research list' + (items.length !== r.n ? ' (count above is ' + r.n + ' from the master list)' : ''); }
+        if (TYM[k]) { items.length = 0; ((f.pubItems || {})[k] || []).forEach(o => items.push({ t: o.t, sub: o.sub })); src = 'From the research list and the faculty CV'; }
         const open = this.state.openCode === key;
-        return { ...r, isPub: !!TYM[k], noPubText: 'No outputs in the research list are classified as ' + k + ' (master list count: ' + r.n + '). Edit an output\'s Policy code to reassign it.', open, chev: open ? '▾' : '▸', onToggle: () => this.setState(s => ({ openCode: s.openCode === key ? null : key })), details: items, hasDetails: open && items.length > 0, noDetails: open && !items.length && !TYM[k], noPub: open && !items.length && !!TYM[k], detSrc: src + ' · ' + items.length + ' item' + (items.length === 1 ? '' : 's'), rowBg: open ? '#FBF7EC' : '#fff' }; };
-      Object.keys(TYM).forEach(k => { if (!aRows.some(r => r.code === k) && f.res.some(o => o.code === k)) aRows.push({ code: k, desc: AD[k], detail: 'Not in the master list · from the research list', n: 0 }); });
+        return { ...r, isPub: !!TYM[k], noPubText: 'No outputs in the research list or CV are classified as ' + k + ((f.a[k] || {}).master ? ' (the master list showed ' + f.a[k].master + ')' : '') + '. Add an output under Research output, or edit an output\'s Policy code to reassign it.', open, chev: open ? '▾' : '▸', onToggle: () => this.setState(s => ({ openCode: s.openCode === key ? null : key })), details: items, hasDetails: open && items.length > 0, noDetails: open && !items.length && !TYM[k], noPub: open && !items.length && !!TYM[k], detSrc: src + ' · ' + items.length + ' item' + (items.length === 1 ? '' : 's'), rowBg: open ? '#FBF7EC' : '#fff' }; };
+      
       aRows.sort((x, y) => ord(x.code) - ord(y.code));
       aRows = aRows.map(deco); pRows = pRows.map(deco);
       const b = bases.find(x => x.id === f.id), e = edits[f.id] || {};
@@ -1600,7 +1623,7 @@ class Component extends DCLogic {
         })(),
         draft: (() => { const d = this.state.draft || {}; const sd = k => ev => { const v = ev.target.value; this.setState(s => ({ draft: { ...(s.draft || {}), [k]: v } })); };
           const cs = ['1', '0.5', '0.33', '0.25']; if (d.c && !cs.includes(String(d.c))) cs.push(String(d.c));
-          return { y: d.y || String(year), t: d.t || '', j: d.j || '', p: d.p || 'C', ty: d.ty || 'F', c: d.c || '1', onY: sd('y'), onT: sd('t'), onJ: sd('j'), onP: sd('p'), onTy: sd('ty'), onC: sd('c'), code: d.code || '', onCode: sd('code'), codeOpts: [{ key: '', label: 'Automatic' }, { key: 'A1', label: 'A1 · Scopus/ABDC journal' }, { key: 'A2', label: 'A2 · Other indexed journal' }, { key: 'A3', label: 'A3 · Editorial-reviewed journal' }, { key: 'A4', label: 'A4 · Conference proceedings' }, { key: 'A5', label: 'A5 · Teaching case' }, { key: 'A8', label: 'A8 · Book or chapter' }, { key: 'OTHER', label: 'Other IC (no A-code)' }],
+          return { y: d.y || String(year), t: d.t || '', j: d.j || '', p: d.p || 'C', ty: d.ty || 'F', c: d.c || '1', onY: sd('y'), onT: sd('t'), onJ: sd('j'), onP: sd('p'), onTy: sd('ty'), onC: sd('c'), code: d.code || '', onCode: sd('code'), codeOpts: [{ key: '', label: 'Automatic' }, { key: 'A1', label: 'A1 · Scopus/ABDC journal' }, { key: 'A2', label: 'A2 · Other indexed journal' }, { key: 'A3', label: 'A3 · Editorial-reviewed journal' }, { key: 'A4', label: 'A4 · Conference proceedings' }, { key: 'A5', label: 'A5 · Teaching case' }, { key: 'A6', label: 'A6 · Commissioned policy document/report' }, { key: 'A8', label: 'A8 · Book or chapter' }, { key: 'A9', label: 'A9 · Research/consulting grant report' }, { key: 'OTHER', label: 'Other IC (no A-code)' }],
             onAdd: () => this.addResearch(f), onSave: () => this.saveResEdit(f), onCancel: () => this.setState({ resEditKey: null, draft: {} }),
             pOpts: [{ key: 'B', label: 'Basic or discovery' }, { key: 'C', label: 'Applied or integration' }, { key: 'D', label: 'Teaching and learning' }],
             tyOpts: [{ key: 'F', label: 'Peer-reviewed journal article' }, { key: 'G', label: 'Additional peer-/editorial-reviewed' }, { key: 'H', label: 'All other ICs' }],
