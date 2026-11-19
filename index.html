@@ -469,15 +469,33 @@ input::placeholder{color:#8A8F96}
                   </sc-for>
                 </div>
               </sc-if>
+              <sc-if value="{{ p.cv.hasGroups }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;border-top:1px solid #F1EBDD">
+                  <div style="padding:10px 18px 2px;font-size:13.5px;color:#6F6A5F;text-wrap:pretty">Each activity has a suggested policy code. Change the code if it's wrong, or choose "Don't count". Counts replace the current counts for those codes.</div>
+                  <sc-for list="{{ p.cv.groups }}" as="g" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;padding:6px 0">
+                      <div style="display:flex;justify-content:space-between;gap:10px;padding:6px 18px"><span style="font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A6512;font-weight:600">{{ g.label }}</span><span style="font-size:13px;color:#6F6A5F">{{ g.count }}</span></div>
+                      <sc-for list="{{ g.rows }}" as="x" hint-placeholder-count="3">
+                        <div style="display:flex;gap:12px;align-items:flex-start;padding:7px 18px;border-top:1px solid #F7F2E8">
+                          <input type="checkbox" checked="{{ x.on }}" onChange="{{ x.onToggle }}" style="flex:none;margin-top:3px;width:18px;height:18px;accent-color:#6B1E24;cursor:pointer">
+                          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="text-wrap:pretty">{{ x.t }}</span><span style="font-size:13px;color:#6F6A5F">{{ x.sub }}</span></span>
+                          <select value="{{ x.code }}" onChange="{{ x.onCode }}" style="height:34px;max-width:260px;padding:0 6px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#221E1A"><sc-for list="{{ x.codes }}" as="o" hint-placeholder-count="17"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
               <sc-if value="{{ p.cv.hasPubs }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex;flex-direction:column;padding:8px 0;border-top:1px solid #F1EBDD">
                   <span style="padding:6px 18px;font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A6512;font-weight:600">Research outputs in the CV</span>
                   <sc-for list="{{ p.cv.pubs }}" as="x" hint-placeholder-count="2">
-                    <label style="display:flex;gap:12px;align-items:flex-start;padding:8px 18px;cursor:pointer" style-hover="background:#FBF7EC"><input type="checkbox" checked="{{ x.on }}" onChange="{{ x.onToggle }}" style="flex:none;margin-top:3px;width:18px;height:18px;accent-color:#6B1E24;cursor:pointer">
+                    <div style="display:flex;gap:12px;align-items:flex-start;padding:8px 18px" style-hover="background:#FBF7EC"><input type="checkbox" checked="{{ x.on }}" onChange="{{ x.onToggle }}" style="flex:none;margin-top:3px;width:18px;height:18px;accent-color:#6B1E24;cursor:pointer">
                       <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
                         <span style="text-wrap:pretty">{{ x.title }}</span>
                         <span style="display:flex;flex-wrap:wrap;gap:6px 10px;font-size:13px;color:#6F6A5F">{{ x.sub }}<sc-if value="{{ x.dup }}" hint-placeholder-val="{{ false }}"><span style="padding:0 8px;border-radius:10px;background:#F1EBDD;color:#6F6A5F;font-weight:600">Already in research list</span></sc-if></span>
                       </span>
+                    <select value="{{ x.code }}" onChange="{{ x.onCode }}" style="margin-left:auto;height:34px;max-width:260px;padding:0 6px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#221E1A"><sc-for list="{{ x.codes }}" as="o" hint-placeholder-count="9"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
                     </label>
                   </sc-for>
                 </div>
@@ -1117,24 +1135,28 @@ class Component extends DCLogic {
     push('edit', 'role', 'Teaching role (P/S)', f.P > 0 || f.S === 0 ? 'P' : 'S', fx.role);
     const dc = DN[String(fx.discipline).toLowerCase()]; if (dc) push('edit', 'd', 'Discipline', f.d, dc);
     if (sum.certs) push('edit', 'certs', 'Professional certifications', f.certs, sum.certs);
-    Object.keys(sum.counts).filter(k => !['A1', 'A2', 'A3', 'A4', 'A5', 'A8'].includes(k)).sort((a, b) => (a[0] === b[0] ? +a.slice(1) - +b.slice(1) : a < b ? -1 : 1)).forEach(k => push('cnt', k, k + ' · ' + (LBL[k] || k), (f.a[k] || f.p[k] || { n: 0 }).n, sum.counts[k]));
+    [].sort((a, b) => (a[0] === b[0] ? +a.slice(1) - +b.slice(1) : a < b ? -1 : 1)).forEach(k => push('cnt', k, k + ' · ' + (LBL[k] || k), (f.a[k] || f.p[k] || { n: 0 }).n, sum.counts[k]));
     const nrm = t => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
     const have = f.res.map(r => nrm(r.t));
     const pubs = sum.pubs.map(p => { const t = nrm(p.t), dup = have.some(h => h === t || (t.length > 25 && (h.startsWith(t.slice(0, 40)) || t.startsWith(h.slice(0, 40))))); return { ...p, dup, on: !dup }; });
     const np = nrm(fx.name).split(' '), fp = nrm(f.n).split(' ');
     const nameOk = !fx.name || np.filter(x => x.length > 1 && fp.includes(x)).length >= Math.min(2, np.length);
-    return { fid: f.id, fname, items, pubs, det: sum.items || {}, warn: nameOk ? '' : 'This CV is for "' + fx.name + '", not ' + f.n + '. Check before applying.' };
+    const acts = (sum.acts || []).map(a => ({ ...a, on: a.code !== 'skip' }));
+    return { fid: f.id, fname, items, pubs: pubs.map(p => ({ ...p, code: p.code || '' })), acts, det: sum.items || {}, warn: nameOk ? '' : 'This CV is for "' + fx.name + '", not ' + f.n + '. Check before applying.' };
   }
+  cvSet(kind, i, key, v) { this.setState(s => { const R = s.cvReview; if (!R) return null; return { cvReview: { ...R, [kind]: R[kind].map((x, j) => j === i ? { ...x, [key]: v, ...(key === 'code' ? { on: v !== 'skip' } : {}) } : x) } }; }); }
   cvToggle(kind, i) { this.setState(s => { const R = s.cvReview; if (!R) return null; return { cvReview: { ...R, [kind]: R[kind].map((x, j) => j === i ? { ...x, on: !x.on } : x) } }; }); }
   applyCV(f) {
     const R = this.state.cvReview; if (!R) return;
     R.items.filter(x => x.on).forEach(x => { if (x.kind === 'cnt') this.setCount(f.id, x.key, x.val); else this.setEdit(f.id, x.key, x.val); });
-    const recs = R.pubs.filter(p => p.on).map((p, i) => ({ y: p.y, t: p.t, j: p.j, au: p.au, p: p.p, ty: p.ty, c: p.c, code: p.code || '', k: 'a' + Date.now().toString(36) + i }));
+    const recs = R.pubs.filter(p => p.on && !p.dup).map((p, i) => ({ y: p.y, t: p.t, j: p.j, au: p.au, p: p.p, ty: p.ty, c: p.c, code: p.code || '', k: 'a' + Date.now().toString(36) + i }));
     if (recs.length) { const nk = this.nk(f.n), list = [...this.addedFor(nk), ...recs]; this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
-    const applied = R.items.filter(x => x.on && x.kind === 'cnt' && (R.det || {})[x.key]).map(x => x.key);
-    ['A1', 'A2', 'A3', 'A4', 'A5', 'A8'].forEach(k => { if ((R.det || {})[k]) applied.push(k); });
-    if (applied.length) { const d0 = { ...(f.det || {}) }; applied.forEach(k => { d0[k] = R.det[k]; }); this.setEdit(f.id, 'det', d0); }
-    const n = R.items.filter(x => x.on).length;
+    const byCode = {};
+    (R.acts || []).filter(a => a.on && a.code && a.code !== 'skip').forEach(a => { (byCode[a.code] ||= []).push({ t: a.t, sub: a.sub }); });
+    Object.entries(byCode).forEach(([k, list]) => this.setCount(f.id, k, String(list.length)));
+    R.pubs.filter(p => p.on && p.code && p.code !== 'OTHER').forEach(p => { (byCode[p.code] ||= []).push({ t: p.t, sub: [p.y, p.j].filter(Boolean).join(' · ') }); });
+    if (Object.keys(byCode).length) this.setEdit(f.id, 'det', { ...(f.det || {}), ...byCode });
+    const n = R.items.filter(x => x.on).length + (R.acts || []).filter(a => a.on && a.code !== 'skip').length;
     this.setState({ cvReview: null, cvMsg: 'Applied ' + n + ' update' + (n === 1 ? '' : 's') + ' and ' + recs.length + ' research output' + (recs.length === 1 ? '' : 's') + ' from ' + R.fname + '.' });
   }
   resCode(r) {
@@ -1598,12 +1620,18 @@ class Component extends DCLogic {
         ],
         showNote: showNotes && !!f.note && !editing, note: f.note,
         onCV: ev => this.importCV(f, ev), cvLabel: this.state.cvBusy ? 'Reading CV…' : 'Import from CV (PDF)', hasCvMsg: !!this.state.cvMsg, cvMsg: this.state.cvMsg || '',
-        cv: (() => { const R = this.state.cvReview; if (!R || R.fid !== f.id) return { show: false, items: [], pubs: [] };
+        cv: (() => { const R = this.state.cvReview; if (!R || R.fid !== f.id) return { show: false, items: [], pubs: [], groups: [] };
           const TL = { F: 'Peer-reviewed journal article', G: 'Additional peer-/editorial-reviewed', H: 'All other ICs' }, PL = { B: 'Basic', C: 'Applied', D: 'Teaching and learning' };
           const items = R.items.map((x, i) => ({ label: x.label, cur: x.cur, val: x.val, on: x.on, onToggle: () => this.cvToggle('items', i) }));
           const pubs = R.pubs.map((p, i) => ({ title: p.y + ' · ' + p.t, sub: [p.j, PL[p.p], TL[p.ty], 'credit ' + p.c].filter(Boolean).join(' · '), on: p.on, dup: p.dup, onToggle: () => this.cvToggle('pubs', i) }));
-          const nOn = R.items.filter(x => x.on).length + R.pubs.filter(x => x.on).length;
-          return { show: true, fname: R.fname, hasWarn: !!R.warn, warn: R.warn, items, pubs, hasItems: items.length > 0, hasPubs: pubs.length > 0, none: !items.length && !pubs.length,
+          const CODES = [['A12', 'A12 · Editorial board'], ['A13', 'A13 · Academic advisor'], ['A14', 'A14 · Role in academic organisation'], ['A15', 'A15 · Student research supervision'], ['A16', 'A16 · Invited presentation / speaker'], ['A17', 'A17 · Academic award / fellow'], ['P1', 'P1 · Work in government/industry'], ['P2', 'P2 · Practitioner publication'], ['P4', 'P4 · Entrepreneur / owner'], ['P5', 'P5 · Leadership / management'], ['P6', 'P6 · Professional association'], ['P7', 'P7 · Consultancy'], ['P8', 'P8 · Training delivered'], ['P9', 'P9 · Training / CPD attended'], ['P10', 'P10 · Professional event'], ['P11', 'P11 · Student industry project'], ['skip', "Don't count"]].map(([key, label]) => ({ key, label }));
+          const PC = [['A1', 'A1 · Scopus/ABDC journal'], ['A2', 'A2 · Other indexed journal'], ['A3', 'A3 · Editorial-reviewed'], ['A4', 'A4 · Conference proceedings'], ['A5', 'A5 · Teaching case'], ['A6', 'A6 · Commissioned report'], ['A8', 'A8 · Book / chapter'], ['A9', 'A9 · Grant report'], ['OTHER', 'Other IC (no code)']].map(([key, label]) => ({ key, label }));
+          const groups = []; (R.acts || []).forEach((a, i) => { let g = groups.find(x => x.label === a.src); if (!g) { g = { label: a.src, rows: [] }; groups.push(g); }
+            g.rows.push({ t: a.t, sub: a.sub, on: a.on, code: a.code, codes: CODES, onToggle: () => this.cvToggle('acts', i), onCode: e => this.cvSet('acts', i, 'code', e.target.value) }); });
+          groups.forEach(g => { g.count = g.rows.filter(r => r.on).length + ' of ' + g.rows.length + ' counted'; });
+          pubs.forEach((p, i) => { p.stop = e => { e.preventDefault(); e.stopPropagation(); }; p.code = R.pubs[i].code || 'OTHER'; p.codes = PC; p.onCode = e => this.cvSet('pubs', i, 'code', e.target.value); });
+          const nOn = R.items.filter(x => x.on).length + R.pubs.filter(x => x.on).length + (R.acts || []).filter(a => a.on).length;
+          return { show: true, fname: R.fname, hasWarn: !!R.warn, warn: R.warn, items, pubs, groups, hasGroups: groups.length > 0, hasItems: items.length > 0, hasPubs: pubs.length > 0, none: !items.length && !pubs.length && !groups.length,
             applyLabel: 'Apply ' + nOn + ' selected', onApply: () => this.applyCV(f), onCancel: () => this.setState({ cvReview: null }), period: (year - 5) + '–' + year };
         })(),
         research: (() => {
