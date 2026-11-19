@@ -643,10 +643,27 @@ input::placeholder{color:#8A8F96}
                   <div style="padding:16px 18px;color:#6F6A5F">{{ t.emptyText }}</div>
                 </sc-if>
                 <sc-for list="{{ t.rows }}" as="r" hint-placeholder-count="3">
-                  <div style="display:grid;grid-template-columns:44px minmax(0,1fr) 56px;gap:12px;align-items:baseline;padding:10px 18px;border-bottom:1px solid #F4EFE4">
-                    <span style="font:500 13.5px 'IBM Plex Mono',monospace;color:#6F6A5F">{{ r.code }}</span>
-                    <span style="display:flex;flex-direction:column;gap:1px"><span>{{ r.desc }}</span><span style="font-size:13.5px;color:#6F6A5F">{{ r.detail }}</span></span>
-                    <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:16.5px;font-weight:500">{{ r.n }}</span>
+                  <div style="display:flex;flex-direction:column;border-bottom:1px solid #F4EFE4;background:{{ r.rowBg }}">
+                    <button onClick="{{ r.onToggle }}" title="Show details" style="display:grid;grid-template-columns:18px 44px minmax(0,1fr) 56px;gap:12px;align-items:baseline;padding:10px 18px;border:0;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer;width:100%" style-hover="background:#FBF7EC">
+                      <span style="color:#8A6512;font-size:13px">{{ r.chev }}</span>
+                      <span style="font:500 13.5px 'IBM Plex Mono',monospace;color:#6B1E24">{{ r.code }}</span>
+                      <span style="display:flex;flex-direction:column;gap:1px"><span>{{ r.desc }}</span><span style="font-size:13.5px;color:#6F6A5F">{{ r.detail }}</span></span>
+                      <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:16.5px;font-weight:500">{{ r.n }}</span>
+                    </button>
+                    <sc-if value="{{ r.hasDetails }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;gap:2px;padding:0 18px 12px 92px">
+                        <span style="font-size:12.5px;color:#8A6512;font-weight:600;padding-bottom:4px">{{ r.detSrc }}</span>
+                        <sc-for list="{{ r.details }}" as="d" hint-placeholder-count="3">
+                          <div style="display:flex;flex-direction:column;padding:6px 0;border-top:1px solid #F1EBDD">
+                            <span style="text-wrap:pretty">{{ d.t }}</span>
+                            <span style="font-size:13px;color:#6F6A5F">{{ d.sub }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ r.noDetails }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:0 18px 12px 92px;font-size:13.5px;color:#6F6A5F;text-wrap:pretty">Only the count is recorded in the master list. Import this person's CV (Import from CV) to see the individual activities.</div>
+                    </sc-if>
                   </div>
                 </sc-for>
                 <sc-if value="{{ t.hasOther }}" hint-placeholder-val="{{ false }}">
@@ -940,8 +957,8 @@ class Component extends DCLogic {
     return base.filter(r => !y.removed.includes(r.id)).concat(y.added);
   }
   snapshot(f) {
-    const { id, n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, resAdd } = f;
-    return JSON.parse(JSON.stringify({ id, n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, resAdd: resAdd || [] }));
+    const { id, n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, resAdd, det } = f;
+    return JSON.parse(JSON.stringify({ id, n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, det: det || {}, resAdd: resAdd || [] }));
   }
   setCur(cur, extra) { localStorage.setItem(this.CURKEY, cur); this.setState(s => ({ store: { ...s.store, cur }, sel: null, editing: false, ...(extra || {}) })); }
   async switchYear(v) {
@@ -1103,7 +1120,7 @@ class Component extends DCLogic {
     const pubs = sum.pubs.map(p => { const t = nrm(p.t), dup = have.some(h => h === t || (t.length > 25 && (h.startsWith(t.slice(0, 40)) || t.startsWith(h.slice(0, 40))))); return { ...p, dup, on: !dup }; });
     const np = nrm(fx.name).split(' '), fp = nrm(f.n).split(' ');
     const nameOk = !fx.name || np.filter(x => x.length > 1 && fp.includes(x)).length >= Math.min(2, np.length);
-    return { fid: f.id, fname, items, pubs, warn: nameOk ? '' : 'This CV is for "' + fx.name + '", not ' + f.n + '. Check before applying.' };
+    return { fid: f.id, fname, items, pubs, det: sum.items || {}, warn: nameOk ? '' : 'This CV is for "' + fx.name + '", not ' + f.n + '. Check before applying.' };
   }
   cvToggle(kind, i) { this.setState(s => { const R = s.cvReview; if (!R) return null; return { cvReview: { ...R, [kind]: R[kind].map((x, j) => j === i ? { ...x, on: !x.on } : x) } }; }); }
   applyCV(f) {
@@ -1111,6 +1128,8 @@ class Component extends DCLogic {
     R.items.filter(x => x.on).forEach(x => { if (x.kind === 'cnt') this.setCount(f.id, x.key, x.val); else this.setEdit(f.id, x.key, x.val); });
     const recs = R.pubs.filter(p => p.on).map((p, i) => ({ y: p.y, t: p.t, j: p.j, au: p.au, p: p.p, ty: p.ty, c: p.c, k: 'a' + Date.now().toString(36) + i }));
     if (recs.length) { const nk = this.nk(f.n), list = [...this.addedFor(nk), ...recs]; this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
+    const applied = R.items.filter(x => x.on && x.kind === 'cnt' && (R.det || {})[x.key]);
+    if (applied.length) { const d0 = { ...(f.det || {}) }; applied.forEach(x => { d0[x.key] = R.det[x.key]; }); this.setEdit(f.id, 'det', d0); }
     const n = R.items.filter(x => x.on).length;
     this.setState({ cvReview: null, cvMsg: 'Applied ' + n + ' update' + (n === 1 ? '' : 's') + ' and ' + recs.length + ' research output' + (recs.length === 1 ? '' : 's') + ' from ' + R.fname + '.' });
   }
@@ -1181,6 +1200,7 @@ class Component extends DCLogic {
     if (e.sp != null) f.sp = e.sp;
     ['empId', 'title', 'certs', 'courses'].forEach(k => { if (e[k] != null) f[k] = e[k]; });
     if (e.basis != null) f.basis = e.basis;
+    if (e.det) f.det = e.det;
     if (Array.isArray(e.res)) f.resAdd = (b.resAdd || []).concat(e.res);
     if (e.deg) f.deg = e.deg;
     if (e.note != null) f.note = e.note;
@@ -1459,12 +1479,19 @@ class Component extends DCLogic {
       const AD = { A1: 'Peer-reviewed journals indexed in Scopus or ABDC', A2: 'Other indexed peer-reviewed journals', A3: 'Editorial-reviewed journals', A4: 'Peer-reviewed conference proceedings', A5: 'Teaching case by academic press', A6: 'Policy document or report for government or industry', A7: 'Research income from government or industry', A8: 'Academic book or book chapter', A9: 'Report from research or consulting grants', A10: 'Technologies for practical application in business', A11: 'Patents', A12: 'Editorial board of indexed journals', A13: 'Academic advisor to government or industry', A14: 'Formal role in academic organisations', A15: 'Supervision of student research projects', A16: 'Invited presentations or keynote speeches', A17: 'Academic awards or fellow status' };
       const PD = { P1: ['Ongoing or regular work in government or industry', ''], P2: ['Practitioner journal publications', '1 publication = 1 activity'], P3: ['Practitioner book or chapter', '1 book = 2; 2 chapters = 1'], P4: ['Entrepreneur or business owner (2+ years)', '2 years = 1 activity'], P5: ['Business or organisational leadership (2+ years)', '2 years = 1 activity'], P6: ['Professional association memberships', '1 membership = 1 activity'], P7: ['Consultancy projects for government or industry', '1 project = 1 activity'], P8: ['Training delivered to government or industry', '8 hours = 1 activity'], P9: ['CPD / training attended', 'Hours not recorded; 36 hours = 1 activity, not counted'], P10: ['Professional events and associations', '5 participations = 1 activity'], P11: ['Supervision of student industry projects', '1 project = 1 activity, max. 2'] };
       const ord = k => +k.slice(1);
-      const aRows = Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).map(k => ({ code: k, desc: AD[k], detail: f.a[k].det, n: f.a[k].n }));
-      const pRows = Object.keys(f.p).sort((x, y) => ord(x) - ord(y)).map(k => {
+      let aRows = Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).map(k => ({ code: k, desc: AD[k], detail: f.a[k].det, n: f.a[k].n }));
+      let pRows = Object.keys(f.p).sort((x, y) => ord(x) - ord(y)).map(k => {
         const x = f.p[k], u = this.unit(k, x);
         if (k === 'P9' && f.p9h != null) return { code: k, desc: PD[k][0], detail: [x.n ? x.n + ' entries' : '', f.p9h + ' hours', '36 hours = 1 activity'].filter(Boolean).join(' · '), n: u };
         return { code: k, desc: PD[k][0], detail: [k === 'P10' || k === 'P9' ? x.n + ' recorded' : '', PD[k][1], k === 'P9' ? '' : (k === 'P10' || k === 'P11' ? 'counts as ' + u : ''), x.det].filter(Boolean).join(' · '), n: u };
       });
+      const TYM = { A1: ['F'], A2: ['F'], A3: ['G'], A4: ['G'], A5: ['G'], A8: ['G'] }, DET = f.det || {};
+      const deco = r => { const k = r.code, key = f.id + ':' + k, items = (DET[k] || []).map(x => ({ t: x.t, sub: x.sub }));
+        let src = 'From the imported CV';
+        if (!items.length && TYM[k]) { f.res.filter(o => TYM[k].includes(o.ty)).forEach(o => items.push({ t: o.t, sub: [o.y, o.j].filter(Boolean).join(' · ') })); src = TYM[k][0] === 'F' ? 'Peer-reviewed journal articles in the research list (A1 and A2 together)' : 'Additional peer-/editorial-reviewed outputs in the research list'; }
+        const open = this.state.openCode === key;
+        return { ...r, open, chev: open ? '▾' : '▸', onToggle: () => this.setState(s => ({ openCode: s.openCode === key ? null : key })), details: items, hasDetails: open && items.length > 0, noDetails: open && !items.length, detSrc: src + ' · ' + items.length + ' item' + (items.length === 1 ? '' : 's'), rowBg: open ? '#FBF7EC' : '#fff' }; };
+      aRows = aRows.map(deco); pRows = pRows.map(deco);
       const b = bases.find(x => x.id === f.id), e = edits[f.id] || {};
       const cur = (k, bv) => e[k] != null ? String(e[k]) : (bv == null ? '' : String(bv));
       const set = k => ev => this.setEdit(f.id, k, ev.target.value);
