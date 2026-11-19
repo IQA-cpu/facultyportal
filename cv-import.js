@@ -82,17 +82,35 @@ const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim
 export function summarizeCV(cv, opts) {
   const Y = opts.year, from = Y - 5, names = (opts.names || []).map(n => ({ n, parts: norm(n).split(' ').filter(p => p.length > 1) }));
   const inWin = (start, end) => { const a = yearOf(start), b = yearOf(end) ?? a; return a != null && a <= Y && (b ?? a) >= from; };
-  const T = cv.tables, out = { info: cv.info, counts: {}, pubs: [], notes: [] };
+  const T = cv.tables, out = { info: cv.info, counts: {}, pubs: [], notes: [], items: {} };
   const cnt = (k, v) => { if (v) out.counts[k] = (out.counts[k] || 0) + v; };
+  const det = (k, rows, fn) => { if (rows.length) (out.items[k] ||= []).push(...rows.map(fn)); };
+  const when = (a, b) => (a && b && a !== b ? a + ' – ' + b : a || '');
   const dateRows = (k, si, ei) => (T[k] || []).filter(r => inWin(r[si], r[ei]));
-  const tr = dateRows('TRAINING COURSE/WORKSHOP /SEMINAR', 3, 4); cnt('P9', tr.length);
+  const tr = dateRows('TRAINING COURSE/WORKSHOP /SEMINAR', 3, 4); cnt('P9', tr.length); det('P9', tr, r => ({ t: r[2], sub: [r[0], r[1], when(r[3], r[4])].filter(Boolean).join(' · ') }));
   const conf = dateRows('CONFERENCE /WEBINAR /SYMPOSIUM', 3, 4);
   const speak = conf.filter(r => /speaker|presenter|trainer|panel|keynote|resource|facilitator|moderator/i.test(r[2]));
   cnt('A16', speak.length); cnt('P10', conf.length - speak.length);
-  cnt('P10', dateRows('NETWORKING EVENT', 2, 3).length);
-  cnt('A15', dateRows('SUPERVISION OF STUDENT PROJECTS /RESEARCH /CLUB', 2, 3).filter(r => !/club/i.test(r[1])).length);
-  cnt('P6', dateRows('BUSINESS PROFESSIONAL ASSOCIATION', 2, 3).length);
-  cnt('P7', dateRows('CONSULTANCY PROJECT', 3, 4).length);
+  const cf = r => ({ t: r[0], sub: [r[2], r[1], when(r[3], r[4])].filter(Boolean).join(' · ') });
+  det('A16', speak, cf); det('P10', conf.filter(r => !speak.includes(r)), cf);
+  const nw = dateRows('NETWORKING EVENT', 2, 3); cnt('P10', nw.length); det('P10', nw, r => ({ t: r[1], sub: ['Networking', r[0], when(r[2], r[3])].filter(Boolean).join(' · ') }));
+  const sv = dateRows('SUPERVISION OF STUDENT PROJECTS /RESEARCH /CLUB', 2, 3).filter(r => !/club/i.test(r[1])); cnt('A15', sv.length); det('A15', sv, r => ({ t: r[1], sub: [r[0], when(r[2], r[3])].filter(Boolean).join(' · ') }));
+  const as = dateRows('BUSINESS PROFESSIONAL ASSOCIATION', 2, 3); cnt('P6', as.length); det('P6', as, r => ({ t: r[1], sub: [r[0], when(r[2], r[3])].filter(Boolean).join(' · ') }));
+  const cs = dateRows('CONSULTANCY PROJECT', 3, 4); cnt('P7', cs.length); det('P7', cs, r => ({ t: r[2], sub: [r[1], r[0], when(r[3], r[4])].filter(Boolean).join(' · ') }));
+  const acts = []; let aid = 0;
+  const act = (src, code, t, sub) => acts.push({ id: 'x' + (aid++), src, code, t: t || '(untitled)', sub });
+  tr.forEach(r => act('Training and development', 'P9', r[2], [r[0], r[1], when(r[3], r[4])].filter(Boolean).join(' · ')));
+  conf.forEach(r => act('Conferences, webinars and symposiums', speak.includes(r) ? 'A16' : 'P10', r[0], [r[2], r[1], when(r[3], r[4])].filter(Boolean).join(' · ')));
+  nw.forEach(r => act('Networking events', 'P10', r[1], [r[0], when(r[2], r[3])].filter(Boolean).join(' · ')));
+  dateRows('SUPERVISION OF STUDENT PROJECTS /RESEARCH /CLUB', 2, 3).forEach(r => act('Supervision of students', /club/i.test(r[1]) ? 'skip' : 'A15', r[1], [r[0], when(r[2], r[3])].filter(Boolean).join(' · ')));
+  as.forEach(r => act('Professional associations', 'P6', r[1], [r[0], when(r[2], r[3])].filter(Boolean).join(' · ')));
+  cs.forEach(r => act('Consultancy projects', 'P7', r[2], [r[1], r[0], when(r[3], r[4])].filter(Boolean).join(' · ')));
+  ['ACADEMIC POSITION', 'OTHER POSITION'].forEach(k => dateRows(k, 2, 3).forEach(r => {
+    const lead = /manager|director|head|chair|president|dean|ceo|partner|lead|founder|owner|vice/i.test(r[0]), camed = /camed/i.test(r[1]);
+    act('Work experience', /owner|founder/i.test(r[0]) ? 'P4' : !camed ? (lead ? 'P5' : 'P1') : (lead && k === 'OTHER POSITION' ? 'skip' : 'skip'), r[0], [r[1], when(r[2], r[3])].filter(Boolean).join(' · '));
+  }));
+  dateRows('CURRICULUM DEVELOPMENT', 2, 3).forEach(r => act('Curriculum development', 'skip', r[1], [r[0], when(r[2], r[3])].filter(Boolean).join(' · ')));
+  out.acts = acts;
   const certs = [...new Set((T['PROFESSIONAL DEGREE'] || []).map(r => r[2]).filter(d => d && !/diploma/i.test(d)))];
   out.certs = certs.join('; ');
   (T['RESEARCH PUBLICATION'] || []).forEach(r => {
@@ -102,8 +120,9 @@ export function summarizeCV(cv, opts) {
     const ty = /^peer/i.test(type) ? 'F' : /additional/i.test(type) ? 'G' : 'H';
     const authors = String(r[5] || '').split(/,|;| and /).map(a => a.trim()).filter(Boolean);
     const camed = names.filter(N => authors.some(a => { const ap = norm(a).split(' '); return N.parts.length && N.parts.filter(x => ap.includes(x)).length >= Math.min(2, N.parts.length); })).map(N => N.n);
-    const code = ty === 'F' ? (/scopus|abdc/i.test(type) ? 'A1' : 'A2') : ty === 'G' ? (/proceeding|conference/i.test(journal) ? 'A4' : 'A3') : null;
-    if (code) cnt(code, 1);
+    const jt = [journal, r[0]].join(' ');
+    const code = /jafess/i.test(jt) ? 'A2' : ty === 'F' ? (/scopus|abdc/i.test(type) ? 'A1' : 'A2') : ty === 'G' ? (/proceeding|conference|lecture notes/i.test(journal) ? 'A4' : /\bbook\b|chapter|volume|press/i.test(journal) ? 'A8' : 'A3') : null;
+    if (code) { cnt(code, 1); (out.items[code] ||= []).push({ t: r[0], sub: [y, journal, type].filter(Boolean).join(' · ') }); }
     out.pubs.push({ y, t: r[0], j: journal, au: r[5] || '', p, ty, c: Math.round(100 / Math.max(1, camed.length)) / 100, code, camed });
   });
   const cls = (String(cv.info['Faculty Qualification'] || '').match(/\((SA|PA|SP|IP|A)\)/) || [])[1] || '';
