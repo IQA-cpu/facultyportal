@@ -11,67 +11,65 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap" rel="stylesheet">
 <style>
-body{margin:0;background:#F5F3EE;color:#1A1D21;-webkit-font-smoothing:antialiased}
+body{margin:0;background:#FAF7EF;color:#221E1A;-webkit-font-smoothing:antialiased}
 *{box-sizing:border-box}
-a{color:oklch(0.38 0.09 255)}a:hover{color:oklch(0.3 0.1 255)}
+a{color:#6B1E24}a:hover{color:#541519}
 input::placeholder{color:#8A8F96}
 </style>
 </helmet>
-<div style="min-height:100vh;background:#F5F3EE;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.45;color:#1A1D21">
+<div style="min-height:100vh;background:#FAF7EF;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.45;color:#221E1A">
   <sc-if value="{{ showGate }}" hint-placeholder-val="{{ false }}">
     <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
-      <div style="width:100%;max-width:400px;background:#fff;border:1px solid #E3DFD6;border-radius:10px;padding:28px;display:flex;flex-direction:column;gap:18px">
-        <div style="display:flex;flex-direction:column;gap:2px">
-          <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#5B6168;font-weight:500">CamEd Business School</div>
-          <div style="font-family:'Source Serif 4',serif;font-size:26px;font-weight:600">Faculty Portal</div>
+      <div style="width:100%;max-width:420px;background:#fff;border:1px solid #EAE2CF;border-top:4px solid #C9A227;border-radius:10px;padding:28px;box-shadow:0 12px 32px rgba(94,26,31,0.08);display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid #EAE2CF">
+          <img src="camed-logo.png" alt="CamEd Business School" style="height:72px;width:auto;display:block">
+          <div style="font-family:'Source Serif 4',serif;font-size:24px;font-weight:600;color:#5E1A1F">Faculty Portal</div>
         </div>
-        <sc-if value="{{ gate.loading }}" hint-placeholder-val="{{ true }}"><div style="color:#5B6168">Loading…</div></sc-if>
+        <sc-if value="{{ gate.loading }}" hint-placeholder-val="{{ true }}"><div style="color:#6F6A5F">Loading…</div></sc-if>
         <sc-if value="{{ gate.signin }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-direction:column;gap:14px">
-            <div style="color:#3D4249">Sign in with an authorised email address.</div>
-            <button onClick="{{ gate.onGoogle }}" style="height:42px;border-radius:6px;border:1px solid #D8D3C8;background:#fff;font:500 14px 'IBM Plex Sans',sans-serif;color:#1A1D21;cursor:pointer" style-hover="background:#FAF8F4">Continue with Google</button>
-            <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#8A8F96"><span style="flex:1;height:1px;background:#E3DFD6"></span>or<span style="flex:1;height:1px;background:#E3DFD6"></span></div>
-            <input value="{{ gate.loginEmail }}" onChange="{{ gate.onLoginEmail }}" placeholder="name@cam-ed.com" type="email" style="height:42px;padding:0 12px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
-            <button onClick="{{ gate.onLink }}" style="height:42px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:oklch(0.38 0.09 255);color:#fff;font:500 14px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:oklch(0.32 0.1 255)">Email me a sign-in link</button>
+            <div style="color:#3F3A33">Sign in with an authorised email address.</div>
+            <button onClick="{{ gate.onGoogle }}" style="height:42px;border-radius:6px;border:1px solid #DDD3BD;background:#fff;font:500 14px 'IBM Plex Sans',sans-serif;color:#221E1A;cursor:pointer" style-hover="background:#FBF7EC">Continue with Google</button>
+            <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#8A8F96"><span style="flex:1;height:1px;background:#EAE2CF"></span>or<span style="flex:1;height:1px;background:#EAE2CF"></span></div>
+            <input value="{{ gate.loginEmail }}" onChange="{{ gate.onLoginEmail }}" placeholder="name@cam-ed.com" type="email" style="height:42px;padding:0 12px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
+            <button onClick="{{ gate.onLink }}" style="height:42px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:500 14px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#541519">Email me a sign-in link</button>
           </div>
         </sc-if>
         <sc-if value="{{ gate.denied }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-direction:column;gap:14px">
-            <div style="color:#3D4249;text-wrap:pretty"><strong style="font-weight:600">{{ gate.user }}</strong> is not authorised to use this portal. Ask an administrator to add your email address.</div>
-            <button onClick="{{ gate.onSignOut }}" style="height:40px;border-radius:6px;border:1px solid #D8D3C8;background:#fff;font:500 14px 'IBM Plex Sans',sans-serif;color:#1A1D21;cursor:pointer">Use a different account</button>
+            <div style="color:#3F3A33;text-wrap:pretty"><strong style="font-weight:600">{{ gate.user }}</strong> is not authorised to use this portal. Ask an administrator to add your email address.</div>
+            <button onClick="{{ gate.onSignOut }}" style="height:40px;border-radius:6px;border:1px solid #DDD3BD;background:#fff;font:500 14px 'IBM Plex Sans',sans-serif;color:#221E1A;cursor:pointer">Use a different account</button>
           </div>
         </sc-if>
-        <sc-if value="{{ gate.hasMsg }}" hint-placeholder-val="{{ false }}"><div style="padding:10px 12px;border-radius:6px;background:#FAF8F4;font-size:13px;color:#3D4249">{{ gate.msg }}</div></sc-if>
+        <sc-if value="{{ gate.hasMsg }}" hint-placeholder-val="{{ false }}"><div style="padding:10px 12px;border-radius:6px;background:#FBF7EC;font-size:13px;color:#3F3A33">{{ gate.msg }}</div></sc-if>
       </div>
     </div>
   </sc-if>
   <sc-if value="{{ showApp }}" hint-placeholder-val="{{ true }}"><div>
-  <header style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;padding:22px 32px 18px;border-bottom:1px solid #E3DFD6;background:#FBFAF7">
-    <div style="display:flex;flex-direction:column;gap:2px">
-      <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#5B6168;font-weight:500">CamEd Business School</div>
-      <div style="font-family:'Source Serif 4',serif;font-size:28px;font-weight:600;letter-spacing:-0.01em">Faculty Portal</div>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:12px;color:#5B6168">
-      
-      
-      
-      
+  <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 32px;padding:14px 32px;background:#FFFFFF;border-bottom:3px solid #C9A227;box-shadow:0 1px 0 #6B1E24">
+    <div style="display:flex;align-items:center;gap:18px;min-width:0">
+      <img src="camed-logo.png" alt="CamEd Business School" style="height:52px;width:auto;display:block">
+      <span style="width:1px;height:40px;background:#E6DCC2"></span>
+      <div style="display:flex;flex-direction:column;gap:1px">
+        <div style="font-family:'Source Serif 4',serif;font-size:24px;font-weight:600;letter-spacing:-0.01em;color:#5E1A1F;line-height:1.1">Faculty Portal</div>
+        <div style="font-size:12px;color:#6F6A5F">Faculty qualifications and intellectual portfolio</div>
+      </div>
     </div>
     <sc-if value="{{ showUser }}" hint-placeholder-val="{{ false }}">
-      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:12px;color:#5B6168">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:12px;color:#6F6A5F">
         <sc-if value="{{ hasSaveStatus }}" hint-placeholder-val="{{ false }}"><span style="color:{{ saveColor }}">{{ saveStatus }}</span></sc-if>
         <span>{{ userLabel }}</span>
-        <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onAdminView }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.38 0.09 255);cursor:pointer">Access &amp; data</button></sc-if>
-        <button onClick="{{ onSignOut }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.38 0.09 255);cursor:pointer">Sign out</button>
+        <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onAdminView }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">Access &amp; data</button></sc-if>
+        <button onClick="{{ onSignOut }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">Sign out</button>
       </div>
     </sc-if>
     <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#5B6168">Academic year
-        <select value="{{ curYear }}" onChange="{{ onYear }}" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:600 14px 'IBM Plex Sans',sans-serif;color:#1A1D21">
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#6F6A5F">Academic year
+        <select value="{{ curYear }}" onChange="{{ onYear }}" style="height:36px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:600 14px 'IBM Plex Sans',sans-serif;color:#221E1A">
           <sc-for list="{{ yearOptions }}" as="o" hint-placeholder-count="2"><option value="{{ o.key }}">{{ o.label }}</option></sc-for>
         </select>
       </label>
-      <button onClick="{{ onExportXlsx }}" title="Table 3-1, Table 3-2 and Table 8-1 in the AACSB template" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:oklch(0.38 0.09 255);color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;white-space:nowrap;cursor:pointer" style-hover="background:oklch(0.32 0.1 255)">{{ exportLabel }}</button>
+      <button onClick="{{ onExportXlsx }}" title="Table 3-1, Table 3-2 and Table 8-1 in the AACSB template" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;white-space:nowrap;cursor:pointer" style-hover="background:#541519">{{ exportLabel }}</button>
       <sc-if value="{{ canDeleteYear }}" hint-placeholder-val="{{ false }}">
         <button onClick="{{ onDeleteYear }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">Delete year</button>
       </sc-if>
@@ -79,13 +77,13 @@ input::placeholder{color:#8A8F96}
   </header>
 
   <div style="display:flex;flex-wrap:wrap;align-items:flex-start">
-    <aside style="flex:1 1 300px;max-width:100%;border-right:1px solid #E3DFD6;background:#FBFAF7;position:sticky;top:0;max-height:100vh;overflow:auto;display:flex;flex-direction:column">
-      <div style="padding:18px 20px 14px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid #E3DFD6;position:sticky;top:0;background:#FBFAF7;z-index:1">
+    <aside style="flex:1 1 300px;max-width:100%;border-right:1px solid #EAE2CF;background:#FFFDF8;position:sticky;top:0;max-height:100vh;overflow:auto;display:flex;flex-direction:column">
+      <div style="padding:18px 20px 14px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid #EAE2CF;position:sticky;top:0;background:#FFFDF8;z-index:1">
         <div style="display:flex;gap:8px">
-        <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search faculty" style="flex:1;min-width:0;height:38px;padding:0 12px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
-        <sc-if value="{{ canEdit }}" hint-placeholder-val="{{ true }}">        <button onClick="{{ onAdd }}" title="Add a faculty member to this year" style="flex:none;height:38px;padding:0 12px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:#fff;color:oklch(0.38 0.09 255);font:600 13px 'IBM Plex Sans',sans-serif;white-space:nowrap;cursor:pointer" style-hover="background:oklch(0.96 0.02 255)">+ Add</button></sc-if>
+        <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search faculty" style="flex:1;min-width:0;height:38px;padding:0 12px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
+        <sc-if value="{{ canEdit }}" hint-placeholder-val="{{ true }}">        <button onClick="{{ onAdd }}" title="Add a faculty member to this year" style="flex:none;height:38px;padding:0 12px;border-radius:6px;border:1px solid #6B1E24;background:#fff;color:#6B1E24;font:600 13px 'IBM Plex Sans',sans-serif;white-space:nowrap;cursor:pointer" style-hover="background:#F8F0E6">+ Add</button></sc-if>
         </div>
-        <select value="{{ disc }}" onChange="{{ onDisc }}" style="width:100%;height:38px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21">
+        <select value="{{ disc }}" onChange="{{ onDisc }}" style="width:100%;height:38px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A">
           <sc-for list="{{ discOptions }}" as="o" hint-placeholder-count="7">
             <option value="{{ o.key }}">{{ o.label }}</option>
           </sc-for>
@@ -95,21 +93,21 @@ input::placeholder{color:#8A8F96}
             <button onClick="{{ c.onClick }}" title="{{ c.title }}" style="height:28px;padding:0 10px;border-radius:14px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font:500 12px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ c.label }}</button>
           </sc-for>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:#5B6168">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#6F6A5F">
           <span>{{ resultLabel }}</span>
-          <button onClick="{{ goOverview }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.38 0.09 255);cursor:pointer">School overview</button>
+          <button onClick="{{ goOverview }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">School overview</button>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;padding:6px 0 24px">
         <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
           <div style="display:flex;flex-direction:column">
-            <div style="padding:14px 20px 6px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#5B6168;font-weight:600">{{ g.label }}</div>
+            <div style="padding:16px 20px 6px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#8A6512;font-weight:600">{{ g.label }}</div>
             <sc-for list="{{ g.items }}" as="f" hint-placeholder-count="5">
-              <button onClick="{{ f.onClick }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 20px;border:0;border-left:3px solid {{ f.edge }};background:{{ f.bg }};text-align:left;cursor:pointer;font:inherit;color:inherit" style-hover="background:#F0EDE6">
+              <button onClick="{{ f.onClick }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 20px;border:0;border-left:3px solid {{ f.edge }};background:{{ f.bg }};text-align:left;cursor:pointer;font:inherit;color:inherit" style-hover="background:#F7F0DF">
                 <span style="flex:none;width:34px;height:22px;border-radius:4px;background:{{ f.clsColor }};color:#fff;font:600 11px 'IBM Plex Mono',monospace;display:flex;align-items:center;justify-content:center">{{ f.cls }}</span>
                 <span style="flex:1;min-width:0;display:flex;flex-direction:column">
                   <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.name }}</span>
-                  <span style="font-size:12px;color:#5B6168;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.sub }}</span>
+                  <span style="font-size:12px;color:#6F6A5F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.sub }}</span>
                 </span>
                 <span title="{{ f.statusLabel }}" style="flex:none;width:8px;height:8px;border-radius:4px;background:{{ f.statusColor }}"></span>
               </button>
@@ -126,30 +124,30 @@ input::placeholder{color:#8A8F96}
       <sc-if value="{{ isAdminView }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex;flex-direction:column;gap:24px">
           <div style="display:flex;flex-direction:column;gap:6px">
-            <div style="font-family:'Source Serif 4',serif;font-size:30px;font-weight:600;letter-spacing:-0.01em">Access &amp; data</div>
-            <div style="color:#5B6168;max-width:680px;text-wrap:pretty">Only the email addresses listed here can sign in. Editors can change faculty details; view-only users can read and export.</div>
+            <div style="font-family:'Source Serif 4',serif;font-size:30px;font-weight:600;letter-spacing:-0.01em;color:#5E1A1F">Access &amp; data</div>
+            <div style="color:#6F6A5F;max-width:680px;text-wrap:pretty">Only the email addresses listed here can sign in. Editors can change faculty details; view-only users can read and export.</div>
           </div>
-          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
-            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:14px 18px;border-bottom:1px solid #E3DFD6"><span style="font-weight:600">Authorised users</span><span style="font-size:12px;color:#5B6168">{{ admin.count }}</span></div>
-            <div style="display:flex;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid #EEEAE2;background:#FAF8F4">
-              <input value="{{ admin.newEmail }}" onChange="{{ admin.onNewEmail }}" placeholder="name@cam-ed.com" type="email" style="flex:1 1 240px;height:38px;padding:0 12px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none">
-              <select value="{{ admin.newRole }}" onChange="{{ admin.onNewRole }}" style="height:38px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21"><sc-for list="{{ admin.roles }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
-              <button onClick="{{ admin.onAdd }}" style="height:38px;padding:0 16px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:oklch(0.38 0.09 255);color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer">Add user</button>
+          <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:14px 18px;border-bottom:1px solid #EAE2CF"><span style="font-weight:600">Authorised users</span><span style="font-size:12px;color:#6F6A5F">{{ admin.count }}</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid #F1EBDD;background:#FBF7EC">
+              <input value="{{ admin.newEmail }}" onChange="{{ admin.onNewEmail }}" placeholder="name@cam-ed.com" type="email" style="flex:1 1 240px;height:38px;padding:0 12px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none">
+              <select value="{{ admin.newRole }}" onChange="{{ admin.onNewRole }}" style="height:38px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ admin.roles }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
+              <button onClick="{{ admin.onAdd }}" style="height:38px;padding:0 16px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer">Add user</button>
             </div>
             <sc-for list="{{ admin.rows }}" as="u" hint-placeholder-count="3">
-              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 18px;border-bottom:1px solid #F1EEE8">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 18px;border-bottom:1px solid #F4EFE4">
                 <span style="flex:1 1 240px;min-width:0;overflow:hidden;text-overflow:ellipsis">{{ u.email }}</span>
-                <select value="{{ u.role }}" onChange="{{ u.onRole }}" style="height:32px;padding:0 8px;border:1px solid #D8D3C8;border-radius:5px;background:#fff;font:inherit;font-size:13px;color:#1A1D21"><sc-for list="{{ u.roles }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
+                <select value="{{ u.role }}" onChange="{{ u.onRole }}" style="height:32px;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:inherit;font-size:13px;color:#221E1A"><sc-for list="{{ u.roles }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
                 <sc-if value="{{ u.isOther }}" hint-placeholder-val="{{ true }}"><button onClick="{{ u.onRemove }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">Remove</button></sc-if>
               </div>
             </sc-for>
           </section>
-          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
-            <div style="padding:14px 18px;border-bottom:1px solid #E3DFD6;display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">Data files</span><span style="font-size:12px;color:#5B6168">Uploading replaces the current file for everyone. Faculty edits made in the portal are kept.</span></div>
+          <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
+            <div style="padding:14px 18px;border-bottom:1px solid #EAE2CF;display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">Data files</span><span style="font-size:12px;color:#6F6A5F">Uploading replaces the current file for everyone. Faculty edits made in the portal are kept.</span></div>
             <sc-for list="{{ admin.uploads }}" as="x" hint-placeholder-count="3">
-              <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:12px 18px;border-bottom:1px solid #F1EEE8">
-                <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:500">{{ x.label }}</span><span style="font-size:12px;color:#5B6168">{{ x.desc }}</span><span style="font-size:12px;color:oklch(0.38 0.09 255)">{{ x.status }}</span></span>
-                <label style="height:34px;padding:0 14px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);color:oklch(0.38 0.09 255);font-weight:600;font-size:13px;display:flex;align-items:center;cursor:pointer">Upload<input type="file" accept="{{ x.accept }}" onChange="{{ x.onFile }}" style="display:none"></label>
+              <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:12px 18px;border-bottom:1px solid #F4EFE4">
+                <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:500">{{ x.label }}</span><span style="font-size:12px;color:#6F6A5F">{{ x.desc }}</span><span style="font-size:12px;color:#6B1E24">{{ x.status }}</span></span>
+                <label style="height:34px;padding:0 14px;border-radius:6px;border:1px solid #6B1E24;color:#6B1E24;font-weight:600;font-size:13px;display:flex;align-items:center;cursor:pointer">Upload<input type="file" accept="{{ x.accept }}" onChange="{{ x.onFile }}" style="display:none"></label>
               </div>
             </sc-for>
           </section>
@@ -158,76 +156,76 @@ input::placeholder{color:#8A8F96}
       <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex;flex-direction:column;gap:28px">
           <div style="display:flex;flex-direction:column;gap:6px">
-            <div style="font-family:'Source Serif 4',serif;font-size:30px;font-weight:600;letter-spacing:-0.01em">School overview</div>
-            <div style="color:#5B6168;max-width:680px;text-wrap:pretty">Faculty sufficiency and qualifications for {{ curYear }}, calculated from the faculty list for that year. Select a faculty member to see their profile, intellectual portfolio and a check against the Faculty Classification Policy.</div>
+            <div style="font-family:'Source Serif 4',serif;font-size:30px;font-weight:600;letter-spacing:-0.01em;color:#5E1A1F">School overview</div>
+            <div style="color:#6F6A5F;max-width:680px;text-wrap:pretty">Faculty sufficiency and qualifications for {{ curYear }}, calculated from the faculty list for that year. Select a faculty member to see their profile, intellectual portfolio and a check against the Faculty Classification Policy.</div>
           </div>
 
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
             <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="3">
-              <div style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px">
-                <div style="font-size:12px;color:#5B6168">{{ k.label }}</div>
+              <div style="background:#fff;border:1px solid #EAE2CF;border-top:3px solid #C9A227;border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+                <div style="font-size:12px;color:#6F6A5F">{{ k.label }}</div>
                 <div style="display:flex;align-items:baseline;gap:10px">
                   <span style="font-family:'Source Serif 4',serif;font-size:34px;font-weight:600">{{ k.value }}</span>
                   <span style="font-size:12px;font-weight:500;color:{{ k.color }}">{{ k.status }}</span>
                 </div>
-                <div style="font-size:12px;color:#5B6168">{{ k.rule }}</div>
+                <div style="font-size:12px;color:#6F6A5F">{{ k.rule }}</div>
               </div>
             </sc-for>
           </div>
 
-          <div style="display:flex;flex-wrap:wrap;gap:8px 28px;font-size:13px;color:#5B6168">
-            <span><strong style="color:#1A1D21;font-weight:600">{{ totals.count }}</strong> faculty</span>
-            <span><strong style="color:#1A1D21;font-weight:600">{{ totals.ft }}</strong> full-time · <strong style="color:#1A1D21;font-weight:600">{{ totals.pt }}</strong> part-time</span>
-            <span><strong style="color:#1A1D21;font-weight:600">{{ totals.fte }}</strong> FTE</span>
-            <span><strong style="color:#1A1D21;font-weight:600">{{ totals.hours }}</strong> teaching hours planned</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px 28px;font-size:13px;color:#6F6A5F">
+            <span><strong style="color:#221E1A;font-weight:600">{{ totals.count }}</strong> faculty</span>
+            <span><strong style="color:#221E1A;font-weight:600">{{ totals.ft }}</strong> full-time · <strong style="color:#221E1A;font-weight:600">{{ totals.pt }}</strong> part-time</span>
+            <span><strong style="color:#221E1A;font-weight:600">{{ totals.fte }}</strong> FTE</span>
+            <span><strong style="color:#221E1A;font-weight:600">{{ totals.hours }}</strong> teaching hours planned</span>
           </div>
 
-          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
-            <div style="display:flex;flex-direction:column;gap:2px;padding:16px 18px;border-bottom:1px solid #E3DFD6">
-              <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#5B6168;font-weight:600">Table 3-2</div>
+          <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
+            <div style="display:flex;flex-direction:column;gap:2px;padding:16px 18px;border-bottom:1px solid #EAE2CF">
+              <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Table 3-2</div>
               <div style="font-weight:600">Deployment of Faculty by Qualification Status in Support of Degree Programs in AY {{ curYear }}</div>
-              <div style="font-size:12px;color:#5B6168">Faculty percent of teaching by program and degree level · metric: teaching hours</div>
+              <div style="font-size:12px;color:#6F6A5F">Faculty percent of teaching by program and degree level · metric: teaching hours</div>
             </div>
             <div style="overflow-x:auto">
               <div style="min-width:760px;display:flex;flex-direction:column">
-                <div style="display:grid;grid-template-columns:minmax(220px,2fr) repeat(6,minmax(70px,1fr));gap:12px;padding:10px 18px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:#5B6168;border-bottom:1px solid #EEEAE2;align-items:end">
+                <div style="display:grid;grid-template-columns:minmax(220px,2fr) repeat(6,minmax(70px,1fr));gap:12px;padding:10px 18px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:#6F6A5F;border-bottom:1px solid #F1EBDD;align-items:end">
                   <span>Degree program</span><span style="text-align:right">SA %</span><span style="text-align:right">PA %</span><span style="text-align:right">SP %</span><span style="text-align:right">IP %</span><span style="text-align:right">A %</span><span style="text-align:right">Total %</span>
                 </div>
                 <sc-for list="{{ progRows }}" as="r" hint-placeholder-count="2">
-                  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 18px;border-bottom:1px solid #EEEAE2">
+                  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 18px;border-bottom:1px solid #F1EBDD">
                     <div style="display:grid;grid-template-columns:minmax(220px,2fr) repeat(6,minmax(70px,1fr));gap:12px;align-items:baseline">
-                      <span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ r.label }}</span><span style="font-size:12px;color:#5B6168">{{ r.hours }}</span></span>
+                      <span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ r.label }}</span><span style="font-size:12px;color:#6F6A5F">{{ r.hours }}</span></span>
                       <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="5">
                         <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:{{ c.color }}">{{ c.v }}</span>
                       </sc-for>
                       <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500">{{ r.total }}</span>
                     </div>
-                    <span style="display:flex;height:6px;border-radius:2px;overflow:hidden;background:#EEEAE2">
+                    <span style="display:flex;height:6px;border-radius:2px;overflow:hidden;background:#F1EBDD">
                       <sc-for list="{{ r.segs }}" as="s" hint-placeholder-count="3"><span title="{{ s.title }}" style="width:{{ s.w }};background:{{ s.color }}"></span></sc-for>
                     </span>
                   </div>
                 </sc-for>
               </div>
             </div>
-            <div style="padding:10px 18px;font-size:12px;color:#5B6168;background:#FAF8F4">{{ progNote }}</div>
+            <div style="padding:10px 18px;font-size:12px;color:#6F6A5F;background:#FBF7EC">{{ progNote }}</div>
           </section>
 
-          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
-            <div style="display:flex;flex-direction:column;gap:2px;padding:16px 18px;border-bottom:1px solid #E3DFD6">
-              <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#5B6168;font-weight:600">Table 8-1 · Part A</div>
+          <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
+            <div style="display:flex;flex-direction:column;gap:2px;padding:16px 18px;border-bottom:1px solid #EAE2CF">
+              <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Table 8-1 · Part A</div>
               <div style="font-weight:600">Summary of Intellectual Contributions · {{ icPeriod }}</div>
-              <div style="font-size:12px;color:#5B6168">{{ icNote }}</div>
+              <div style="font-size:12px;color:#6F6A5F">{{ icNote }}</div>
             </div>
             <div style="overflow-x:auto">
               <div style="min-width:900px;display:flex;flex-direction:column">
-                <div style="display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(10,minmax(60px,1fr));gap:10px;padding:10px 18px 4px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:#5B6168">
-                  <span></span><span style="grid-column:span 4;border-bottom:1px solid #E3DFD6;padding-bottom:4px">Portfolio of ICs</span><span style="grid-column:span 4;border-bottom:1px solid #E3DFD6;padding-bottom:4px">Types of ICs</span><span style="grid-column:span 2;border-bottom:1px solid #E3DFD6;padding-bottom:4px">% producing ICs</span>
+                <div style="display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(10,minmax(60px,1fr));gap:10px;padding:10px 18px 4px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:#6F6A5F">
+                  <span></span><span style="grid-column:span 4;border-bottom:1px solid #EAE2CF;padding-bottom:4px">Portfolio of ICs</span><span style="grid-column:span 4;border-bottom:1px solid #EAE2CF;padding-bottom:4px">Types of ICs</span><span style="grid-column:span 2;border-bottom:1px solid #EAE2CF;padding-bottom:4px">% producing ICs</span>
                 </div>
-                <div style="display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(10,minmax(60px,1fr));gap:10px;padding:4px 18px 10px;font-size:11px;color:#5B6168;border-bottom:1px solid #EEEAE2;align-items:end">
+                <div style="display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(10,minmax(60px,1fr));gap:10px;padding:4px 18px 10px;font-size:11px;color:#6F6A5F;border-bottom:1px solid #F1EBDD;align-items:end">
                   <span>Discipline</span><span style="text-align:right">Basic</span><span style="text-align:right">Applied</span><span style="text-align:right">Teaching</span><span style="text-align:right;font-weight:600">Total</span><span style="text-align:right">Peer-rev. journal</span><span style="text-align:right">Add. peer/ editorial</span><span style="text-align:right">All other</span><span style="text-align:right;font-weight:600">Total</span><span style="text-align:right">Particip. faculty</span><span style="text-align:right">FTE</span>
                 </div>
                 <sc-for list="{{ icRows }}" as="r" hint-placeholder-count="7">
-                  <div style="display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(10,minmax(60px,1fr));gap:10px;padding:10px 18px;border-bottom:1px solid #EEEAE2;align-items:baseline;font-weight:{{ r.bold }}">
+                  <div style="display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(10,minmax(60px,1fr));gap:10px;padding:10px 18px;border-bottom:1px solid #F1EBDD;align-items:baseline;font-weight:{{ r.bold }}">
                     <span>{{ r.label }}</span>
                     <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="10"><span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px">{{ c }}</span></sc-for>
                   </div>
@@ -236,10 +234,10 @@ input::placeholder{color:#8A8F96}
             </div>
           </section>
 
-          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
-            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid #E3DFD6">
+          <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid #EAE2CF">
               <div style="font-weight:600">By discipline</div>
-              <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:#5B6168">
+              <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:#6F6A5F">
                 <sc-for list="{{ legend }}" as="l" hint-placeholder-count="5">
                   <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;background:{{ l.color }}"></span>{{ l.label }}</span>
                 </sc-for>
@@ -247,17 +245,17 @@ input::placeholder{color:#8A8F96}
             </div>
             <div style="overflow-x:auto">
               <div style="min-width:720px;display:flex;flex-direction:column">
-                <div style="display:grid;grid-template-columns:minmax(160px,1.4fr) 60px 70px 70px 90px minmax(160px,1.6fr);gap:12px;padding:10px 18px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#5B6168;border-bottom:1px solid #EEEAE2">
+                <div style="display:grid;grid-template-columns:minmax(160px,1.4fr) 60px 70px 70px 90px minmax(160px,1.6fr);gap:12px;padding:10px 18px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#6F6A5F;border-bottom:1px solid #F1EBDD">
                   <span>Discipline</span><span>Faculty</span><span>P ≥60%</span><span>SA ≥40%</span><span>SA–IP ≥90%</span><span>Qualification mix</span>
                 </div>
                 <sc-for list="{{ discRows }}" as="d" hint-placeholder-count="6">
-                  <button onClick="{{ d.onClick }}" style="display:grid;grid-template-columns:minmax(160px,1.4fr) 60px 70px 70px 90px minmax(160px,1.6fr);gap:12px;align-items:center;padding:12px 18px;border:0;border-bottom:1px solid #EEEAE2;background:#fff;text-align:left;font:inherit;color:inherit;cursor:pointer" style-hover="background:#FAF8F4">
-                    <span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ d.label }}</span><span style="font-size:12px;color:#5B6168">{{ d.offered }}</span></span>
+                  <button onClick="{{ d.onClick }}" style="display:grid;grid-template-columns:minmax(160px,1.4fr) 60px 70px 70px 90px minmax(160px,1.6fr);gap:12px;align-items:center;padding:12px 18px;border:0;border-bottom:1px solid #F1EBDD;background:#fff;text-align:left;font:inherit;color:inherit;cursor:pointer" style-hover="background:#FBF7EC">
+                    <span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ d.label }}</span><span style="font-size:12px;color:#6F6A5F">{{ d.offered }}</span></span>
                     <span style="font-family:'IBM Plex Mono',monospace">{{ d.count }}</span>
                     <span style="font-family:'IBM Plex Mono',monospace;color:{{ d.pColor }}">{{ d.p }}</span>
                     <span style="font-family:'IBM Plex Mono',monospace;color:{{ d.saColor }}">{{ d.sa }}</span>
                     <span style="font-family:'IBM Plex Mono',monospace;color:{{ d.qColor }}">{{ d.q }}</span>
-                    <span style="display:flex;height:10px;border-radius:2px;overflow:hidden;background:#EEEAE2">
+                    <span style="display:flex;height:10px;border-radius:2px;overflow:hidden;background:#F1EBDD">
                       <sc-for list="{{ d.segs }}" as="s" hint-placeholder-count="3">
                         <span title="{{ s.title }}" style="width:{{ s.w }};background:{{ s.color }}"></span>
                       </sc-for>
@@ -271,15 +269,15 @@ input::placeholder{color:#8A8F96}
           <section style="display:flex;flex-direction:column;gap:12px">
             <div style="display:flex;flex-direction:column;gap:2px">
               <div style="font-weight:600">Profiles with gaps against maintenance criteria</div>
-              <div style="font-size:12px;color:#5B6168">Based on engagement recorded for 2021–2026 against each member's current classification. Teaching effectiveness and professional experience count once they are entered in a profile.</div>
+              <div style="font-size:12px;color:#6F6A5F">Based on engagement recorded for 2021–2026 against each member's current classification. Teaching effectiveness and professional experience count once they are entered in a profile.</div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px">
               <sc-for list="{{ gaps }}" as="f" hint-placeholder-count="4">
-                <button onClick="{{ f.onClick }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #E3DFD6;border-radius:6px;background:#fff;text-align:left;font:inherit;color:inherit;cursor:pointer" style-hover="border-color:#BDB6A8">
+                <button onClick="{{ f.onClick }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #EAE2CF;border-radius:6px;background:#fff;text-align:left;font:inherit;color:inherit;cursor:pointer" style-hover="border-color:#C9A227">
                   <span style="flex:none;width:34px;height:22px;border-radius:4px;background:{{ f.clsColor }};color:#fff;font:600 11px 'IBM Plex Mono',monospace;display:flex;align-items:center;justify-content:center">{{ f.cls }}</span>
                   <span style="flex:1;min-width:0;display:flex;flex-direction:column">
                     <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.name }}</span>
-                    <span style="font-size:12px;color:#5B6168">{{ f.gapText }}</span>
+                    <span style="font-size:12px;color:#6F6A5F">{{ f.gapText }}</span>
                   </span>
                 </button>
               </sc-for>
@@ -292,26 +290,26 @@ input::placeholder{color:#8A8F96}
         <div style="display:flex;flex-direction:column;gap:24px">
           <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:20px">
             <div style="display:flex;flex-direction:column;gap:6px;min-width:0;flex:1 1 360px">
-              <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:500">{{ p.meta }}</div>
-              <div style="font-family:'Source Serif 4',serif;font-size:36px;line-height:1.1;font-weight:600;letter-spacing:-0.01em;text-wrap:balance">{{ p.name }}</div>
-              <div style="color:#3D4249;font-size:15px">{{ p.specLine }}</div>
+              <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:500">{{ p.meta }}</div>
+              <div style="font-family:'Source Serif 4',serif;font-size:36px;line-height:1.1;font-weight:600;letter-spacing:-0.01em;text-wrap:balance;color:#5E1A1F">{{ p.name }}</div>
+              <div style="color:#3F3A33;font-size:15px">{{ p.specLine }}</div>
             </div>
             <div style="flex:none;display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:8px;background:{{ p.clsTint }};border:1px solid {{ p.clsBorder }}">
               <span style="width:52px;height:40px;border-radius:6px;background:{{ p.clsColor }};color:#fff;font:600 16px 'IBM Plex Mono',monospace;display:flex;align-items:center;justify-content:center">{{ p.cls }}</span>
               <span style="display:flex;flex-direction:column">
                 <span style="font-weight:600">{{ p.clsName }}</span>
-                <span style="font-size:12px;color:#5B6168">{{ p.pctLine }}</span>
+                <span style="font-size:12px;color:#6F6A5F">{{ p.pctLine }}</span>
               </span>
             </div>
           </div>
 
           <sc-if value="{{ canEdit }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px">
-            <button onClick="{{ p.toggleEdit }}" style="flex:none;white-space:nowrap;height:36px;padding:0 16px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:oklch(0.38 0.09 255);color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:oklch(0.32 0.1 255)">{{ p.editLabel }}</button>
+            <button onClick="{{ p.toggleEdit }}" style="flex:none;white-space:nowrap;height:36px;padding:0 16px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#541519">{{ p.editLabel }}</button>
             <sc-if value="{{ p.edited }}" hint-placeholder-val="{{ false }}">
-              <span style="display:flex;align-items:center;gap:12px;font-size:12px;color:#5B6168">
-                <span style="padding:2px 8px;border-radius:10px;background:oklch(0.94 0.03 255);color:oklch(0.38 0.09 255);font-weight:600">{{ p.editedTag }}</span>
-                <sc-if value="{{ p.canRevert }}" hint-placeholder-val="{{ false }}"><button onClick="{{ p.revert }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.38 0.09 255);cursor:pointer">Revert changes</button></sc-if>
+              <span style="display:flex;align-items:center;gap:12px;font-size:12px;color:#6F6A5F">
+                <span style="padding:2px 8px;border-radius:10px;background:#F6EBD0;color:#6B1E24;font-weight:600">{{ p.editedTag }}</span>
+                <sc-if value="{{ p.canRevert }}" hint-placeholder-val="{{ false }}"><button onClick="{{ p.revert }}" style="border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">Revert changes</button></sc-if>
               </span>
             </sc-if>
             <button onClick="{{ p.onRemove }}" style="margin-left:auto;border:0;background:none;padding:0;font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">{{ p.removeLabel }}</button>
@@ -319,37 +317,37 @@ input::placeholder{color:#8A8F96}
           </sc-if>
 
           <sc-if value="{{ isEditing }}" hint-placeholder-val="{{ false }}">
-            <section style="background:#fff;border:1px solid oklch(0.8 0.05 255);border-radius:8px;display:flex;flex-direction:column">
-              <div style="padding:14px 18px;border-bottom:1px solid #E3DFD6;display:flex;flex-direction:column;gap:2px">
+            <section style="background:#fff;border:1px solid #D9C28A;border-radius:8px;display:flex;flex-direction:column">
+              <div style="padding:14px 18px;border-bottom:1px solid #EAE2CF;display:flex;flex-direction:column;gap:2px">
                 <span style="font-weight:600">Update details</span>
-                <span style="font-size:12px;color:#5B6168">{{ editHint }}</span>
+                <span style="font-size:12px;color:#6F6A5F">{{ editHint }}</span>
               </div>
               <div style="padding:16px 18px;display:flex;flex-direction:column;gap:20px">
                 <div style="display:flex;flex-direction:column;gap:10px">
-                  <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Profile and teaching</div>
+                  <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Profile and teaching</div>
                   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
                     <sc-for list="{{ p.form.profile }}" as="x" hint-placeholder-count="9">
                       <label style="display:flex;flex-direction:column;gap:4px">
-                        <span style="font-size:12px;color:#5B6168">{{ x.label }}</span>
+                        <span style="font-size:12px;color:#6F6A5F">{{ x.label }}</span>
                         <sc-if value="{{ x.isSelect }}" hint-placeholder-val="{{ false }}">
-                          <select value="{{ x.value }}" onChange="{{ x.onChange }}" style="height:36px;padding:0 8px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21">
+                          <select value="{{ x.value }}" onChange="{{ x.onChange }}" style="height:36px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A">
                             <sc-for list="{{ x.options }}" as="o" hint-placeholder-count="2"><option value="{{ o.key }}">{{ o.label }}</option></sc-for>
                           </select>
                         </sc-if>
                         <sc-if value="{{ x.isInput }}" hint-placeholder-val="{{ true }}">
-                          <input value="{{ x.value }}" onChange="{{ x.onChange }}" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
+                          <input value="{{ x.value }}" onChange="{{ x.onChange }}" style="height:36px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
                         </sc-if>
                       </label>
                     </sc-for>
                   </div>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:10px">
-                  <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Policy evidence</div>
+                  <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Policy evidence</div>
                   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
                     <sc-for list="{{ p.form.evidence }}" as="x" hint-placeholder-count="3">
                       <label style="display:flex;flex-direction:column;gap:4px">
-                        <span style="font-size:12px;color:#5B6168">{{ x.label }}</span>
-                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" placeholder="{{ x.placeholder }}" inputMode="decimal" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
+                        <span style="font-size:12px;color:#6F6A5F">{{ x.label }}</span>
+                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" placeholder="{{ x.placeholder }}" inputMode="decimal" style="height:36px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
                         <span style="font-size:11px;color:#8A8F96">{{ x.hint }}</span>
                       </label>
                     </sc-for>
@@ -357,35 +355,35 @@ input::placeholder{color:#8A8F96}
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px">
                   <div style="display:flex;flex-direction:column;gap:8px">
-                    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Academic engagement (count, 2021–2026)</div>
+                    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Academic engagement (count, 2021–2026)</div>
                     <sc-for list="{{ p.form.acad }}" as="x" hint-placeholder-count="17">
                       <label style="display:grid;grid-template-columns:36px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:13px">
-                        <span style="font:500 12px 'IBM Plex Mono',monospace;color:#5B6168">{{ x.code }}</span>
+                        <span style="font:500 12px 'IBM Plex Mono',monospace;color:#6F6A5F">{{ x.code }}</span>
                         <span>{{ x.label }}</span>
-                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" inputMode="numeric" style="height:30px;width:64px;padding:0 8px;border:1px solid #D8D3C8;border-radius:5px;background:#fff;font:500 13px 'IBM Plex Mono',monospace;text-align:right;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
+                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" inputMode="numeric" style="height:30px;width:64px;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 13px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
                       </label>
                     </sc-for>
                   </div>
                   <div style="display:flex;flex-direction:column;gap:8px">
-                    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Professional engagement (count, 2021–2026)</div>
+                    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Professional engagement (count, 2021–2026)</div>
                     <sc-for list="{{ p.form.prof }}" as="x" hint-placeholder-count="10">
                       <label style="display:grid;grid-template-columns:36px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:13px">
-                        <span style="font:500 12px 'IBM Plex Mono',monospace;color:#5B6168">{{ x.code }}</span>
+                        <span style="font:500 12px 'IBM Plex Mono',monospace;color:#6F6A5F">{{ x.code }}</span>
                         <span>{{ x.label }}</span>
-                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" inputMode="numeric" style="height:30px;width:64px;padding:0 8px;border:1px solid #D8D3C8;border-radius:5px;background:#fff;font:500 13px 'IBM Plex Mono',monospace;text-align:right;color:#1A1D21;outline:none" style-focus="border-color:oklch(0.38 0.09 255)">
+                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" inputMode="numeric" style="height:30px;width:64px;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 13px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
                       </label>
                     </sc-for>
                     <span style="font-size:11px;color:#8A8F96">CPD hours (P9) are entered under Policy evidence.</span>
                   </div>
                 </div>
                 <label style="display:flex;flex-direction:column;gap:4px">
-                  <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Basis for qualification (Table 3-1 text)</span>
-                  <span style="font-size:12px;color:#5B6168">Leave blank to use the activity summary shown in grey.</span>
-                  <textarea value="{{ p.form.basis }}" onChange="{{ p.form.onBasis }}" placeholder="{{ p.form.basisAuto }}" rows="6" style="padding:8px 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;resize:vertical;outline:none" style-focus="border-color:oklch(0.38 0.09 255)"></textarea>
+                  <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Basis for qualification (Table 3-1 text)</span>
+                  <span style="font-size:12px;color:#6F6A5F">Leave blank to use the activity summary shown in grey.</span>
+                  <textarea value="{{ p.form.basis }}" onChange="{{ p.form.onBasis }}" placeholder="{{ p.form.basisAuto }}" rows="6" style="padding:8px 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;resize:vertical;outline:none" style-focus="border-color:#6B1E24"></textarea>
                 </label>
                 <label style="display:flex;flex-direction:column;gap:4px">
-                  <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Admin note</span>
-                  <textarea value="{{ p.form.note }}" onChange="{{ p.form.onNote }}" rows="3" style="padding:8px 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;resize:vertical;outline:none" style-focus="border-color:oklch(0.38 0.09 255)"></textarea>
+                  <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Admin note</span>
+                  <textarea value="{{ p.form.note }}" onChange="{{ p.form.onNote }}" rows="3" style="padding:8px 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;resize:vertical;outline:none" style-focus="border-color:#6B1E24"></textarea>
                 </label>
               </div>
             </section>
@@ -397,10 +395,10 @@ input::placeholder{color:#8A8F96}
 
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:8px">
             <sc-for list="{{ p.figures }}" as="k" hint-placeholder-count="4">
-              <div style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:2px">
-                <div style="font-size:12px;color:#5B6168">{{ k.label }}</div>
+              <div style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:2px">
+                <div style="font-size:12px;color:#6F6A5F">{{ k.label }}</div>
                 <div style="font-family:'Source Serif 4',serif;font-size:26px;font-weight:600">{{ k.value }}</div>
-                <div style="font-size:12px;color:#5B6168">{{ k.sub }}</div>
+                <div style="font-size:12px;color:#6F6A5F">{{ k.sub }}</div>
               </div>
             </sc-for>
           </div>
@@ -408,50 +406,50 @@ input::placeholder{color:#8A8F96}
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px 24px;padding:4px 2px">
             <sc-for list="{{ p.facts }}" as="x" hint-placeholder-count="4">
               <div style="display:flex;flex-direction:column;gap:2px">
-                <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">{{ x.label }}</span>
+                <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">{{ x.label }}</span>
                 <span style="text-wrap:pretty">{{ x.value }}</span>
               </div>
             </sc-for>
           </div>
 
-          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
-            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><span style="font-weight:600">Time devoted to mission</span><span style="font-size:12px;color:#5B6168">60 / 30 / 10 model</span></div>
+          <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><span style="font-weight:600">Time devoted to mission</span><span style="font-size:12px;color:#6F6A5F">60 / 30 / 10 model</span></div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px">
               <sc-for list="{{ p.split }}" as="s" hint-placeholder-count="3">
                 <div style="display:flex;flex-direction:column;gap:6px">
                   <div style="display:flex;justify-content:space-between;font-size:13px"><span>{{ s.label }}</span><span style="font-family:'IBM Plex Mono',monospace">{{ s.value }}</span></div>
-                  <div style="height:6px;border-radius:3px;background:#EEEAE2;overflow:hidden"><div style="height:100%;width:{{ s.w }};background:oklch(0.38 0.09 255)"></div></div>
+                  <div style="height:6px;border-radius:3px;background:#F1EBDD;overflow:hidden"><div style="height:100%;width:{{ s.w }};background:linear-gradient(90deg,#C9A227,#A88316)"></div></div>
                 </div>
               </sc-for>
             </div>
           </section>
 
-          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
-            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid #E3DFD6">
+          <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid #EAE2CF">
               <div style="display:flex;flex-direction:column;gap:2px">
                 <span style="font-weight:600">Policy check · {{ p.clsName }}</span>
-                <span style="font-size:12px;color:#5B6168">{{ p.section }}</span>
+                <span style="font-size:12px;color:#6F6A5F">{{ p.section }}</span>
               </div>
               <span style="padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600;color:#fff;background:{{ p.verdictColor }}">{{ p.verdict }}</span>
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
               <sc-for list="{{ p.checkCols }}" as="col" hint-placeholder-count="2">
-                <div style="padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px;border-right:1px solid #EEEAE2">
-                  <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">{{ col.title }}</div>
+                <div style="padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px;border-right:1px solid #F1EBDD">
+                  <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">{{ col.title }}</div>
                   <sc-for list="{{ col.items }}" as="c" hint-placeholder-count="2">
                     <div style="display:flex;gap:10px;align-items:flex-start">
                       <span style="flex:none;margin-top:3px;min-width:58px;text-align:center;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:600;color:{{ c.color }};background:{{ c.tint }}">{{ c.statusLabel }}</span>
-                      <span style="display:flex;flex-direction:column;gap:1px"><span>{{ c.label }}</span><span style="font-size:12px;color:#5B6168">{{ c.value }}</span></span>
+                      <span style="display:flex;flex-direction:column;gap:1px"><span>{{ c.label }}</span><span style="font-size:12px;color:#6F6A5F">{{ c.value }}</span></span>
                     </div>
                   </sc-for>
                 </div>
               </sc-for>
             </div>
             <sc-if value="{{ showMatrix }}" hint-placeholder-val="{{ true }}">
-              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 18px;border-top:1px solid #EEEAE2;background:#FAF8F4;font-size:12px;color:#5B6168">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 18px;border-top:1px solid #F1EBDD;background:#FBF7EC;font-size:12px;color:#6F6A5F">
                 <span>Engagement criteria met, by category:</span>
                 <sc-for list="{{ p.matrix }}" as="m" hint-placeholder-count="4">
-                  <span title="{{ m.title }}" style="display:flex;align-items:center;gap:6px;padding:3px 8px;border-radius:4px;background:#fff;border:1px solid #E3DFD6"><span style="font:600 11px 'IBM Plex Mono',monospace;color:#1A1D21">{{ m.cls }}</span><span style="color:{{ m.color }};font-weight:600">{{ m.mark }}</span></span>
+                  <span title="{{ m.title }}" style="display:flex;align-items:center;gap:6px;padding:3px 8px;border-radius:4px;background:#fff;border:1px solid #EAE2CF"><span style="font:600 11px 'IBM Plex Mono',monospace;color:#221E1A">{{ m.cls }}</span><span style="color:{{ m.color }};font-weight:600">{{ m.mark }}</span></span>
                 </sc-for>
               </div>
             </sc-if>
@@ -459,49 +457,49 @@ input::placeholder{color:#8A8F96}
 
           <section style="display:flex;flex-direction:column;gap:12px">
             <div style="display:flex;flex-direction:column;gap:2px">
-              <div style="font-family:'Source Serif 4',serif;font-size:22px;font-weight:600">Intellectual portfolio</div>
-              <div style="font-size:12px;color:#5B6168">Activities recorded in the Faculty Portal, 2021–2026, mapped to Section 2.5 of the policy.</div>
+              <div style="font-family:'Source Serif 4',serif;font-size:22px;font-weight:600;color:#5E1A1F">Intellectual portfolio</div>
+              <div style="font-size:12px;color:#6F6A5F">Activities recorded in the Faculty Portal, 2021–2026, mapped to Section 2.5 of the policy.</div>
             </div>
             <sc-for list="{{ p.tables }}" as="t" hint-placeholder-count="2">
-              <div style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
-                <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 18px;border-bottom:1px solid #E3DFD6">
+              <div style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
+                <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 18px;border-bottom:1px solid #EAE2CF">
                   <span style="font-weight:600">{{ t.title }}</span>
-                  <span style="font-size:12px;color:#5B6168">{{ t.summary }}</span>
+                  <span style="font-size:12px;color:#6F6A5F">{{ t.summary }}</span>
                 </div>
                 <sc-if value="{{ t.empty }}" hint-placeholder-val="{{ false }}">
-                  <div style="padding:16px 18px;color:#5B6168">{{ t.emptyText }}</div>
+                  <div style="padding:16px 18px;color:#6F6A5F">{{ t.emptyText }}</div>
                 </sc-if>
                 <sc-for list="{{ t.rows }}" as="r" hint-placeholder-count="3">
-                  <div style="display:grid;grid-template-columns:44px minmax(0,1fr) 56px;gap:12px;align-items:baseline;padding:10px 18px;border-bottom:1px solid #F1EEE8">
-                    <span style="font:500 12px 'IBM Plex Mono',monospace;color:#5B6168">{{ r.code }}</span>
-                    <span style="display:flex;flex-direction:column;gap:1px"><span>{{ r.desc }}</span><span style="font-size:12px;color:#5B6168">{{ r.detail }}</span></span>
+                  <div style="display:grid;grid-template-columns:44px minmax(0,1fr) 56px;gap:12px;align-items:baseline;padding:10px 18px;border-bottom:1px solid #F4EFE4">
+                    <span style="font:500 12px 'IBM Plex Mono',monospace;color:#6F6A5F">{{ r.code }}</span>
+                    <span style="display:flex;flex-direction:column;gap:1px"><span>{{ r.desc }}</span><span style="font-size:12px;color:#6F6A5F">{{ r.detail }}</span></span>
                     <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500">{{ r.n }}</span>
                   </div>
                 </sc-for>
                 <sc-if value="{{ t.hasOther }}" hint-placeholder-val="{{ false }}">
-                  <div style="padding:10px 18px;font-size:12px;color:#5B6168;background:#FAF8F4">{{ t.otherText }}</div>
+                  <div style="padding:10px 18px;font-size:12px;color:#6F6A5F;background:#FBF7EC">{{ t.otherText }}</div>
                 </sc-if>
               </div>
             </sc-for>
           </section>
 
-          <section style="background:#fff;border:1px solid #E3DFD6;border-radius:8px;overflow:hidden">
-            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid #E3DFD6">
+          <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid #EAE2CF">
               <span style="font-weight:600">Research output</span>
-              <span style="font-size:12px;color:#5B6168">{{ p.research.summary }}</span>
+              <span style="font-size:12px;color:#6F6A5F">{{ p.research.summary }}</span>
             </div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 18px;border-bottom:1px solid #EEEAE2;background:#FAF8F4;font-size:12px;color:#5B6168">
-              <sc-for list="{{ p.research.mix }}" as="m" hint-placeholder-count="6"><span>{{ m.label }} <strong style="color:#1A1D21;font-family:'IBM Plex Mono',monospace;font-weight:500">{{ m.value }}</strong></span></sc-for>
+            <div style="display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 18px;border-bottom:1px solid #F1EBDD;background:#FBF7EC;font-size:12px;color:#6F6A5F">
+              <sc-for list="{{ p.research.mix }}" as="m" hint-placeholder-count="6"><span>{{ m.label }} <strong style="color:#221E1A;font-family:'IBM Plex Mono',monospace;font-weight:500">{{ m.value }}</strong></span></sc-for>
             </div>
             <sc-if value="{{ p.research.empty }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:16px 18px;color:#5B6168">No research outputs recorded for this period.</div>
+              <div style="padding:16px 18px;color:#6F6A5F">No research outputs recorded for this period.</div>
             </sc-if>
             <sc-for list="{{ p.research.rows }}" as="r" hint-placeholder-count="4">
-              <div style="display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:12px;align-items:baseline;padding:10px 18px;border-bottom:1px solid #F1EEE8">
-                <span style="font:500 12px 'IBM Plex Mono',monospace;color:#5B6168">{{ r.year }}</span>
+              <div style="display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:12px;align-items:baseline;padding:10px 18px;border-bottom:1px solid #F4EFE4">
+                <span style="font:500 12px 'IBM Plex Mono',monospace;color:#6F6A5F">{{ r.year }}</span>
                 <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
                   <span style="text-wrap:pretty">{{ r.title }}</span>
-                  <span style="font-size:12px;color:#5B6168;text-wrap:pretty">{{ r.journal }}</span>
+                  <span style="font-size:12px;color:#6F6A5F;text-wrap:pretty">{{ r.journal }}</span>
                   <span style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:11px;color:#8A8F96">
                     <span>{{ r.tags }}</span>
                     <sc-if value="{{ r.canRemove }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.onRemove }}" style="border:0;background:none;padding:0;font:500 11px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">Remove</button></sc-if>
@@ -511,24 +509,24 @@ input::placeholder{color:#8A8F96}
               </div>
             </sc-for>
             <sc-if value="{{ isEditing }}" hint-placeholder-val="{{ false }}">
-              <div style="display:flex;flex-direction:column;gap:10px;padding:14px 18px;background:#FAF8F4">
-                <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Add research output</span>
+              <div style="display:flex;flex-direction:column;gap:10px;padding:14px 18px;background:#FBF7EC">
+                <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Add research output</span>
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
-                  <label style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1"><span style="font-size:12px;color:#5B6168">Title</span><input value="{{ p.draft.t }}" onChange="{{ p.draft.onT }}" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none"></label>
-                  <label style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1"><span style="font-size:12px;color:#5B6168">Journal / source</span><input value="{{ p.draft.j }}" onChange="{{ p.draft.onJ }}" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none"></label>
-                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#5B6168">Year</span><input value="{{ p.draft.y }}" onChange="{{ p.draft.onY }}" inputMode="numeric" style="height:36px;padding:0 10px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21;outline:none"></label>
-                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#5B6168">Portfolio</span><select value="{{ p.draft.p }}" onChange="{{ p.draft.onP }}" style="height:36px;padding:0 8px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21"><sc-for list="{{ p.draft.pOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
-                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#5B6168">Type</span><select value="{{ p.draft.ty }}" onChange="{{ p.draft.onTy }}" style="height:36px;padding:0 8px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21"><sc-for list="{{ p.draft.tyOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
-                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#5B6168">Credit</span><select value="{{ p.draft.c }}" onChange="{{ p.draft.onC }}" style="height:36px;padding:0 8px;border:1px solid #D8D3C8;border-radius:6px;background:#fff;font:inherit;color:#1A1D21"><sc-for list="{{ p.draft.cOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
+                  <label style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1"><span style="font-size:12px;color:#6F6A5F">Title</span><input value="{{ p.draft.t }}" onChange="{{ p.draft.onT }}" style="height:36px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1"><span style="font-size:12px;color:#6F6A5F">Journal / source</span><input value="{{ p.draft.j }}" onChange="{{ p.draft.onJ }}" style="height:36px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#6F6A5F">Year</span><input value="{{ p.draft.y }}" onChange="{{ p.draft.onY }}" inputMode="numeric" style="height:36px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#6F6A5F">Portfolio</span><select value="{{ p.draft.p }}" onChange="{{ p.draft.onP }}" style="height:36px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.pOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#6F6A5F">Type</span><select value="{{ p.draft.ty }}" onChange="{{ p.draft.onTy }}" style="height:36px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.tyOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#6F6A5F">Credit</span><select value="{{ p.draft.c }}" onChange="{{ p.draft.onC }}" style="height:36px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ p.draft.cOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
                 </div>
-                <div><button onClick="{{ p.draft.onAdd }}" style="height:34px;padding:0 14px;border-radius:6px;border:1px solid oklch(0.38 0.09 255);background:#fff;color:oklch(0.38 0.09 255);font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer">Add output</button></div>
+                <div><button onClick="{{ p.draft.onAdd }}" style="height:34px;padding:0 14px;border-radius:6px;border:1px solid #6B1E24;background:#fff;color:#6B1E24;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer">Add output</button></div>
               </div>
             </sc-if>
           </section>
 
           <sc-if value="{{ p.showNote }}" hint-placeholder-val="{{ false }}">
-            <section style="display:flex;flex-direction:column;gap:6px;padding:14px 18px;border:1px dashed #CFC8BA;border-radius:8px">
-              <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#5B6168;font-weight:600">Admin note</span>
+            <section style="display:flex;flex-direction:column;gap:6px;padding:14px 18px;border:1px dashed #D9CDB0;border-radius:8px">
+              <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Admin note</span>
               <span>{{ p.note }}</span>
             </section>
           </sc-if>
@@ -953,7 +951,7 @@ class Component extends DCLogic {
         loginEmail: this.state.loginEmail || '', onLoginEmail: e => this.setState({ loginEmail: e.target.value }), onGoogle: () => this.signInGoogle(), onLink: () => this.sendLink(), onSignOut: () => this.signOut() },
       showUser: fbOn && auth === 'ok', userLabel: (user || '') + ' · ' + ({ admin: 'Administrator', editor: 'Editor', viewer: 'View only' }[role] || role),
       isAdmin: fbOn && role === 'admin', onAdminView: () => this.setState({ view: 'admin', sel: null, editing: false }), onSignOut: () => this.signOut(),
-      hasSaveStatus: fbOn && (saving || !!saveErr), saveStatus: saveErr || (saving ? 'Saving…' : ''), saveColor: saveErr ? 'oklch(0.5 0.17 28)' : '#5B6168',
+      hasSaveStatus: fbOn && (saving || !!saveErr), saveStatus: saveErr || (saving ? 'Saving…' : ''), saveColor: saveErr ? 'oklch(0.5 0.17 28)' : '#6F6A5F',
       noData: this.state.master != null && !this.state.master.length, noDataText: fbOn && role === 'admin' ? 'No faculty data in the database yet. Upload it under Access & data.' : 'No faculty data has been uploaded yet.'
     };
   }
@@ -976,15 +974,15 @@ class Component extends DCLogic {
     const bases = this.bases();
     const D = bases.map(b => this.derive(this.apply(b, edits[b.id])));
     const CLS = {
-      SA: { name: 'Scholarly Academic', color: 'oklch(0.4 0.11 255)', sec: 'Section 2.1' },
-      PA: { name: 'Practice Academic', color: 'oklch(0.5 0.09 190)', sec: 'Section 2.2' },
-      SP: { name: 'Scholarly Practitioner', color: 'oklch(0.48 0.12 310)', sec: 'Section 2.3' },
-      IP: { name: 'Instructional Practitioner', color: 'oklch(0.6 0.12 65)', sec: 'Section 2.4' },
-      A: { name: 'Additional Faculty', color: 'oklch(0.6 0.01 250)', sec: 'Section 2' }
+      SA: { name: 'Scholarly Academic', color: '#6B1E24', sec: 'Section 2.1' },
+      PA: { name: 'Practice Academic', color: '#8A6512', sec: 'Section 2.2' },
+      SP: { name: 'Scholarly Practitioner', color: '#5E4B7A', sec: 'Section 2.3' },
+      IP: { name: 'Instructional Practitioner', color: '#3D6B66', sec: 'Section 2.4' },
+      A: { name: 'Additional Faculty', color: '#968D80', sec: 'Section 2' }
     };
     const DISC = [['ACC', 'Accounting', true], ['FIN', 'Finance', true], ['ECO', 'Economics'], ['MGT', 'Management'], ['LAW', 'Law and Taxation'], ['ICT', 'ICT and Statistics']];
     const discName = Object.fromEntries(DISC.map(d => [d[0], d[1]]));
-    const ST = { met: ['Met', 'oklch(0.45 0.12 150)', 'oklch(0.95 0.04 150)'], notmet: ['Not met', 'oklch(0.5 0.17 28)', 'oklch(0.95 0.035 28)'], review: ['Review', 'oklch(0.5 0.11 70)', 'oklch(0.95 0.05 85)'], nodata: ['No data', '#5B6168', '#EEEAE2'] };
+    const ST = { met: ['Met', 'oklch(0.45 0.12 150)', 'oklch(0.95 0.04 150)'], notmet: ['Not met', 'oklch(0.5 0.17 28)', 'oklch(0.95 0.035 28)'], review: ['Review', 'oklch(0.5 0.11 70)', 'oklch(0.95 0.05 85)'], nodata: ['No data', '#6F6A5F', '#F1EBDD'] };
     const { sel, q, disc, cls, editing } = this.state;
     const showNotes = this.props.showAdminNotes ?? true;
     const showMatrix = this.props.showCategoryMatrix ?? true;
@@ -999,14 +997,14 @@ class Component extends DCLogic {
       label,
       items: filtered.filter(f => f.d === k).map(f => {
         const v = this.verdict(f), on = f.id === sel;
-        return { name: f.n, cls: f.c, clsColor: CLS[f.c].color, sub: (f.sp || '—') + ' · ' + f.ft + (f.edited ? ' · updated' : ''), statusColor: v.color, statusLabel: v.label, bg: on ? '#EDE9E0' : 'transparent', edge: on ? CLS[f.c].color : 'transparent', onClick: open(f.id) };
+        return { name: f.n, cls: f.c, clsColor: CLS[f.c].color, sub: (f.sp || '—') + ' · ' + f.ft + (f.edited ? ' · updated' : ''), statusColor: v.color, statusLabel: v.label, bg: on ? '#F4E9CC' : 'transparent', edge: on ? CLS[f.c].color : 'transparent', onClick: open(f.id) };
       })
     })).filter(g => g.items.length);
 
     const chipKeys = ['All', 'SA', 'PA', 'SP', 'IP', 'A'];
     const clsChips = chipKeys.map(k => {
-      const on = cls === k, col = k === 'All' ? '#1A1D21' : CLS[k].color;
-      return { label: k, title: k === 'All' ? 'All classifications' : CLS[k].name, bg: on ? col : '#fff', fg: on ? '#fff' : '#3D4249', border: on ? col : '#D8D3C8', onClick: () => this.setState({ cls: k }) };
+      const on = cls === k, col = k === 'All' ? '#221E1A' : CLS[k].color;
+      return { label: k, title: k === 'All' ? 'All classifications' : CLS[k].name, bg: on ? col : '#fff', fg: on ? '#fff' : '#3F3A33', border: on ? col : '#DDD3BD', onClick: () => this.setState({ cls: k }) };
     });
 
     const agg = list => {
@@ -1113,7 +1111,7 @@ class Component extends DCLogic {
       const caps = [60, 30, 10];
       p = {
         name: f.n, cls: f.c, clsName: C.name, clsColor: C.color,
-        clsTint: '#fff', clsBorder: '#E3DFD6',
+        clsTint: '#fff', clsBorder: '#EAE2CF',
         meta: discName[f.d] + ' · ' + (f.ft === 'FT' ? 'Full-time' : 'Part-time') + ' · ' + f.fte.toFixed(2) + ' FTE',
         specLine: [f.sp, f.deg + (f.yr ? ', ' + f.yr : '')].filter(Boolean).join(' · '),
         pctLine: f.pct + '% of time devoted to mission',
