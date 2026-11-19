@@ -187,18 +187,18 @@ input::placeholder{color:#8A8F96}
           </div>
           <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
             <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid #EAE2CF">
-              <span style="display:flex;flex-direction:column;gap:2px;max-width:720px"><span style="font-weight:600">Teaching hours plan</span><span style="font-size:13px;color:#6F6A5F;text-wrap:pretty">Enter the planned hours each person teaches in each discipline. Blank cells keep current hours, shown in grey; the home discipline is shaded. % of time devoted to mission = Teaching + Research + Service (60/30/10 model). Teaching % is calculated from total hours: 270 hours a year = 60%. If someone teaches in more than one discipline, their % time is split across those disciplines by hours.</span></span>
+              <span style="display:flex;flex-direction:column;gap:2px;max-width:720px"><span style="font-weight:600">Teaching hours plan</span><span style="font-size:13px;color:#6F6A5F;text-wrap:pretty">Enter the planned hours each person teaches in each discipline. Blank cells keep current hours, shown in grey; the home discipline is shaded. % of time devoted to mission = Teaching + Research + Service (60/30/10 model). Teaching % is calculated from total hours: 270 hours a year = 60%. BAF and MSAF split the hours by program for Table 3-2; leave them blank to keep the current split. If someone teaches in more than one discipline, their % time is split across those disciplines by hours.</span></span>
               <button onClick="{{ plan.onAddHire }}" style="height:38px;padding:0 14px;border-radius:6px;border:1px solid #6B1E24;background:#fff;color:#6B1E24;font:600 14px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#F8F0E6">+ Add new faculty</button>
             </div>
             <div style="overflow-x:auto">
-              <div style="min-width:1380px;display:flex;flex-direction:column">
-                <div style="display:grid;grid-template-columns:minmax(200px,1.6fr) 72px 60px repeat(6,74px) 70px 66px 62px 62px 66px 64px;gap:8px;padding:10px 18px;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;color:#6F6A5F;border-bottom:1px solid #F1EBDD;align-items:end">
+              <div style="min-width:1540px;display:flex;flex-direction:column">
+                <div style="display:grid;grid-template-columns:minmax(200px,1.6fr) 72px 60px repeat(6,74px) 70px 74px 74px 66px 62px 62px 66px 64px;gap:8px;padding:10px 18px;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;color:#6F6A5F;border-bottom:1px solid #F1EBDD;align-items:end">
                   <span>Faculty</span><span>Class</span><span>Role</span>
                   <sc-for list="{{ plan.heads }}" as="h" hint-placeholder-count="6"><span title="{{ h.label }}" style="text-align:right">{{ h.k }}</span></sc-for>
-                  <span style="text-align:right">Hours</span><span style="text-align:right" title="Teaching % = hours ÷ 270 × 60, max 60">Teach</span><span style="text-align:right">Research</span><span style="text-align:right">Service</span><span style="text-align:right" title="% of time devoted to mission">Total %</span><span style="text-align:center">Leaves</span>
+                  <span style="text-align:right">Hours</span><span style="text-align:right;color:#8A6512">BAF</span><span style="text-align:right;color:#8A6512">MSAF</span><span style="text-align:right" title="Teaching % = hours ÷ 270 × 60, max 60">Teach</span><span style="text-align:right">Research</span><span style="text-align:right">Service</span><span style="text-align:right" title="% of time devoted to mission">Total %</span><span style="text-align:center">Leaves</span>
                 </div>
                 <sc-for list="{{ plan.grid }}" as="x" hint-placeholder-count="6">
-                  <div style="display:grid;grid-template-columns:minmax(200px,1.6fr) 72px 60px repeat(6,74px) 70px 66px 62px 62px 66px 64px;gap:8px;padding:8px 18px;border-bottom:1px solid #F4EFE4;align-items:center;background:{{ x.rowBg }}">
+                  <div style="display:grid;grid-template-columns:minmax(200px,1.6fr) 72px 60px repeat(6,74px) 70px 74px 74px 66px 62px 62px 66px 64px;gap:8px;padding:8px 18px;border-bottom:1px solid #F4EFE4;align-items:center;background:{{ x.rowBg }}">
                     <span style="display:flex;flex-direction:column;min-width:0">
                       <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ x.name }}</span>
                       <span style="display:flex;gap:10px;font-size:12.5px;color:#8A8F96">{{ x.sub }}<sc-if value="{{ x.changed }}" hint-placeholder-val="{{ false }}"><button onClick="{{ x.onClear }}" style="border:0;background:none;padding:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">Reset</button></sc-if></span>
@@ -207,6 +207,7 @@ input::placeholder{color:#8A8F96}
                     <select value="{{ x.role }}" onChange="{{ x.onRole }}" style="height:36px;width:100%;padding:0 4px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#221E1A"><sc-for list="{{ x.roleOpts }}" as="o" hint-placeholder-count="2"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
                     <sc-for list="{{ x.cells }}" as="c" hint-placeholder-count="6"><input value="{{ c.v }}" onChange="{{ c.on }}" placeholder="{{ c.ph }}" inputMode="numeric" style="height:36px;width:100%;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;font:500 14px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none;background:{{ c.bg }}"></sc-for>
                     <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:14.5px;font-weight:600;color:{{ x.totalColor }}">{{ x.total }}</span>
+                    <input value="{{ x.pb }}" onChange="{{ x.onPb }}" placeholder="{{ x.pbPh }}" inputMode="numeric" style="height:36px;width:100%;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;font:500 14px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none;background:#FDF9EE"><input value="{{ x.pm }}" onChange="{{ x.onPm }}" placeholder="{{ x.pmPh }}" inputMode="numeric" style="height:36px;width:100%;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;font:500 14px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none;background:#FDF9EE">
                     <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#6F6A5F">{{ x.tp }}</span>
                     <input value="{{ x.sr }}" onChange="{{ x.onSr }}" placeholder="{{ x.srPh }}" inputMode="numeric" style="height:36px;width:100%;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;font:500 14px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none;background:#fff">
                     <input value="{{ x.ss }}" onChange="{{ x.onSs }}" placeholder="{{ x.ssPh }}" inputMode="numeric" style="height:36px;width:100%;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;font:500 14px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none;background:#fff">
@@ -215,7 +216,7 @@ input::placeholder{color:#8A8F96}
                   </div>
                 </sc-for>
                 <sc-for list="{{ plan.hires }}" as="x" hint-placeholder-count="0">
-                  <div style="display:grid;grid-template-columns:minmax(200px,1.6fr) 72px 60px repeat(6,74px) 70px 66px 62px 62px 66px 64px;gap:8px;padding:8px 18px;border-bottom:1px solid #F4EFE4;align-items:center;background:#F9F3E3">
+                  <div style="display:grid;grid-template-columns:minmax(200px,1.6fr) 72px 60px repeat(6,74px) 70px 74px 74px 66px 62px 62px 66px 64px;gap:8px;padding:8px 18px;border-bottom:1px solid #F4EFE4;align-items:center;background:#F9F3E3">
                     <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
                       <input value="{{ x.n }}" onChange="{{ x.onN }}" placeholder="New faculty name" style="height:34px;padding:0 8px;border:1px solid #D9C28A;border-radius:5px;background:#fff;font:inherit;color:#221E1A;outline:none">
                       <span style="display:flex;gap:10px;font-size:12.5px;color:#8A6512;font-weight:600">Planned hire<button onClick="{{ x.onDel }}" style="border:0;background:none;padding:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">Remove</button></span>
@@ -224,6 +225,7 @@ input::placeholder{color:#8A8F96}
                     <select value="{{ x.role }}" onChange="{{ x.onRole }}" style="height:36px;width:100%;padding:0 4px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#221E1A"><sc-for list="{{ x.roleOpts }}" as="o" hint-placeholder-count="2"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
                     <sc-for list="{{ x.cells }}" as="c" hint-placeholder-count="6"><input value="{{ c.v }}" onChange="{{ c.on }}" placeholder="{{ c.ph }}" inputMode="numeric" style="height:36px;width:100%;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;font:500 14px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none;background:#fff"></sc-for>
                     <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:14.5px;font-weight:600;color:#6B1E24">{{ x.total }}</span>
+                    <input value="{{ x.pb }}" onChange="{{ x.onPb }}" placeholder="{{ x.pbPh }}" inputMode="numeric" style="height:36px;width:100%;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;font:500 14px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none;background:#FDF9EE"><input value="{{ x.pm }}" onChange="{{ x.onPm }}" placeholder="{{ x.pmPh }}" inputMode="numeric" style="height:36px;width:100%;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;font:500 14px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none;background:#FDF9EE">
                     <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#6F6A5F">{{ x.tp }}</span>
                     <input value="{{ x.sr }}" onChange="{{ x.onSr }}" placeholder="30" inputMode="numeric" style="height:36px;width:100%;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;font:500 14px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none;background:#fff">
                     <input value="{{ x.ss }}" onChange="{{ x.onSs }}" placeholder="10" inputMode="numeric" style="height:36px;width:100%;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;font:500 14px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none;background:#fff">
@@ -231,10 +233,10 @@ input::placeholder{color:#8A8F96}
                     <span></span>
                   </div>
                 </sc-for>
-                <div style="display:grid;grid-template-columns:minmax(200px,1.6fr) 72px 60px repeat(6,74px) 70px 66px 62px 62px 66px 64px;gap:8px;padding:10px 18px;background:#FBF7EC;align-items:center;font-size:12.5px">
+                <div style="display:grid;grid-template-columns:minmax(200px,1.6fr) 72px 60px repeat(6,74px) 70px 74px 74px 66px 62px 62px 66px 64px;gap:8px;padding:10px 18px;background:#FBF7EC;align-items:center;font-size:12.5px">
                   <span style="font-weight:600;font-size:14px">Hours · now → planned</span><span></span><span></span>
                   <sc-for list="{{ plan.foot }}" as="t" hint-placeholder-count="6"><span style="text-align:right;font-family:'IBM Plex Mono',monospace;color:{{ t.color }};line-height:1.3">{{ t.v }}</span></sc-for>
-                  <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;line-height:1.3">{{ plan.footTotal }}</span><span></span><span></span><span></span><span></span><span></span>
+                  <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;line-height:1.3">{{ plan.footTotal }}</span><span style="text-align:right;font-family:'IBM Plex Mono',monospace;line-height:1.3;color:#8A6512">{{ plan.progFootB }}</span><span style="text-align:right;font-family:'IBM Plex Mono',monospace;line-height:1.3;color:#8A6512">{{ plan.progFootM }}</span><span></span><span></span><span></span><span></span><span></span>
                 </div>
               </div>
             </div>
@@ -258,6 +260,27 @@ input::placeholder{color:#8A8F96}
               </div>
             </div>
             <div style="padding:10px 18px;font-size:13px;color:#6F6A5F;background:#FBF7EC">All disciplines uses the overall guideline P ≥ 75%.</div>
+          </section>
+          <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
+            <div style="display:flex;flex-direction:column;gap:2px;padding:14px 18px;border-bottom:1px solid #EAE2CF">
+              <span style="font-size:12.5px;letter-spacing:0.1em;text-transform:uppercase;color:#8A6512;font-weight:600">Table 3-2 · now → planned</span>
+              <span style="font-weight:600">Deployment of Faculty by Qualification Status in Support of Degree Programs</span>
+            </div>
+            <div style="overflow-x:auto">
+              <div style="min-width:880px;display:flex;flex-direction:column">
+                <div style="display:grid;grid-template-columns:minmax(240px,1.8fr) repeat(5,minmax(110px,1fr));gap:12px;padding:10px 18px;font-size:12.5px;letter-spacing:0.04em;text-transform:uppercase;color:#6F6A5F;border-bottom:1px solid #F1EBDD">
+                  <span>Degree program</span><span>SA %</span><span>PA %</span><span>SP %</span><span>IP %</span><span>A %</span>
+                </div>
+                <sc-for list="{{ plan.progRows }}" as="r" hint-placeholder-count="2">
+                  <div style="display:grid;grid-template-columns:minmax(240px,1.8fr) repeat(5,minmax(110px,1fr));gap:12px;padding:12px 18px;border-bottom:1px solid #F4EFE4;align-items:baseline">
+                    <span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ r.label }}</span><span style="font-size:13px;color:#6F6A5F">{{ r.hrs }}</span></span>
+                    <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="5">
+                      <span style="display:flex;flex-direction:column;font-family:'IBM Plex Mono',monospace;font-size:14px"><span style="color:{{ c.color }};font-weight:{{ c.w }}">{{ c.txt }}</span><span style="font-size:12.5px;color:{{ c.dColor }}">{{ c.delta }}</span></span>
+                    </sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
           </section>
         </div>
       </sc-if>
@@ -414,6 +437,7 @@ input::placeholder{color:#8A8F96}
           <sc-if value="{{ canEdit }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px">
             <button onClick="{{ p.toggleEdit }}" style="flex:none;white-space:nowrap;height:40px;padding:0 16px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:500 14.5px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#541519">{{ p.editLabel }}</button>
+            <label style="flex:none;white-space:nowrap;height:40px;padding:0 16px;border-radius:6px;border:1px solid #6B1E24;background:#fff;color:#6B1E24;font:600 14.5px 'IBM Plex Sans',sans-serif;display:flex;align-items:center;cursor:pointer" title="Upload a Faculty Portal CV (PDF) to fill in this profile">{{ p.cvLabel }}<input type="file" accept=".pdf,application/pdf" onChange="{{ p.onCV }}" style="display:none"></label>
             <sc-if value="{{ p.edited }}" hint-placeholder-val="{{ false }}">
               <span style="display:flex;align-items:center;gap:12px;font-size:13.5px;color:#6F6A5F">
                 <span style="padding:2px 8px;border-radius:10px;background:#F6EBD0;color:#6B1E24;font-weight:600">{{ p.editedTag }}</span>
@@ -422,6 +446,47 @@ input::placeholder{color:#8A8F96}
             </sc-if>
             <button onClick="{{ p.onRemove }}" style="margin-left:auto;border:0;background:none;padding:0;font:500 13.5px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">{{ p.removeLabel }}</button>
           </div>
+          </sc-if>
+
+          <sc-if value="{{ p.hasCvMsg }}" hint-placeholder-val="{{ false }}"><div style="padding:10px 14px;border-radius:6px;background:#EEF5EF;border:1px solid #BFD8C6;color:#2F5E3F">{{ p.cvMsg }}</div></sc-if>
+          <sc-if value="{{ p.cv.show }}" hint-placeholder-val="{{ false }}">
+            <section style="background:#fff;border:1px solid #D9C28A;border-top:4px solid #C9A227;border-radius:8px;overflow:hidden">
+              <div style="display:flex;flex-direction:column;gap:2px;padding:14px 18px;border-bottom:1px solid #EAE2CF">
+                <span style="font-weight:600">Updates found in {{ p.cv.fname }}</span>
+                <span style="font-size:13.5px;color:#6F6A5F">Activities counted for {{ p.cv.period }}. Untick anything you don't want, then apply. Nothing changes until you click Apply.</span>
+              </div>
+              <sc-if value="{{ p.cv.hasWarn }}" hint-placeholder-val="{{ false }}"><div style="padding:10px 18px;background:oklch(0.96 0.04 85);color:#5A4A1E;border-bottom:1px solid #EAE2CF">{{ p.cv.warn }}</div></sc-if>
+              <sc-if value="{{ p.cv.none }}" hint-placeholder-val="{{ false }}"><div style="padding:16px 18px;color:#6F6A5F">This profile already matches the CV.</div></sc-if>
+              <sc-if value="{{ p.cv.hasItems }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;padding:8px 0">
+                  <sc-for list="{{ p.cv.items }}" as="x" hint-placeholder-count="4">
+                    <label style="display:flex;gap:12px;align-items:flex-start;padding:8px 18px;cursor:pointer" style-hover="background:#FBF7EC"><input type="checkbox" checked="{{ x.on }}" onChange="{{ x.onToggle }}" style="flex:none;margin-top:3px;width:18px;height:18px;accent-color:#6B1E24;cursor:pointer">
+                      <span style="display:grid;grid-template-columns:minmax(180px,260px) minmax(0,1fr);gap:4px 16px;flex:1;min-width:0">
+                        <span style="font-weight:500">{{ x.label }}</span>
+                        <span style="display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;min-width:0"><span style="color:#8A8F96;text-decoration:line-through;text-wrap:pretty">{{ x.cur }}</span><span style="color:#8A6512">→</span><span style="color:#221E1A;font-weight:600;text-wrap:pretty">{{ x.val }}</span></span>
+                      </span>
+                    </label>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ p.cv.hasPubs }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;padding:8px 0;border-top:1px solid #F1EBDD">
+                  <span style="padding:6px 18px;font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A6512;font-weight:600">Research outputs in the CV</span>
+                  <sc-for list="{{ p.cv.pubs }}" as="x" hint-placeholder-count="2">
+                    <label style="display:flex;gap:12px;align-items:flex-start;padding:8px 18px;cursor:pointer" style-hover="background:#FBF7EC"><input type="checkbox" checked="{{ x.on }}" onChange="{{ x.onToggle }}" style="flex:none;margin-top:3px;width:18px;height:18px;accent-color:#6B1E24;cursor:pointer">
+                      <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                        <span style="text-wrap:pretty">{{ x.title }}</span>
+                        <span style="display:flex;flex-wrap:wrap;gap:6px 10px;font-size:13px;color:#6F6A5F">{{ x.sub }}<sc-if value="{{ x.dup }}" hint-placeholder-val="{{ false }}"><span style="padding:0 8px;border-radius:10px;background:#F1EBDD;color:#6F6A5F;font-weight:600">Already in research list</span></sc-if></span>
+                      </span>
+                    </label>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <div style="display:flex;gap:10px;padding:12px 18px;border-top:1px solid #EAE2CF;background:#FBF7EC">
+                <button onClick="{{ p.cv.onApply }}" style="height:40px;padding:0 18px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:600 14.5px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ p.cv.applyLabel }}</button>
+                <button onClick="{{ p.cv.onCancel }}" style="height:40px;padding:0 18px;border-radius:6px;border:1px solid #DDD3BD;background:#fff;color:#3F3A33;font:600 14.5px 'IBM Plex Sans',sans-serif;cursor:pointer">Cancel</button>
+              </div>
+            </section>
           </sc-if>
 
           <sc-if value="{{ isEditing }}" hint-placeholder-val="{{ false }}">
@@ -957,6 +1022,26 @@ class Component extends DCLogic {
     return { tp, rs, sv, pct: (hCh || sr != null || ss != null) ? tp + rs + sv : f.pct };
   }
   hirePct(x, T) { const n = this.num.bind(this), tp = Math.min(60, T / 270 * 60), rs = n(x.sr) ?? 30, sv = n(x.ss) ?? 10; return { tp, rs, sv, pct: tp + rs + sv }; }
+  planProg(f, r, T) {
+    const n = this.num.bind(this), pb = r ? n(r.pb) : null, pm = r ? n(r.pm) : null, cur = f.P + f.S;
+    const B0 = f.bafH ?? cur, M0 = f.msafH ?? 0;
+    if (pb != null && pm != null) return { b: pb, m: pm };
+    if (pb != null) return { b: pb, m: Math.max(0, T - pb) };
+    if (pm != null) return { b: Math.max(0, T - pm), m: pm };
+    const k = cur ? T / cur : 0; return { b: B0 * k, m: M0 * k };
+  }
+  hireProg(x, T) { const n = this.num.bind(this), pb = n(x.pb), pm = n(x.pm); if (pb != null && pm != null) return { b: pb, m: pm }; if (pm != null) return { b: Math.max(0, T - pm), m: pm }; if (pb != null) return { b: pb, m: Math.max(0, T - pb) }; return { b: T, m: 0 }; }
+  progAgg(D, usePlan) {
+    const plan = this.state.plan || {}, n = this.num.bind(this), R = plan.rows || {}, DK = ['ACC', 'FIN', 'ECO', 'MGT', 'LAW', 'ICT'];
+    const z = () => ({ SA: 0, PA: 0, SP: 0, IP: 0, A: 0, t: 0 }), o = { BAF: z(), MSAF: z() };
+    const add = (c, b, m) => { o.BAF[c] += b; o.BAF.t += b; o.MSAF[c] += m; o.MSAF.t += m; };
+    D.forEach(f => { const r = usePlan ? R[String(f.id)] : null; if (r && r.leave) return;
+      if (!usePlan) { add(f.c, f.bafH || 0, f.msafH || 0); return; }
+      const T = DK.reduce((t, k) => { const v = r && r.h ? n(r.h[k]) : null; return t + (v != null ? v : (k === f.d ? f.P + f.S : 0)); }, 0);
+      const pr = this.planProg(f, r, T); add((r && r.c) || f.c, pr.b, pr.m); });
+    if (usePlan) (plan.hires || []).forEach(x => { const hh = typeof x.h === 'object' && x.h ? x.h : { [x.d || 'ACC']: x.h }; const T = DK.reduce((t, k) => t + (n(hh[k]) || 0), 0); const pr = this.hireProg(x, T); add(x.c || 'SA', pr.b, pr.m); });
+    return o;
+  }
   planAgg(D, usePlan) {
     const plan = this.state.plan || {}, n = this.num.bind(this), R = plan.rows || {}, DK = ['ACC', 'FIN', 'ECO', 'MGT', 'LAW', 'ICT'], ents = [];
     D.forEach(f => { const r = usePlan ? R[String(f.id)] : null; if (r && r.leave) return;
@@ -987,6 +1072,47 @@ class Component extends DCLogic {
     });
     (plan.hires || []).forEach(x => { const h = n(x.h) || 0, role = x.role || 'P'; out.push({ id: x.id, n: x.n || 'New hire', d: x.d || 'ACC', c: x.c || 'SA', P: role === 'P' ? h : 0, S: role === 'S' ? h : 0, pct: n(x.pct) ?? 100 }); });
     return out;
+  }
+  async importCV(f, ev) {
+    const file = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (!file) return;
+    this.setState({ cvBusy: true, cvReview: null });
+    try {
+      const PJ = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/';
+      const [mod, pdfjs] = await Promise.all([import(new URL('cv-import.js', location.href).href), import(PJ + 'pdf.min.mjs')]);
+      pdfjs.GlobalWorkerOptions.workerSrc = PJ + 'pdf.worker.min.mjs';
+      const cv = await mod.parseCV(pdfjs, await file.arrayBuffer());
+      const sum = mod.summarizeCV(cv, { year: this.curYear(), names: this.bases().map(b => b.n) });
+      this.setState({ cvReview: this.buildCvReview(f, sum, file.name), cvBusy: false });
+    } catch (err) { console.error(err); this.setState({ cvBusy: false }); alert('Could not read this CV: ' + err.message); }
+  }
+  buildCvReview(f, sum, fname) {
+    const DN = { accounting: 'ACC', finance: 'FIN', economics: 'ECO', management: 'MGT', 'law and taxation': 'LAW', 'ict and statistics': 'ICT' };
+    const LBL = { A1: 'PRJs in Scopus/ABDC journals', A2: 'Other indexed PRJs', A3: 'Editorial-reviewed journals', A4: 'Conference proceedings', A15: 'Student research projects supervised', A16: 'Invited presentations / speaker roles', P6: 'Professional association memberships', P7: 'Consultancy projects', P9: 'Training / CPD attended (entries)', P10: 'Professional events / networking (participations)' };
+    const items = [], fx = sum.fields;
+    const push = (kind, key, label, cur, val) => { if (val === '' || val == null) return; if (String(cur ?? '').trim().toLowerCase() === String(val).trim().toLowerCase()) return; items.push({ kind, key, label, cur: (cur === '' || cur == null) ? '—' : String(cur), val: String(val), on: true }); };
+    push('edit', 'title', 'Academic title', f.title, fx.title);
+    push('edit', 'courses', 'Courses taught', f.courses, fx.courses);
+    if (fx.deg && f.deg.split(' (')[0].toLowerCase() !== fx.deg.toLowerCase()) push('edit', 'deg', 'Highest degree', f.deg, fx.deg);
+    push('edit', 'c', 'Classification', f.c, fx.cls);
+    push('edit', 'role', 'Teaching role (P/S)', f.P > 0 || f.S === 0 ? 'P' : 'S', fx.role);
+    const dc = DN[String(fx.discipline).toLowerCase()]; if (dc) push('edit', 'd', 'Discipline', f.d, dc);
+    if (sum.certs) push('edit', 'certs', 'Professional certifications', f.certs, sum.certs);
+    Object.keys(sum.counts).sort((a, b) => (a[0] === b[0] ? +a.slice(1) - +b.slice(1) : a < b ? -1 : 1)).forEach(k => push('cnt', k, k + ' · ' + (LBL[k] || k), (f.a[k] || f.p[k] || { n: 0 }).n, sum.counts[k]));
+    const nrm = t => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const have = f.res.map(r => nrm(r.t));
+    const pubs = sum.pubs.map(p => { const t = nrm(p.t), dup = have.some(h => h === t || (t.length > 25 && (h.startsWith(t.slice(0, 40)) || t.startsWith(h.slice(0, 40))))); return { ...p, dup, on: !dup }; });
+    const np = nrm(fx.name).split(' '), fp = nrm(f.n).split(' ');
+    const nameOk = !fx.name || np.filter(x => x.length > 1 && fp.includes(x)).length >= Math.min(2, np.length);
+    return { fid: f.id, fname, items, pubs, warn: nameOk ? '' : 'This CV is for "' + fx.name + '", not ' + f.n + '. Check before applying.' };
+  }
+  cvToggle(kind, i) { this.setState(s => { const R = s.cvReview; if (!R) return null; return { cvReview: { ...R, [kind]: R[kind].map((x, j) => j === i ? { ...x, on: !x.on } : x) } }; }); }
+  applyCV(f) {
+    const R = this.state.cvReview; if (!R) return;
+    R.items.filter(x => x.on).forEach(x => { if (x.kind === 'cnt') this.setCount(f.id, x.key, x.val); else this.setEdit(f.id, x.key, x.val); });
+    const recs = R.pubs.filter(p => p.on).map((p, i) => ({ y: p.y, t: p.t, j: p.j, au: p.au, p: p.p, ty: p.ty, c: p.c, k: 'a' + Date.now().toString(36) + i }));
+    if (recs.length) { const nk = this.nk(f.n), list = [...this.addedFor(nk), ...recs]; this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
+    const n = R.items.filter(x => x.on).length;
+    this.setState({ cvReview: null, cvMsg: 'Applied ' + n + ' update' + (n === 1 ? '' : 's') + ' and ' + recs.length + ' research output' + (recs.length === 1 ? '' : 's') + ' from ' + R.fname + '.' });
   }
   nk(n) { return String(n || '').toLowerCase().replace(/[^a-z0-9]+/g, '_'); }
   updRes(fn, fbData) {
@@ -1180,20 +1306,27 @@ class Component extends DCLogic {
     const grid = D.filter(inScope).map(f => { const id = String(f.id), r = R[id] || {}, curRole = f.P > 0 || f.S === 0 ? 'P' : 'S';
       const cells = DK.map(k => ({ v: (r.h || {})[k] ?? '', ph: k === f.d ? String(f.P + f.S) : '0', on: this.planRow(id, 'h', k), bg: k === f.d ? '#FBF7EC' : '#fff' }));
       const tot = DK.reduce((t, k) => { const v = n((r.h || {})[k]); return t + (v != null ? v : (k === f.d ? f.P + f.S : 0)); }, 0);
-      const pp = this.planPct(f, r, tot), f1 = v => (Math.round(v * 10) / 10).toString();
-      return { name: f.n, sub: f.c + ' · ' + curRole + ' · ' + f.d, cells, c: r.c || '', role: r.role || '', sr: r.sr ?? '', ss: r.ss ?? '', srPh: String((f.split || [])[1] ?? 0), ssPh: String((f.split || [])[2] ?? 0), tp: f1(pp.tp) + '%', pctT: r.leave ? '—' : Math.round(pp.pct) + '%', pctColor: Math.round(pp.pct) !== Math.round(f.pct) && !r.leave ? '#6B1E24' : '#221E1A', leave: !!r.leave, total: fmtH(r.leave ? 0 : tot), totalColor: r.leave ? bad : (tot !== f.P + f.S ? '#6B1E24' : '#221E1A'),
+      const pp = this.planPct(f, r, tot), f1 = v => (Math.round(v * 10) / 10).toString(), pr = this.planProg(f, r, r.leave ? 0 : tot);
+      return { name: f.n, sub: f.c + ' · ' + curRole + ' · ' + f.d, cells, c: r.c || '', role: r.role || '', pb: r.pb ?? '', pm: r.pm ?? '', pbPh: String(Math.round(pr.b)), pmPh: String(Math.round(pr.m)), onPb: this.planRow(id, 'pb'), onPm: this.planRow(id, 'pm'), sr: r.sr ?? '', ss: r.ss ?? '', srPh: String((f.split || [])[1] ?? 0), ssPh: String((f.split || [])[2] ?? 0), tp: f1(pp.tp) + '%', pctT: r.leave ? '—' : Math.round(pp.pct) + '%', pctColor: Math.round(pp.pct) !== Math.round(f.pct) && !r.leave ? '#6B1E24' : '#221E1A', leave: !!r.leave, total: fmtH(r.leave ? 0 : tot), totalColor: r.leave ? bad : (tot !== f.P + f.S ? '#6B1E24' : '#221E1A'),
         cOpts: [{ key: '', label: f.c }].concat(clsOpts.filter(o => o.key !== f.c)), roleOpts: [{ key: '', label: curRole }].concat(roleOpts.filter(o => o.key !== curRole)),
         onC: this.planRow(id, 'c'), onRole: this.planRow(id, 'role'), onSr: this.planRow(id, 'sr'), onSs: this.planRow(id, 'ss'), onLeave: this.planRow(id, 'leave'),
         changed: Object.keys(r).length > 0, onClear: () => this.planRowClear(id), rowBg: r.leave ? '#FBF1EF' : '#fff' }; });
     const hires = (plan.hires || []).map((x, i) => { const hh = typeof x.h === 'object' && x.h ? x.h : { [x.d || 'ACC']: x.h || '' };
       const tot = DK.reduce((t, k) => t + (n(hh[k]) || 0), 0);
-      const hp = this.hirePct(x, tot);
-      return { n: x.n || '', c: x.c || 'SA', role: x.role || 'P', sr: x.sr ?? '', ss: x.ss ?? '', tp: (Math.round(hp.tp * 10) / 10) + '%', pctT: Math.round(hp.pct) + '%', clsOpts, roleOpts, total: fmtH(tot),
+      const hp = this.hirePct(x, tot), hpr = this.hireProg(x, tot);
+      return { n: x.n || '', c: x.c || 'SA', role: x.role || 'P', pb: x.pb ?? '', pm: x.pm ?? '', pbPh: String(Math.round(hpr.b)), pmPh: String(Math.round(hpr.m)), onPb: this.planHire(i, 'pb'), onPm: this.planHire(i, 'pm'), sr: x.sr ?? '', ss: x.ss ?? '', tp: (Math.round(hp.tp * 10) / 10) + '%', pctT: Math.round(hp.pct) + '%', clsOpts, roleOpts, total: fmtH(tot),
         cells: DK.map(k => ({ v: hh[k] ?? '', ph: '0', on: this.planHire(i, 'h', k), bg: '#fff' })),
         onN: this.planHire(i, 'n'), onC: this.planHire(i, 'c'), onRole: this.planHire(i, 'role'), onSr: this.planHire(i, 'sr'), onSs: this.planHire(i, 'ss'), onDel: () => this.planDel('hires', i) }; });
     const heads = DISC.map(d => ({ k: d[0], label: d[1] }));
+    const PA0 = this.progAgg(D, false), PB0 = this.progAgg(D, true);
+    const progRows = [['BAF', 'Bachelor of Accounting and Finance (BAF)'], ['MSAF', 'Master of Science in Accounting and Finance (MSAF)']].map(([k, label]) => {
+      const a = PA0[k], b = PB0[k];
+      return { label, hrs: fmtH(a.t) + ' → ' + fmtH(b.t) + ' hours', cells: ['SA', 'PA', 'SP', 'IP', 'A'].map(c => { const x = a.t ? pc(a[c] / a.t) : 0, y = b.t ? pc(b[c] / b.t) : 0, d = y - x;
+        return { txt: x + '% → ' + y + '%', color: d === 0 ? '#6F6A5F' : '#221E1A', w: d === 0 ? 400 : 600, delta: d === 0 ? '' : (d > 0 ? '+' : '') + d, dColor: c === 'A' ? (d > 0 ? bad : ok) : (c === 'SA' ? (d >= 0 ? ok : bad) : '#6B1E24') }; }) };
+    });
+    const progFoot = [fmtH(PA0.BAF.t) + ' → ' + fmtH(PB0.BAF.t), fmtH(PA0.MSAF.t) + ' → ' + fmtH(PB0.MSAF.t)];
     const foot = DK.map(k => ({ v: fmtH(A[k].hrs) + ' → ' + fmtH(B[k].hrs), color: Math.round(A[k].hrs) !== Math.round(B[k].hrs) ? '#6B1E24' : '#6F6A5F' }));
-    return { ...base, plan: { cards, rows, grid, hires, heads, foot, hasHires: hires.length > 0, noRows: !grid.length,
+    return { ...base, plan: { cards, rows, grid, hires, heads, foot, progRows, progFootB: progFoot[0], progFootM: progFoot[1], hasHires: hires.length > 0, noRows: !grid.length,
       footTotal: fmtH(A.ALL.hrs) + ' → ' + fmtH(B.ALL.hrs),
       disc: pd, discFilter: [{ key: 'All', label: 'All disciplines' }].concat(DISC.map(d => ({ key: d[0], label: d[1] }))), onDisc: e => this.setState({ planDisc: e.target.value }),
       onAddHire: () => this.planAdd('hires'),
@@ -1256,7 +1389,7 @@ class Component extends DCLogic {
     const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
     const fmt = v => (Math.round(v * 100) / 100).toString();
     const ok = '#3D7A55', bad = 'oklch(0.5 0.17 28)';
-    const open = id => () => { this.setState({ sel: id, editing: false, view: 'main', resEditKey: null, draft: {} }); const m = document.querySelector('main'); if (m) window.scrollTo({ top: 0 }); };
+    const open = id => () => { this.setState({ sel: id, editing: false, view: 'main', resEditKey: null, draft: {}, cvReview: null, cvMsg: null }); const m = document.querySelector('main'); if (m) window.scrollTo({ top: 0 }); };
 
     const ql = q.trim().toLowerCase();
     const filtered = D.filter(f => (disc === 'All' || f.d === disc) && (cls === 'All' || f.c === cls) && (!ql || (f.n + ' ' + f.sp).toLowerCase().includes(ql)));
@@ -1401,6 +1534,15 @@ class Component extends DCLogic {
           { title: 'Professional engagement activities', summary: f.peaNA ? 'Not assessed' : f.pea + ' activities counted', rows: pRows, empty: !pRows.length, emptyText: f.peaNA ? 'Professional engagement not assessed' : 'No professional engagement recorded (2021–2026)', hasOther: false, otherText: '' }
         ],
         showNote: showNotes && !!f.note && !editing, note: f.note,
+        onCV: ev => this.importCV(f, ev), cvLabel: this.state.cvBusy ? 'Reading CV…' : 'Import from CV (PDF)', hasCvMsg: !!this.state.cvMsg, cvMsg: this.state.cvMsg || '',
+        cv: (() => { const R = this.state.cvReview; if (!R || R.fid !== f.id) return { show: false, items: [], pubs: [] };
+          const TL = { F: 'Peer-reviewed journal article', G: 'Additional peer-/editorial-reviewed', H: 'All other ICs' }, PL = { B: 'Basic', C: 'Applied', D: 'Teaching and learning' };
+          const items = R.items.map((x, i) => ({ label: x.label, cur: x.cur, val: x.val, on: x.on, onToggle: () => this.cvToggle('items', i) }));
+          const pubs = R.pubs.map((p, i) => ({ title: p.y + ' · ' + p.t, sub: [p.j, PL[p.p], TL[p.ty], 'credit ' + p.c].filter(Boolean).join(' · '), on: p.on, dup: p.dup, onToggle: () => this.cvToggle('pubs', i) }));
+          const nOn = R.items.filter(x => x.on).length + R.pubs.filter(x => x.on).length;
+          return { show: true, fname: R.fname, hasWarn: !!R.warn, warn: R.warn, items, pubs, hasItems: items.length > 0, hasPubs: pubs.length > 0, none: !items.length && !pubs.length,
+            applyLabel: 'Apply ' + nOn + ' selected', onApply: () => this.applyCV(f), onCancel: () => this.setState({ cvReview: null }), period: (year - 5) + '–' + year };
+        })(),
         research: (() => {
           const PL = { B: 'Basic or discovery', C: 'Applied or integration', D: 'Teaching and learning' }, TL = { F: 'Peer-reviewed journal article', G: 'Additional peer-/editorial-reviewed', H: 'All other ICs' };
           const ed = editing && this.canEdit(), ek = this.state.resEditKey, by = f.icBy;
