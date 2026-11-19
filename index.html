@@ -479,7 +479,7 @@ input::placeholder{color:#8A8F96}
                         <div style="display:flex;gap:12px;align-items:flex-start;padding:7px 18px;border-top:1px solid #F7F2E8">
                           <input type="checkbox" checked="{{ x.on }}" onChange="{{ x.onToggle }}" style="flex:none;margin-top:3px;width:18px;height:18px;accent-color:#6B1E24;cursor:pointer">
                           <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="text-wrap:pretty">{{ x.t }}</span><span style="font-size:13px;color:#6F6A5F">{{ x.sub }}</span></span>
-                          <select value="{{ x.code }}" onChange="{{ x.onCode }}" style="height:34px;max-width:260px;padding:0 6px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#221E1A"><sc-for list="{{ x.codes }}" as="o" hint-placeholder-count="17"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
+                          <select value="{{ x.code }}" onChange="{{ x.onCode }}" style="height:34px;max-width:260px;padding:0 6px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#221E1A"><sc-for list="{{ x.codes }}" as="o" hint-placeholder-count="29"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
                         </div>
                       </sc-for>
                     </div>
@@ -547,7 +547,7 @@ input::placeholder{color:#8A8F96}
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px">
                   <div style="display:flex;flex-direction:column;gap:8px">
                     <div style="font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Academic engagement (count, 2021–2026)</div>
-                    <sc-for list="{{ p.form.acad }}" as="x" hint-placeholder-count="17">
+                    <sc-for list="{{ p.form.acad }}" as="x" hint-placeholder-count="29">
                       <label style="display:grid;grid-template-columns:36px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:14.5px">
                         <span style="font:500 13.5px 'IBM Plex Mono',monospace;color:#6F6A5F">{{ x.code }}</span>
                         <span>{{ x.label }}</span>
@@ -1149,13 +1149,15 @@ class Component extends DCLogic {
   applyCV(f) {
     const R = this.state.cvReview; if (!R) return;
     R.items.filter(x => x.on).forEach(x => { if (x.kind === 'cnt') this.setCount(f.id, x.key, x.val); else this.setEdit(f.id, x.key, x.val); });
-    const recs = R.pubs.filter(p => p.on && !p.dup).map((p, i) => ({ y: p.y, t: p.t, j: p.j, au: p.au, p: p.p, ty: p.ty, c: p.c, code: p.code || '', k: 'a' + Date.now().toString(36) + i }));
-    if (recs.length) { const nk = this.nk(f.n), list = [...this.addedFor(nk), ...recs]; this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
-    const byCode = {};
-    (R.acts || []).filter(a => a.on && a.code && a.code !== 'skip').forEach(a => { (byCode[a.code] ||= []).push({ t: a.t, sub: a.sub }); });
+    const byCode = {}, PUBK = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A8', 'A9'], extra = [];
+    (R.acts || []).filter(a => a.on && a.code && a.code !== 'skip').forEach(a => {
+      if (PUBK.includes(a.code)) { const yr = +((String(a.sub).match(/(19|20)\d{2}/) || [])[0]) || this.curYear(); extra.push({ y: yr, t: a.t, j: String(a.sub).split(' · ')[0] || '', au: f.n, p: 'C', ty: ['A1', 'A2'].includes(a.code) ? 'F' : ['A3', 'A4', 'A5', 'A8'].includes(a.code) ? 'G' : 'H', c: 1, code: a.code }); return; }
+      (byCode[a.code] ||= []).push({ t: a.t, sub: a.sub }); });
     Object.entries(byCode).forEach(([k, list]) => this.setCount(f.id, k, String(list.length)));
     R.pubs.filter(p => p.on && p.code && p.code !== 'OTHER').forEach(p => { (byCode[p.code] ||= []).push({ t: p.t, sub: [p.y, p.j].filter(Boolean).join(' · ') }); });
     if (Object.keys(byCode).length) this.setEdit(f.id, 'det', { ...(f.det || {}), ...byCode });
+    const recs = R.pubs.filter(p => p.on && !p.dup).map(p => ({ y: p.y, t: p.t, j: p.j, au: p.au, p: p.p, ty: p.ty, c: p.c, code: p.code || '' })).concat(extra).map((p, i) => ({ ...p, k: 'a' + Date.now().toString(36) + i }));
+    if (recs.length) { const nk = this.nk(f.n), list = [...this.addedFor(nk), ...recs]; this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
     const n = R.items.filter(x => x.on).length + (R.acts || []).filter(a => a.on && a.code !== 'skip').length;
     this.setState({ cvReview: null, cvMsg: 'Applied ' + n + ' update' + (n === 1 ? '' : 's') + ' and ' + recs.length + ' research output' + (recs.length === 1 ? '' : 's') + ' from ' + R.fname + '.' });
   }
@@ -1624,7 +1626,7 @@ class Component extends DCLogic {
           const TL = { F: 'Peer-reviewed journal article', G: 'Additional peer-/editorial-reviewed', H: 'All other ICs' }, PL = { B: 'Basic', C: 'Applied', D: 'Teaching and learning' };
           const items = R.items.map((x, i) => ({ label: x.label, cur: x.cur, val: x.val, on: x.on, onToggle: () => this.cvToggle('items', i) }));
           const pubs = R.pubs.map((p, i) => ({ title: p.y + ' · ' + p.t, sub: [p.j, PL[p.p], TL[p.ty], 'credit ' + p.c].filter(Boolean).join(' · '), on: p.on, dup: p.dup, onToggle: () => this.cvToggle('pubs', i) }));
-          const CODES = [['A12', 'A12 · Editorial board'], ['A13', 'A13 · Academic advisor'], ['A14', 'A14 · Role in academic organisation'], ['A15', 'A15 · Student research supervision'], ['A16', 'A16 · Invited presentation / speaker'], ['A17', 'A17 · Academic award / fellow'], ['P1', 'P1 · Work in government/industry'], ['P2', 'P2 · Practitioner publication'], ['P4', 'P4 · Entrepreneur / owner'], ['P5', 'P5 · Leadership / management'], ['P6', 'P6 · Professional association'], ['P7', 'P7 · Consultancy'], ['P8', 'P8 · Training delivered'], ['P9', 'P9 · Training / CPD attended'], ['P10', 'P10 · Professional event'], ['P11', 'P11 · Student industry project'], ['skip', "Don't count"]].map(([key, label]) => ({ key, label }));
+          const CODES = [['A1', 'A1 · Scopus/ABDC journal article'], ['A2', 'A2 · Other indexed journal article'], ['A3', 'A3 · Editorial-reviewed journal'], ['A4', 'A4 · Conference proceedings'], ['A5', 'A5 · Teaching case'], ['A6', 'A6 · Commissioned policy document/report'], ['A7', 'A7 · Research income / grant'], ['A8', 'A8 · Book or chapter'], ['A9', 'A9 · Research/consulting grant report'], ['A10', 'A10 · Technology developed'], ['A11', 'A11 · Patent'], ['A12', 'A12 · Editorial board'], ['A13', 'A13 · Academic advisor'], ['A14', 'A14 · Role in academic organisation'], ['A15', 'A15 · Student research supervision'], ['A16', 'A16 · Invited presentation / speaker'], ['A17', 'A17 · Academic award / fellow'], ['P1', 'P1 · Work in government/industry'], ['P2', 'P2 · Practitioner publication'], ['P3', 'P3 · Practitioner book/chapter'], ['P4', 'P4 · Entrepreneur / owner'], ['P5', 'P5 · Leadership / management'], ['P6', 'P6 · Professional association'], ['P7', 'P7 · Consultancy'], ['P8', 'P8 · Training delivered'], ['P9', 'P9 · Training / CPD attended'], ['P10', 'P10 · Professional event'], ['P11', 'P11 · Student industry project'], ['skip', "Don't count"]].map(([key, label]) => ({ key, label }));
           const PC = [['A1', 'A1 · Scopus/ABDC journal'], ['A2', 'A2 · Other indexed journal'], ['A3', 'A3 · Editorial-reviewed'], ['A4', 'A4 · Conference proceedings'], ['A5', 'A5 · Teaching case'], ['A6', 'A6 · Commissioned report'], ['A8', 'A8 · Book / chapter'], ['A9', 'A9 · Grant report'], ['OTHER', 'Other IC (no code)']].map(([key, label]) => ({ key, label }));
           const groups = []; (R.acts || []).forEach((a, i) => { let g = groups.find(x => x.label === a.src); if (!g) { g = { label: a.src, rows: [] }; groups.push(g); }
             g.rows.push({ t: a.t, sub: a.sub, on: a.on, code: a.code, codes: CODES, onToggle: () => this.cvToggle('acts', i), onCode: e => this.cvSet('acts', i, 'code', e.target.value) }); });
