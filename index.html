@@ -58,7 +58,7 @@ input::placeholder{color:#8A8F96}
     <sc-if value="{{ showUser }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:13.5px;color:#6F6A5F">
         <sc-if value="{{ hasSaveStatus }}" hint-placeholder-val="{{ false }}"><span style="color:{{ saveColor }}">{{ saveStatus }}</span></sc-if>
-        <span>{{ userLabel }}</span>
+        <span title="{{ accessLabel }}">{{ userLabel }}</span>
         <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onAdminView }}" style="border:0;background:none;padding:0;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">Access &amp; data</button></sc-if>
         <button onClick="{{ onSignOut }}" style="border:0;background:none;padding:0;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">Sign out</button>
       </div>
@@ -100,11 +100,11 @@ input::placeholder{color:#8A8F96}
         </div>
         <div style="display:flex;justify-content:space-between;font-size:13.5px;color:#6F6A5F">
           <span style="white-space:nowrap">{{ resultLabel }}</span>
-          <span style="display:flex;gap:14px"><button onClick="{{ goOverview }}" style="white-space:nowrap;border:0;background:none;padding:0;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">School overview</button><button onClick="{{ onPlan }}" style="white-space:nowrap;border:0;background:none;padding:0;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">Planning</button></span>
+          <span style="display:flex;gap:14px"><sc-if value="{{ showOvLink }}" hint-placeholder-val="{{ true }}"><button onClick="{{ goOverview }}" style="white-space:nowrap;border:0;background:none;padding:0;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">School overview</button></sc-if><sc-if value="{{ showPlanLink }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onPlan }}" style="white-space:nowrap;border:0;background:none;padding:0;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">Planning</button></sc-if></span>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;padding:6px 0 24px">
-        <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+        <sc-if value="{{ showDir }}" hint-placeholder-val="{{ true }}"><sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
           <div style="display:flex;flex-direction:column">
             <div style="padding:16px 20px 6px;font-size:12.5px;letter-spacing:0.1em;text-transform:uppercase;color:#8A6512;font-weight:600">{{ g.label }}</div>
             <sc-for list="{{ g.items }}" as="f" hint-placeholder-count="5">
@@ -118,7 +118,7 @@ input::placeholder{color:#8A8F96}
               </button>
             </sc-for>
           </div>
-        </sc-for>
+        </sc-for></sc-if>
       </div>
     </aside>
 
@@ -130,7 +130,7 @@ input::placeholder{color:#8A8F96}
         <div style="display:flex;flex-direction:column;gap:24px">
           <div style="display:flex;flex-direction:column;gap:6px">
             <div style="font-family:'Source Serif 4',serif;font-size:36px;font-weight:600;letter-spacing:-0.01em;color:#5E1A1F">Access &amp; data</div>
-            <div style="color:#6F6A5F;max-width:680px;text-wrap:pretty">Only the email addresses listed here can sign in. Editors can change faculty details; view-only users can read and export.</div>
+            <div style="color:#6F6A5F;max-width:680px;text-wrap:pretty">Only the email addresses listed here can sign in. Set each user's access to the School overview, Faculty profiles and Planning. Editor and View only set the starting access; change any section below. Administrators can see and edit everything.</div>
           </div>
           <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
             <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:14px 18px;border-bottom:1px solid #EAE2CF"><span style="font-weight:600">Authorised users</span><span style="font-size:13.5px;color:#6F6A5F">{{ admin.count }}</span></div>
@@ -141,9 +141,11 @@ input::placeholder{color:#8A8F96}
             </div>
             <sc-for list="{{ admin.rows }}" as="u" hint-placeholder-count="3">
               <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 18px;border-bottom:1px solid #F4EFE4">
-                <span style="flex:1 1 240px;min-width:0;overflow:hidden;text-overflow:ellipsis">{{ u.email }}</span>
+                <span style="flex:1 1 240px;min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:500">{{ u.email }}</span>
                 <select value="{{ u.role }}" onChange="{{ u.onRole }}" style="height:32px;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:inherit;font-size:14.5px;color:#221E1A"><sc-for list="{{ u.roles }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select>
+                <sc-if value="{{ u.isAdminRow }}" hint-placeholder-val="{{ false }}"><span style="flex-basis:100%;font-size:13px;color:#6F6A5F">Full access to every section</span></sc-if>
                 <sc-if value="{{ u.isOther }}" hint-placeholder-val="{{ true }}"><button onClick="{{ u.onRemove }}" style="border:0;background:none;padding:0;font:500 13.5px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">Remove</button></sc-if>
+                <sc-for list="{{ u.secs }}" as="x" hint-placeholder-count="3"><sc-if value="{{ u.secsOn }}" hint-placeholder-val="{{ true }}"><label style="display:flex;align-items:center;gap:6px;font-size:13.5px;color:#6F6A5F">{{ x.label }}<select value="{{ x.v }}" onChange="{{ x.on }}" style="height:32px;padding:0 6px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:inherit;font-size:14px;color:#221E1A"><sc-for list="{{ x.opts }}" as="o" hint-placeholder-count="3"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label></sc-if></sc-for>
               </div>
             </sc-for>
           </section>
@@ -160,6 +162,7 @@ input::placeholder{color:#8A8F96}
       </sc-if>
       <sc-if value="{{ isPlan }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex;flex-direction:column;gap:24px">
+          <sc-if value="{{ planReadOnly }}" hint-placeholder-val="{{ false }}"><div style="padding:10px 14px;border-radius:6px;background:oklch(0.96 0.04 85);border:1px solid oklch(0.85 0.08 85);color:#5A4A1E">You have view-only access to Planning. Changes you type here won't be saved.</div></sc-if>
           <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px">
             <div style="display:flex;flex-direction:column;gap:6px;max-width:680px">
               <div style="font-family:'Source Serif 4',serif;font-size:36px;font-weight:600;letter-spacing:-0.01em;color:#5E1A1F">Faculty planning</div>
@@ -284,6 +287,7 @@ input::placeholder{color:#8A8F96}
           </section>
         </div>
       </sc-if>
+      <sc-if value="{{ noSection }}" hint-placeholder-val="{{ false }}"><div style="padding:40px 0;color:#6F6A5F;max-width:560px;text-wrap:pretty">Your account doesn't include the School overview. Choose a faculty member or Planning from the left panel, or ask an administrator for access.</div></sc-if>
       <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex;flex-direction:column;gap:28px">
           <div style="display:flex;flex-direction:column;gap:6px">
@@ -825,9 +829,9 @@ class Component extends DCLogic {
     let snap = null;
     try { snap = await F.getDoc(F.doc(db, 'allowlist', email)); } catch (err) { console.warn(err); }
     if (!snap || !snap.exists()) { this.setState({ auth: 'denied' }); return; }
-    const role = snap.data().role || 'viewer';
+    const role = snap.data().role || 'viewer', access = snap.data().access || {};
     const cur = localStorage.getItem(this.CURKEY) || '2026';
-    this.setState(s => ({ auth: 'ok', role, store: { ...s.store, cur } }));
+    this.setState(s => ({ auth: 'ok', role, access, store: { ...s.store, cur } }));
     this.reloadData();
     this.unsub.push(F.onSnapshot(F.collection(db, 'years'), qs => {
       const years = {}; let re = null, pl = null; qs.forEach(d => { if (d.id === '_research') re = d.data(); else if (d.id === '_plan') pl = d.data(); else if (/^\d{4}$/.test(d.id)) years[d.id] = d.data(); });
@@ -885,7 +889,7 @@ class Component extends DCLogic {
   }
   async loadAllowlist() {
     const { F, db } = this.fb; const qs = await F.getDocs(F.collection(db, 'allowlist'));
-    const allow = []; qs.forEach(d => allow.push({ email: d.id, role: d.data().role || 'viewer' }));
+    const allow = []; qs.forEach(d => allow.push({ email: d.id, role: d.data().role || 'viewer', access: d.data().access || {} }));
     allow.sort((x, y) => x.email.localeCompare(y.email)); this.setState({ allow });
   }
   async addAccess() {
@@ -912,7 +916,15 @@ class Component extends DCLogic {
   }
   signOut() { if (this.fb) this.fb.Au.signOut(this.fb.auth); this.setState({ view: 'main', sel: null, editing: false }); }
   setSize(k) { try { localStorage.setItem('camed_portal_textsize', k); } catch (err) {} this.setState({ textSize: k }); }
-  canEdit() { return this.state.mode === 'local' || this.state.role === 'admin' || this.state.role === 'editor'; }
+  acc(sec, role, access) {
+    if (role === undefined) { if (this.state.mode === 'local') return 'edit'; role = this.state.role; access = this.state.access; }
+    if (role === 'admin') return 'edit';
+    const v = (access || {})[sec]; if (v === 'none' || v === 'view' || v === 'edit') return sec === 'ov' && v === 'edit' ? 'view' : v;
+    return role === 'editor' && sec !== 'ov' ? 'edit' : 'view';
+  }
+  canEdit() { return this.acc('prof') === 'edit'; }
+  canPlan() { return this.acc('plan') === 'edit'; }
+  async setAccess(email, sec, v) { const { F, db } = this.fb; try { await F.setDoc(F.doc(db, 'allowlist', email), { access: { [sec]: v } }, { merge: true }); this.loadAllowlist(); } catch (err) { alert(err.message); } }
   norm(s) {
     s = { ...s, years: { ...(s.years || {}) } };
     if (!s.years['2026']) s.years['2026'] = {};
@@ -1041,8 +1053,9 @@ class Component extends DCLogic {
     });
   }
   updPlan(fn) {
+    if (!this.canPlan()) return;
     this.setState(s => { const plan = fn(s.plan || { hires: [], changes: [] }); if (s.mode !== 'firebase') { try { localStorage.setItem('camed_portal_plan', JSON.stringify(plan)); } catch (err) {} } return { plan }; });
-    if (this.state.mode === 'firebase' && this.canEdit()) {
+    if (this.state.mode === 'firebase') {
       clearTimeout(this.planT); this.planPending = true;
       this.planT = setTimeout(() => { const { F, db } = this.fb; F.setDoc(F.doc(db, 'years', '_plan'), this.clean(this.state.plan || {})).then(() => { this.planPending = false; }).catch(err => { this.planPending = false; this.setState({ saveErr: 'Could not save plan: ' + err.message }); }); }, 700);
     }
@@ -1367,7 +1380,7 @@ class Component extends DCLogic {
   }
 
   planVals(D, CLS, DISC) {
-    const isPlan = this.state.view === 'plan' && this.state.sel == null;
+    const isPlan = this.state.view === 'plan' && this.state.sel == null && this.acc('plan') !== 'none';
     const base = { isPlan, onPlan: () => this.setState({ view: 'plan', sel: null, editing: false }) };
     if (!isPlan) return base;
     const plan = this.state.plan || {}, pd = this.state.planDisc || 'All', n = this.num.bind(this), R = plan.rows || {}, DK = DISC.map(d => d[0]);
@@ -1433,11 +1446,14 @@ class Component extends DCLogic {
       noData: this.state.master != null && !this.state.master.length, noDataText: fbOn && role === 'admin' ? 'No faculty data in the database yet. Upload it under Access & data.' : 'No faculty data has been uploaded yet.'
     };
   }
+  accessLabel() { if (this.state.mode !== 'firebase' || this.state.role === 'admin') return ''; const L = { none: 'no access', view: 'view', edit: 'edit' }; return 'Overview: ' + L[this.acc('ov')] + ' · Profiles: ' + L[this.acc('prof')] + ' · Planning: ' + L[this.acc('plan')]; }
   adminVals() {
     const roles = [{ key: 'admin', label: 'Administrator' }, { key: 'editor', label: 'Editor' }, { key: 'viewer', label: 'View only' }];
+    void roles;
     const up = this.state.upMsg || {};
     return {
-      rows: (this.state.allow || []).map(x => ({ email: x.email, role: x.role, roles, onRole: e => this.setRole(x.email, e.target.value), onRemove: () => this.removeAccess(x.email), isOther: x.email !== this.state.user })),
+      rows: (this.state.allow || []).map(x => ({ email: x.email, role: x.role, roles, onRole: e => this.setRole(x.email, e.target.value), onRemove: () => this.removeAccess(x.email), isOther: x.email !== this.state.user,
+        isAdminRow: x.role === 'admin', secsOn: x.role !== 'admin', secs: [['ov', 'School overview', 0], ['prof', 'Faculty profiles', 1], ['plan', 'Planning', 1]].map(([k, label, ed]) => ({ label, v: this.acc(k, x.role, x.access), opts: [{ key: 'none', label: 'No access' }, { key: 'view', label: 'View' }].concat(ed ? [{ key: 'edit', label: 'Edit' }] : []), on: e => this.setAccess(x.email, k, e.target.value) })) })),
       count: (this.state.allow || []).length + ' authorised',
       newEmail: this.state.newEmail || '', onNewEmail: e => this.setState({ newEmail: e.target.value }), newRole: this.state.newRole || 'editor', onNewRole: e => this.setState({ newRole: e.target.value }), roles, onAdd: () => this.addAccess(),
       uploads: [
@@ -1670,7 +1686,7 @@ class Component extends DCLogic {
       query: q, disc, onQuery: e => this.setState({ q: e.target.value }), onDisc: e => this.setState({ disc: e.target.value }),
       discOptions, clsChips, groups, resultLabel, goOverview: () => this.setState({ sel: null, view: 'main' }),
       ...this.sizeVals(), ...this.planVals(D, CLS, DISC), ...this.gateVals(), canEdit: this.canEdit(), isAdminView: this.state.view === 'admin' && this.state.mode === 'firebase', admin: this.adminVals(),
-      progRows, progNote, icRows, icNote, icPeriod: 'Jan ' + (year - 5) + ' – Dec ' + year, isOverview: !f && this.state.view === 'main', isProfile: !!f && this.state.view === 'main', isEditing: !!f && editing, kpis,
+      progRows, progNote, icRows, icNote, icPeriod: 'Jan ' + (year - 5) + ' – Dec ' + year, isOverview: !f && this.state.view === 'main' && this.acc('ov') !== 'none', isProfile: !!f && this.state.view === 'main' && this.acc('prof') !== 'none', noSection: !f && this.state.view === 'main' && this.acc('ov') === 'none', showOvLink: this.acc('ov') !== 'none', showPlanLink: this.acc('plan') !== 'none', showDir: this.acc('prof') !== 'none', planReadOnly: this.acc('plan') === 'view', accessLabel: this.accessLabel(), isEditing: !!f && editing, kpis,
       editSummary: (() => { const parts = []; const u = Object.keys(edits).filter(k => !Y.added.some(r => String(r.id) === k)).length; if (Y.added.length) parts.push(Y.added.length + ' added'); if (Y.removed.length) parts.push(Y.removed.length + ' removed'); if (u) parts.push(u + ' updated'); return parts.length ? st.cur + ': ' + parts.join(' · ') : 'No portal changes for ' + st.cur; })(),
       curYear: st.cur, period: 'Engagement period ' + (year - 5) + '–' + year, tableYear: 'AACSB Table 3-1 · Jan–Dec ' + st.cur,
       yearSource: Y.from ? 'Started from ' + Y.from + ' list' : 'Master list · updated 10 Nov 2026', canDeleteYear: st.cur !== '2026' && this.canEdit(), onDeleteYear: () => this.deleteYear(),
