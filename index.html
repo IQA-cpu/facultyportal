@@ -158,6 +158,27 @@ input::placeholder{color:#8A8F96}
               </div>
             </sc-for>
           </section>
+          <section style="background:#fff;border:1px solid #EAE2CF;border-radius:8px;overflow:hidden">
+            <div style="padding:14px 18px;border-bottom:1px solid #EAE2CF;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px">
+              <span style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 320px"><span style="font-weight:600">Import CVs in bulk</span><span style="font-size:13.5px;color:#6F6A5F;text-wrap:pretty">Choose several CV PDFs at once. Each CV is matched to a faculty member by the name in the CV or the file name. Check the matches, then apply. Publications already in the research list are not added twice.</span><span style="font-size:13.5px;color:#6B1E24">{{ admin.bulk.status }}</span></span>
+              <label style="flex:none;height:34px;padding:0 14px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font-weight:600;font-size:14.5px;display:flex;align-items:center;cursor:pointer">Choose CVs<input type="file" multiple="{{ true }}" accept=".pdf,application/pdf" onChange="{{ admin.bulk.onFiles }}" style="display:none"></label>
+            </div>
+            <sc-for list="{{ admin.bulk.rows }}" as="x" hint-placeholder-count="0">
+              <div style="display:grid;grid-template-columns:24px minmax(0,1fr) minmax(180px,260px);gap:6px 12px;align-items:center;padding:10px 18px;border-bottom:1px solid #F4EFE4">
+                <input type="checkbox" checked="{{ x.on }}" onChange="{{ x.onToggle }}" style="width:18px;height:18px;accent-color:#6B1E24">
+                <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:500;overflow-wrap:anywhere">{{ x.fname }}</span><span style="font-size:13.5px;color:#6F6A5F">{{ x.info }}</span><span style="font-size:13.5px;color:oklch(0.5 0.17 28)">{{ x.warn }}</span></span>
+                <select value="{{ x.fid }}" onChange="{{ x.onMatch }}" style="height:34px;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:inherit;font-size:14.5px;color:#221E1A;min-width:0">
+                  <sc-for list="{{ x.opts }}" as="o" hint-placeholder-count="2"><option value="{{ o.key }}">{{ o.label }}</option></sc-for>
+                </select>
+              </div>
+            </sc-for>
+            <sc-if value="{{ admin.bulk.hasRows }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:10px;padding:12px 18px">
+                <button onClick="{{ admin.bulk.onApply }}" style="height:36px;padding:0 16px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:600 14.5px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ admin.bulk.applyLabel }}</button>
+                <button onClick="{{ admin.bulk.onClear }}" style="height:36px;padding:0 16px;border-radius:6px;border:1px solid #DDD3BD;background:#fff;color:#221E1A;font:500 14.5px 'IBM Plex Sans',sans-serif;cursor:pointer">Cancel</button>
+              </div>
+            </sc-if>
+          </section>
         </div>
       </sc-if>
       <sc-if value="{{ isPlan }}" hint-placeholder-val="{{ false }}">
@@ -555,7 +576,7 @@ input::placeholder{color:#8A8F96}
                       <label style="display:grid;grid-template-columns:36px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:14.5px">
                         <span style="font:500 13.5px 'IBM Plex Mono',monospace;color:#6F6A5F">{{ x.code }}</span>
                         <span>{{ x.label }}</span>
-                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" inputMode="numeric" style="height:30px;width:64px;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 14.5px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
+                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" readOnly="{{ x.ro }}" inputMode="numeric" style="height:30px;width:64px;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 14.5px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
                       </label>
                     </sc-for>
                   </div>
@@ -565,7 +586,7 @@ input::placeholder{color:#8A8F96}
                       <label style="display:grid;grid-template-columns:36px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:14.5px">
                         <span style="font:500 13.5px 'IBM Plex Mono',monospace;color:#6F6A5F">{{ x.code }}</span>
                         <span>{{ x.label }}</span>
-                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" inputMode="numeric" style="height:30px;width:64px;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 14.5px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
+                        <input value="{{ x.value }}" onChange="{{ x.onChange }}" readOnly="{{ x.ro }}" inputMode="numeric" style="height:30px;width:64px;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 14.5px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
                       </label>
                     </sc-for>
                     <span style="font-size:12.5px;color:#8A8F96">CPD hours (P9) are entered under Policy evidence.</span>
@@ -573,8 +594,9 @@ input::placeholder{color:#8A8F96}
                 </div>
                 <label style="display:flex;flex-direction:column;gap:4px">
                   <span style="font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Basis for qualification (Table 3-1 text)</span>
-                  <span style="font-size:13.5px;color:#6F6A5F">Leave blank to use the activity summary shown in grey.</span>
-                  <textarea value="{{ p.form.basis }}" onChange="{{ p.form.onBasis }}" placeholder="{{ p.form.basisAuto }}" rows="6" style="padding:8px 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;resize:vertical;outline:none" style-focus="border-color:#6B1E24"></textarea>
+                  <span style="font-size:13.5px;color:#6F6A5F">Updated automatically from this profile's activities and research output.</span>
+                  <div style="padding:8px 10px;border:1px solid #EAE2CF;border-radius:6px;background:#FBF7EC;font-size:14px;line-height:1.5;color:#221E1A;white-space:pre-wrap">{{ p.form.basisAuto }}</div>
+                  
                 </label>
                 <label style="display:flex;flex-direction:column;gap:4px">
                   <span style="font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Admin note</span>
@@ -972,7 +994,7 @@ class Component extends DCLogic {
     if (!this.canEdit()) return;
     const id = 'n' + Date.now().toString(36);
     const d = this.state.disc !== 'All' ? this.state.disc : 'ACC';
-    const rec = { id, n: 'New faculty member', d, sp: '', deg: 'Master', yr: null, P: 0, S: 0, c: 'A', pct: 0, split: [0, 0, 0], ics: 0, ft: 'FT', fte: 1, a: {}, p: {}, other: 0, note: '', flag: '', isNew: true };
+    const rec = { id, rn: 'New faculty member ' + id, n: 'New faculty member', d, sp: '', deg: 'Master', yr: null, P: 0, S: 0, c: 'A', pct: 0, split: [0, 0, 0], ics: 0, ft: 'FT', fte: 1, a: {}, p: {}, other: 0, note: '', flag: '', isNew: true };
     this.updYear(y => ({ ...y, added: [...y.added, rec] }));
     this.setState({ sel: id, editing: true, q: '', cls: 'All', view: 'main' });
   }
@@ -990,8 +1012,8 @@ class Component extends DCLogic {
     return base.filter(r => !y.removed.includes(r.id)).concat(y.added);
   }
   snapshot(f) {
-    const { id, n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, resAdd, det } = f;
-    return JSON.parse(JSON.stringify({ id, n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, det: det || {}, resAdd: resAdd || [] }));
+    const { id, n, rn, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, resAdd, det } = f;
+    return JSON.parse(JSON.stringify({ id, n, rn: rn || n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, det: det || {}, resAdd: resAdd || [] }));
   }
   setCur(cur, extra) { localStorage.setItem(this.CURKEY, cur); this.setState(s => ({ store: { ...s.store, cur }, sel: null, editing: false, ...(extra || {}) })); }
   async switchYear(v) {
@@ -1159,8 +1181,53 @@ class Component extends DCLogic {
   }
   cvSet(kind, i, key, v) { this.setState(s => { const R = s.cvReview; if (!R) return null; return { cvReview: { ...R, [kind]: R[kind].map((x, j) => j === i ? { ...x, [key]: v, ...(key === 'code' ? { on: v !== 'skip' } : {}) } : x) } }; }); }
   cvToggle(kind, i) { this.setState(s => { const R = s.cvReview; if (!R) return null; return { cvReview: { ...R, [kind]: R[kind].map((x, j) => j === i ? { ...x, on: !x.on } : x) } }; }); }
-  applyCV(f) {
-    const R = this.state.cvReview; if (!R) return;
+  liveFaculty() { const st = this.state.store, Y = st.years[st.cur]; return this.bases().map(b => this.derive(this.apply(b, Y.edits[b.id]))); }
+  cvMatch(name, fname, bases) {
+    const nrm = t => String(t || '').toLowerCase().replace(/\.pdf$/, '').replace(/[^a-z0-9]+/g, ' ').trim();
+    const best = src => { const tk = nrm(src).split(' ').filter(x => x.length > 1 && !/^(cv|resume|curriculum|vitae|dr|mr|ms|mrs|prof|updated|final|\d+)$/.test(x)); if (!tk.length) return null;
+      let top = null, ts = 0; bases.forEach(b => { const bt = nrm(b.n).split(' '), s = tk.filter(t => bt.includes(t)).length; if (s > ts) { ts = s; top = b; } });
+      return ts >= Math.min(2, tk.length) ? top : null; };
+    const m = best(name) || best(fname); return m ? m.id : '';
+  }
+  async bulkCV(ev) {
+    const files = Array.from(ev.target.files || []); ev.target.value = ''; if (!files.length) return;
+    this.setState({ bulk: { busy: true, done: 0, total: files.length, rows: [] } });
+    try {
+      const PJ = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/';
+      const [mod, pdfjs] = await Promise.all([import(new URL('cv-import.js', location.href).href), import(PJ + 'pdf.min.mjs')]);
+      pdfjs.GlobalWorkerOptions.workerSrc = PJ + 'pdf.worker.min.mjs';
+      const bases = this.bases(), names = bases.map(b => b.n), rows = [];
+      for (const file of files) {
+        let row = { key: file.name + rows.length, fname: file.name, fid: '', sum: null, err: '', on: true };
+        try { const cv = await mod.parseCV(pdfjs, await file.arrayBuffer()); row.sum = mod.summarizeCV(cv, { year: this.curYear(), names }); row.fid = this.cvMatch(row.sum.fields && row.sum.fields.name, file.name, bases); }
+        catch (err) { console.error(err); row.err = 'Could not read this PDF'; row.on = false; }
+        if (!row.fid) row.on = false;
+        rows.push(row); this.setState(s => ({ bulk: { ...s.bulk, done: rows.length, rows: [...rows] } }));
+      }
+      this.setState(s => ({ bulk: { ...s.bulk, busy: false } }));
+    } catch (err) { console.error(err); this.setState({ bulk: null }); alert('Could not start the CV import: ' + err.message); }
+  }
+  bulkSet(i, patch) { this.setState(s => ({ bulk: { ...s.bulk, rows: s.bulk.rows.map((r, j) => j === i ? { ...r, ...patch } : r) } })); }
+  bulkApply() {
+    const B = this.state.bulk; if (!B || B.busy) return;
+    const D = this.liveFaculty(), seen = {}; let nf = 0, nu = 0, nr = 0;
+    B.rows.forEach(r => { if (!r.on || !r.fid || !r.sum || seen[r.fid]) return; const f = D.find(x => String(x.id) === String(r.fid)); if (!f) return; seen[r.fid] = 1;
+      const rv = this.buildCvReview(f, r.sum, r.fname); rv.items = rv.items.map(x => ['c', 'role', 'd'].includes(x.key) && x.kind === 'edit' ? { ...x, on: false } : x); const res = this.applyCV(f, rv); nf++; nu += res.u; nr += res.r; });
+    this.setState({ bulk: { ...B, rows: [], applied: 'Updated ' + nf + ' profile' + (nf === 1 ? '' : 's') + ': ' + nu + ' details and activities, ' + nr + ' new research output' + (nr === 1 ? '' : 's') + '.' } });
+  }
+  bulkVals() {
+    const B = this.state.bulk || { rows: [] }, D = this.bases(), opts = [{ key: '', label: 'Not matched · skip' }].concat(D.map(b => ({ key: String(b.id), label: b.n })).sort((a, b) => a.label.localeCompare(b.label)));
+    const cnt = {}; B.rows.forEach(r => { if (r.on && r.fid) cnt[r.fid] = (cnt[r.fid] || 0) + 1; });
+    const rows = B.rows.map((r, i) => { const s = r.sum || {}, np = (s.pubs || []).length, na = (s.acts || []).length;
+      return { fname: r.fname, on: r.on, fid: String(r.fid), opts, onToggle: () => this.bulkSet(i, { on: !r.on }), onMatch: e => this.bulkSet(i, { fid: e.target.value, on: !!e.target.value }),
+        info: r.err || (np + ' publication' + (np === 1 ? '' : 's') + ' · ' + na + ' activit' + (na === 1 ? 'y' : 'ies') + ' found'),
+        warn: r.err ? '' : !r.fid ? 'No faculty member matched. Choose one or leave it skipped.' : cnt[r.fid] > 1 ? 'Another CV is matched to the same person. Only the first will be applied.' : '' }; });
+    const ready = B.rows.filter(r => r.on && r.fid).length;
+    return { onFiles: e => this.bulkCV(e), rows, hasRows: rows.length > 0 && !B.busy, status: B.busy ? 'Reading CVs… ' + B.done + ' of ' + B.total : (B.applied || ''), busy: !!B.busy,
+      applyLabel: 'Apply ' + ready + ' CV' + (ready === 1 ? '' : 's'), onApply: () => this.bulkApply(), onClear: () => this.setState({ bulk: null }) };
+  }
+  applyCV(f, Rin) {
+    const R = Rin || this.state.cvReview; if (!R) return { u: 0, r: 0 };
     R.items.filter(x => x.on).forEach(x => { if (x.kind === 'cnt') this.setCount(f.id, x.key, x.val); else this.setEdit(f.id, x.key, x.val); });
     const byCode = {}, PUBK = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A8', 'A9'], extra = [];
     (R.acts || []).filter(a => a.on && a.code && a.code !== 'skip').forEach(a => {
@@ -1170,9 +1237,10 @@ class Component extends DCLogic {
     R.pubs.filter(p => p.on && p.code && p.code !== 'OTHER').forEach(p => { (byCode[p.code] ||= []).push({ t: p.t, sub: [p.y, p.j].filter(Boolean).join(' · ') }); });
     if (Object.keys(byCode).length) this.setEdit(f.id, 'det', { ...(f.det || {}), ...byCode });
     const recs = R.pubs.filter(p => p.on && !p.dup).map(p => ({ y: p.y, t: p.t, j: p.j, au: p.au, p: p.p, ty: p.ty, c: p.c, code: p.code || '' })).concat(extra).map((p, i) => ({ ...p, k: 'a' + Date.now().toString(36) + i }));
-    if (recs.length) { const nk = this.nk(f.n), list = [...this.addedFor(nk), ...recs]; this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
+    if (recs.length) { const nk = this.nk(f.rn || f.n), list = [...this.addedFor(nk), ...recs]; this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
     const n = R.items.filter(x => x.on).length + (R.acts || []).filter(a => a.on && a.code !== 'skip').length;
-    this.setState({ cvReview: null, cvMsg: 'Applied ' + n + ' update' + (n === 1 ? '' : 's') + ' and ' + recs.length + ' research output' + (recs.length === 1 ? '' : 's') + ' from ' + R.fname + '.' });
+    if (!Rin) this.setState({ cvReview: null, cvMsg: 'Applied ' + n + ' update' + (n === 1 ? '' : 's') + ' and ' + recs.length + ' research output' + (recs.length === 1 ? '' : 's') + ' from ' + R.fname + '.' });
+    return { u: n, r: recs.length };
   }
   resCode(r) {
     if (r.code) return r.code;
@@ -1198,14 +1266,14 @@ class Component extends DCLogic {
   addResearch(f) {
     const d = this.state.draft || {};
     if (!d.t || !d.y) { alert('Enter at least a year and a title.'); return; }
-    this.addRes(this.nk(f.n), { y: Number(d.y), t: d.t, j: d.j || '', au: '', p: d.p || 'C', ty: d.ty || 'F', c: Number(d.c || 1), code: d.code || '' });
+    this.addRes(this.nk(f.rn || f.n), { y: Number(d.y), t: d.t, j: d.j || '', au: '', p: d.p || 'C', ty: d.ty || 'F', c: Number(d.c || 1), code: d.code || '' });
     this.setState({ draft: { y: d.y, p: d.p, ty: d.ty, c: d.c } });
   }
   startResEdit(r) { this.setState({ resEditKey: r.k, draft: { y: String(r.y), t: r.t, j: r.j || '', p: r.p, ty: r.ty, c: String(r.c), code: r.code || '' } }); }
   saveResEdit(f) {
     const d = this.state.draft || {}, k = this.state.resEditKey; if (!k) return;
     if (!d.t || !d.y) { alert('Enter at least a year and a title.'); return; }
-    const rec = { y: Number(d.y), t: d.t, j: d.j || '', p: d.p || 'C', ty: d.ty || 'F', c: Number(d.c || 1), code: d.code || '' }, nk = this.nk(f.n);
+    const rec = { y: Number(d.y), t: d.t, j: d.j || '', p: d.p || 'C', ty: d.ty || 'F', c: Number(d.c || 1), code: d.code || '' }, nk = this.nk(f.rn || f.n);
     if (k[0] === 'a') { const list = this.addedFor(nk).map(r => r.k === k ? { ...r, ...rec } : r); this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
     else if (k[0] === 'b' || k[0] === 'r') this.updRes(e => ({ ...e, mod: { ...e.mod, [k]: rec } }), () => ({ mod: { [k]: rec } }));
     else { this.delRes(k); this.addRes(nk, { ...rec, au: '' }); }
@@ -1227,7 +1295,7 @@ class Component extends DCLogic {
       const model = {
         year,
         disciplines: used.map(([k, name, offered], i) => ({ letter: String.fromCharCode(65 + i), name, offered: !!offered,
-          faculty: D.filter(f => f.d === k).map(f => ({ name: f.n, spec: f.sp, deg: f.deg.split(' (')[0], yr: f.yr, P: f.P, S: f.S, cls: f.c, pct: f.pct, basis: (f.basis && f.basis.trim()) || this.autoBasis(f) })) })),
+          faculty: D.filter(f => f.d === k).map(f => ({ name: f.n, spec: f.sp, deg: f.deg.split(' (')[0], yr: f.yr, P: f.P, S: f.S, cls: f.c, pct: f.pct, basis: this.autoBasis(f) })) })),
         programs: ['bafH', 'msafH'].map(k => { const s = { SA: 0, PA: 0, SP: 0, IP: 0, A: 0 }; let t = 0; D.forEach(f => { const h = f[k] || 0; s[f.c] += h; t += h; }); const o = { total: t ? 1 : 0 }; Object.keys(s).forEach(c => { o[c] = t ? s[c] / t : 0; }); return o; }),
         ic: this.icTable(D)
       };
@@ -1240,7 +1308,7 @@ class Component extends DCLogic {
   }
   num(v) { if (v === '' || v == null) return null; const n = Number(v); return isFinite(n) ? n : null; }
   apply(b, e) {
-    const f = { ...b, a: { ...b.a }, p: { ...b.p }, split: [...b.split], te: b.te ?? null, exp: b.exp ?? null, p9h: b.p9h ?? null, baf: b.baf ?? null, msaf: b.msaf ?? null, edited: false, pEdited: false };
+    const f = { ...b, a: { ...b.a }, p: { ...b.p }, split: [...b.split], te: b.te ?? null, exp: b.exp ?? null, p9h: b.p9h ?? null, baf: b.baf ?? null, msaf: b.msaf ?? null, edited: false, pEdited: false, rn: b.rn || b.n };
     if (!e || !Object.keys(e).length) return f;
     const n = this.num.bind(this);
     f.edited = true;
@@ -1260,6 +1328,9 @@ class Component extends DCLogic {
     if (e.hours != null || e.role) {
       const h = n(e.hours) ?? (b.P + b.S), role = e.role || (b.P > 0 || b.S === 0 ? 'P' : 'S');
       f.P = role === 'P' ? h : 0; f.S = role === 'S' ? h : 0;
+      if (e.st == null) { f.split[0] = Math.min(60, Math.round(h / 270 * 600) / 10); f.pct = f.split[0] + f.split[1] + f.split[2]; }
+      const bt = b.P + b.S;
+      if (e.baf == null && e.msaf == null && bt > 0 && h !== bt) { if (b.baf != null) f.baf = Math.round(b.baf * h / bt); if (b.msaf != null) f.msaf = b.baf != null ? Math.max(0, h - f.baf) : Math.round(b.msaf * h / bt); }
     }
     if (e.te != null) f.te = n(e.te);
     if (e.exp != null) f.exp = n(e.exp);
@@ -1278,8 +1349,8 @@ class Component extends DCLogic {
   }
   derive(f) {
     const Y = this.curYear(), idx = this.resIndex();
-    const RE = this.state.resEdits || { add: {}, del: {}, mod: {} }, nk = this.nk(f.n);
-    const baseR = (idx[f.n.toLowerCase()] || []).map(r => { const bk = r.k || ('b' + r.no), m = (RE.mod || {})[bk]; return { ...r, ...(m || {}), k: bk, src: 'base', edited: !!m }; });
+    const RE = this.state.resEdits || { add: {}, del: {}, mod: {} }, nk = this.nk(f.rn || f.n);
+    const baseR = (idx[(f.rn || f.n).toLowerCase()] || idx[f.n.toLowerCase()] || []).map(r => { const bk = r.k || ('b' + r.no), m = (RE.mod || {})[bk]; return { ...r, ...(m || {}), k: bk, src: 'base', edited: !!m }; });
     const addR = ((RE.add || {})[nk] || []).map(r => ({ ...r, src: 'added', added: true }));
     const legacy = (f.resAdd || []).map((r, i) => ({ ...r, k: 'l' + nk + '_' + i, src: 'legacy', added: true }));
     const inWin = baseR.concat(addR, legacy).filter(r => r.y >= Y - 5 && r.y <= Y);
@@ -1304,11 +1375,12 @@ class Component extends DCLogic {
       const fromRes = list.length; let fromCv = 0;
       (DT[k] || []).forEach(x => { const n = tn(x.t); if (!list.some(l => same(l.n, n))) { list.push({ t: x.t, sub: [x.sub, 'CV only'].filter(Boolean).join(' · '), n }); fromCv++; } });
       f.pubItems[k] = list;
-      if (f.a[k] && f.a[k].manual) return;
       const master = f.a[k] ? f.a[k].n : 0, n = list.length;
       if (!n && !master) { delete f.a[k]; return; }
       f.a[k] = { n, det: [fromRes ? fromRes + ' in research list' : '', fromCv ? fromCv + ' from CV only' : '', master !== n ? 'master list showed ' + master : '', (k === 'A1' || k === 'A2') && f.indexGuess ? 'indexing not confirmed for ' + f.indexGuess + ' article' + (f.indexGuess === 1 ? '' : 's') + ', check Policy code' : ''].filter(Boolean).join(' · '), master, auto: true };
     });
+    Object.entries(DT).forEach(([k, list]) => { if (PUBC.includes(k) || !/^[AP]\d+$/.test(k) || !Array.isArray(list) || !list.length) return; const t = k[0] === 'A' ? f.a : f.p; t[k] = { n: list.length, det: list.length + ' from imported CV', fromCv: true }; if (k === 'P10') t[k].u = Math.floor(list.length / 5); if (k[0] === 'P') f.pEdited = true; });
+    f.fte = f.ft === 'FT' ? 1 : Math.min(1, Math.round((f.P + f.S) / 270 * 100) / 100);
     const g = k => (f.a[k] || f.p[k] || { n: 0 }).n;
     f.aea = Object.values(f.a).reduce((s, x) => s + x.n, 0);
     f.a1 = g('A1'); f.p1 = g('P1');
@@ -1320,9 +1392,9 @@ class Component extends DCLogic {
     const tot = f.P + f.S;
     f.progAssumed = f.baf == null && f.msaf == null;
     if (f.progAssumed) { f.bafH = tot; f.msafH = 0; }
-    else if (f.baf == null) { f.msafH = f.msaf; f.bafH = Math.max(0, tot - f.msaf); }
-    else if (f.msaf == null) { f.bafH = f.baf; f.msafH = Math.max(0, tot - f.baf); }
-    else { f.bafH = f.baf; f.msafH = f.msaf; }
+    else if (f.baf == null) { f.msafH = Math.min(f.msaf, tot); f.bafH = Math.max(0, tot - f.msaf); }
+    else if (f.msaf == null) { f.bafH = Math.min(f.baf, tot); f.msafH = Math.max(0, tot - f.baf); }
+    else { f.bafH = Math.min(f.baf, tot); f.msafH = Math.min(f.msaf, Math.max(0, tot - f.bafH)); }
     f.othH = Math.max(0, tot - f.bafH - f.msafH);
     f.progs = [f.bafH > 0 ? 'BAF' : '', f.msafH > 0 ? 'MSAF' : ''].filter(Boolean);
     if (!f.progs.length && f.othH > 0) f.progs = ['Other'];
@@ -1452,6 +1524,7 @@ class Component extends DCLogic {
     void roles;
     const up = this.state.upMsg || {};
     return {
+      bulk: this.bulkVals(),
       rows: (this.state.allow || []).map(x => ({ email: x.email, role: x.role, roles, onRole: e => this.setRole(x.email, e.target.value), onRemove: () => this.removeAccess(x.email), isOther: x.email !== this.state.user,
         isAdminRow: x.role === 'admin', secsOn: x.role !== 'admin', secs: [['ov', 'School overview', 0], ['prof', 'Faculty profiles', 1], ['plan', 'Planning', 1]].map(([k, label, ed]) => ({ label, v: this.acc(k, x.role, x.access), opts: [{ key: 'none', label: 'No access' }, { key: 'view', label: 'View' }].concat(ed ? [{ key: 'edit', label: 'Edit' }] : []), on: e => this.setAccess(x.email, k, e.target.value) })) })),
       count: (this.state.allow || []).length + ' authorised',
@@ -1585,24 +1658,22 @@ class Component extends DCLogic {
           sel_('Status', 'ft', b.ft, [{ key: 'FT', label: 'Full-time' }, { key: 'PT', label: 'Part-time' }]),
           fld('Highest degree', 'deg', b.deg),
           fld('Year earned', 'yr', b.yr),
-          fld('FTE', 'fte', b.fte),
           fld('Teaching hours ' + year, 'hours', b.P + b.S),
-          fld('of which BAF hours', 'baf', b.baf, { placeholder: 'All hours if blank' }),
-          fld('of which MSAF hours', 'msaf', b.msaf, { placeholder: '0 if blank' }),
+          fld('of which BAF hours', 'baf', f.baf, { placeholder: 'All hours if blank' }),
+          fld('of which MSAF hours', 'msaf', f.msaf, { placeholder: '0 if blank' }),
           fld('Professional certifications', 'certs', b.certs, { placeholder: 'e.g. ACCA; CPA' }),
           fld('Courses taught', 'courses', b.courses, { placeholder: 'Separate with ;' }),
-          fld('Teaching % of time (≤60)', 'st', b.split[0]),
+          fld('Teaching % of time (≤60)', 'st', f.split[0], { hint: 'Set from teaching hours (270 h = 60%) unless entered here' }),
           fld('Research % of time (≤30)', 'sr', b.split[1]),
-          fld('Service % of time (≤10)', 'ss', b.split[2]),
-          fld('Intellectual contributions ' + (year - 5) + '–' + year, 'ics', b.ics)
+          fld('Service % of time (≤10)', 'ss', b.split[2])
         ],
         evidence: [
           fld('Teaching effectiveness (out of 7.0)', 'te', null, { placeholder: 'e.g. 5.8', hint: 'Most recent annual or rolling 2-year average' }),
           fld('Years of professional experience', 'exp', null, { placeholder: 'e.g. 8', hint: 'In the field of teaching · needed for SP and IP' }),
           fld('CPD hours attended (P9)', 'p9h', null, { placeholder: 'e.g. 40', hint: '36 hours = 1 activity' })
         ],
-        acad: Object.keys(AD).map(k => ({ code: k, label: AD[k], value: (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.a[k] ? b.a[k].n : 0), onChange: ev => this.setCount(f.id, k, ev.target.value) })),
-        prof: Object.keys(PD).filter(k => k !== 'P9').map(k => ({ code: k, label: k === 'P10' ? 'Professional events (number of participations)' : PD[k][0], value: (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.p[k] ? b.p[k].n : 0), onChange: ev => this.setCount(f.id, k, ev.target.value) })),
+        acad: Object.keys(AD).map(k => { const ro = (!!TYM[k] && (f.res.length > 0 || (DET[k] || []).length > 0)) || (!TYM[k] && (DET[k] || []).length > 0); return { code: k, label: AD[k] + (ro ? (TYM[k] ? ' · counted from Research output' : ' · counted from imported CV') : ''), ro, value: ro ? String((f.a[k] || { n: 0 }).n) : (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.a[k] ? b.a[k].n : 0), onChange: ev => { if (!ro) this.setCount(f.id, k, ev.target.value); } }; }),
+        prof: Object.keys(PD).filter(k => k !== 'P9').map(k => { const ro = (DET[k] || []).length > 0; return { code: k, label: (k === 'P10' ? 'Professional events (number of participations)' : PD[k][0]) + (ro ? ' · counted from imported CV' : ''), ro, value: ro ? String((f.p[k] || { n: 0 }).n) : (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.p[k] ? b.p[k].n : 0), onChange: ev => { if (!ro) this.setCount(f.id, k, ev.target.value); } }; }),
         note: cur('note', b.note), onNote: set('note'),
         basis: cur('basis', b.basis), onBasis: set('basis'), basisAuto: this.autoBasis(f)
       };
