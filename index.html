@@ -1368,7 +1368,7 @@ class Component extends DCLogic {
       f.pubItems[k] = list;
       const master = f.a[k] ? f.a[k].n : 0, n = list.length;
       if (!n && !master) { delete f.a[k]; return; }
-      f.a[k] = { n, det: [fromRes ? fromRes + ' in research list' : '', fromCv ? fromCv + ' from CV only' : '', master !== n ? 'master list showed ' + master : '', (k === 'A1' || k === 'A2') && f.indexGuess ? 'indexing not confirmed for ' + f.indexGuess + ' article' + (f.indexGuess === 1 ? '' : 's') + ', check Policy code' : ''].filter(Boolean).join(' · '), master, auto: true };
+      f.a[k] = { n, det: [fromRes ? fromRes + ' in research list' : '', fromCv ? fromCv + ' from CV only' : '', (k === 'A1' || k === 'A2') && f.indexGuess ? 'indexing not confirmed for ' + f.indexGuess + ' article' + (f.indexGuess === 1 ? '' : 's') + ', check Policy code' : ''].filter(Boolean).join(' · '), master, auto: true };
     });
     Object.entries(DT).forEach(([k, list]) => { if (PUBC.includes(k) || !/^[AP]\d+$/.test(k) || !Array.isArray(list) || !list.length) return; const t = k[0] === 'A' ? f.a : f.p; t[k] = { n: list.length, det: list.length + ' from imported CV', fromCv: true }; if (k === 'P10') t[k].u = Math.floor(list.length / 5); if (k[0] === 'P') f.pEdited = true; });
     f.fte = f.ft === 'FT' ? 1 : Math.min(1, Math.round((f.P + f.S) / 270 * 100) / 100);
