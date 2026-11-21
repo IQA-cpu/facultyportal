@@ -592,12 +592,7 @@ input::placeholder{color:#8A8F96}
                     <span style="font-size:12.5px;color:#8A8F96">CPD hours (P9) are entered under Policy evidence.</span>
                   </div>
                 </div>
-                <label style="display:flex;flex-direction:column;gap:4px">
-                  <span style="font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Basis for qualification (Table 3-1 text)</span>
-                  <span style="font-size:13.5px;color:#6F6A5F">Updated automatically from this profile's activities and research output.</span>
-                  <div style="padding:8px 10px;border:1px solid #EAE2CF;border-radius:6px;background:#FBF7EC;font-size:14px;line-height:1.5;color:#221E1A;white-space:pre-wrap">{{ p.form.basisAuto }}</div>
-                  
-                </label>
+                
                 <label style="display:flex;flex-direction:column;gap:4px">
                   <span style="font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;color:#6F6A5F;font-weight:600">Admin note</span>
                   <textarea value="{{ p.form.note }}" onChange="{{ p.form.onNote }}" rows="3" style="padding:8px 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;resize:vertical;outline:none" style-focus="border-color:#6B1E24"></textarea>
@@ -707,9 +702,6 @@ input::placeholder{color:#8A8F96}
                     </sc-if>
                     <sc-if value="{{ r.noPub }}" hint-placeholder-val="{{ false }}">
                       <div style="padding:0 18px 12px 92px;font-size:13.5px;color:#6F6A5F;text-wrap:pretty">{{ r.noPubText }}</div>
-                    </sc-if>
-                    <sc-if value="{{ r.noDetails }}" hint-placeholder-val="{{ false }}">
-                      <div style="padding:0 18px 12px 92px;font-size:13.5px;color:#6F6A5F;text-wrap:pretty">Only the count is recorded in the master list. Import this person's CV (Import from CV) to see the individual activities.</div>
                     </sc-if>
                   </div>
                 </sc-for>
@@ -1012,8 +1004,8 @@ class Component extends DCLogic {
     return base.filter(r => !y.removed.includes(r.id)).concat(y.added);
   }
   snapshot(f) {
-    const { id, n, rn, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, resAdd, det } = f;
-    return JSON.parse(JSON.stringify({ id, n, rn: rn || n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, basis, det: det || {}, resAdd: resAdd || [] }));
+    const { id, n, rn, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, resAdd, det } = f;
+    return JSON.parse(JSON.stringify({ id, n, rn: rn || n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, det: det || {}, resAdd: resAdd || [] }));
   }
   setCur(cur, extra) { localStorage.setItem(this.CURKEY, cur); this.setState(s => ({ store: { ...s.store, cur }, sel: null, editing: false, ...(extra || {}) })); }
   async switchYear(v) {
@@ -1038,9 +1030,9 @@ class Component extends DCLogic {
     const years = { ...st.years }; delete years[st.cur];
     const store = { ...st, years, cur: '2026' }; this.save(store); this.setState({ store, sel: null, editing: false });
   }
-  autoBasis(f) {
+  autoBasis(f, part) {
     const L = { A1: 'PRJs (Scopus/ABDC)', A2: 'Other indexed PRJs', A3: 'Editorial-reviewed journals', A4: 'Conference proceedings', A5: 'Teaching cases', A6: 'Commissioned policy documents/reports', A7: 'Research income', A8: 'Books/book chapters', A9: 'Research/consulting grant reports', A10: 'Technologies developed', A11: 'Patents', A12: 'Editorial board memberships', A13: 'Academic advisor roles', A14: 'Formal roles in academic organisations', A15: 'Student research projects supervised', A16: 'Invited presentations/speaker roles', A17: 'Academic awards/fellowships', P1: 'Work in government/industry', P2: 'Practitioner journal publications', P3: 'Practitioner books/chapters', P4: 'Entrepreneur/business owner (2+ yrs)', P5: 'Business/organisational leadership (2+ yrs)', P6: 'Professional association memberships', P7: 'Consultancy projects', P8: 'Training delivered to industry', P9: 'Training/CPD attended', P10: 'Professional events/networking', P11: 'Student industry projects supervised' };
-    const ord = k => +k.slice(1), out = [];
+    const ord = k => +k.slice(1), out = [], pe = [];
     const abd = (f.deg.match(/\(([^)]*ABD[^)]*)\)/) || [])[1];
     if (abd) out.push('- ' + abd.replace(/\s+/g, ''));
     const ak = Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) <= 14);
@@ -1048,11 +1040,11 @@ class Component extends DCLogic {
     if (f.other) out.push('- Other ICs (reports, op-eds, etc.): ' + f.other);
     if (!ak.length && !f.other) out.push('- No ICs recorded (' + (this.curYear() - 5) + '–' + this.curYear() + ')');
     const pk = Object.keys(f.p).sort((x, y) => ord(x) - ord(y));
-    pk.forEach(k => { const x = f.p[k]; if (k === 'P10') out.push('- ' + L[k] + ': ' + x.n + ' (= ' + x.u + ' activities)'); else if (k === 'P9') out.push('- ' + L[k] + (f.p9h != null ? ': ' + f.p9h + ' hours' : ': ' + x.n)); else out.push('- ' + L[k] + ': ' + x.n); });
-    Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) > 14).forEach(k => out.push('- ' + L[k] + ': ' + f.a[k].n));
-    if (!pk.length) out.push('- No professional engagement recorded');
-    if (f.te != null) out.push('- Teaching effectiveness: ' + f.te + '/7.0');
-    return out.join('\n');
+    pk.forEach(k => { const x = f.p[k]; if (k === 'P10') pe.push('- ' + L[k] + ': ' + x.n + ' (= ' + x.u + ' activities)'); else if (k === 'P9') pe.push('- ' + L[k] + (f.p9h != null ? ': ' + f.p9h + ' hours' : ': ' + x.n)); else pe.push('- ' + L[k] + ': ' + x.n); });
+    Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) > 14).forEach(k => pe.push('- ' + L[k] + ': ' + f.a[k].n));
+    if (!pk.length) pe.push('- No professional engagement recorded');
+    if (f.te != null) pe.push('- Teaching effectiveness: ' + f.te + '/7.0');
+    return (part === 'ic' ? out : part === 'pe' ? pe : out.concat(pe)).join('\n');
   }
   curYear() { return Number(this.state.store.cur); }
   resIndex() {
@@ -1295,7 +1287,7 @@ class Component extends DCLogic {
       const model = {
         year,
         disciplines: used.map(([k, name, offered], i) => ({ letter: String.fromCharCode(65 + i), name, offered: !!offered,
-          faculty: D.filter(f => f.d === k).map(f => ({ name: f.n, spec: f.sp, deg: f.deg.split(' (')[0], yr: f.yr, P: f.P, S: f.S, cls: f.c, pct: f.pct, basis: this.autoBasis(f) })) })),
+          faculty: D.filter(f => f.d === k).map(f => ({ name: f.n, spec: f.sp, deg: f.deg.split(' (')[0], yr: f.yr, P: f.P, S: f.S, cls: f.c, pct: f.pct, basis: this.autoBasis(f), split: f.split, hours: f.P + f.S, icCr: f.icCr || 0, nRes: f.res.length, ft: f.ft, fte: f.fte, note: f.note || '', icBy: f.icBy, icText: this.autoBasis(f, 'ic'), peText: this.autoBasis(f, 'pe') })) })),
         programs: ['bafH', 'msafH'].map(k => { const s = { SA: 0, PA: 0, SP: 0, IP: 0, A: 0 }; let t = 0; D.forEach(f => { const h = f[k] || 0; s[f.c] += h; t += h; }); const o = { total: t ? 1 : 0 }; Object.keys(s).forEach(c => { o[c] = t ? s[c] / t : 0; }); return o; }),
         ic: this.icTable(D)
       };
@@ -1316,7 +1308,6 @@ class Component extends DCLogic {
     if (e.name) f.n = e.name;
     if (e.sp != null) f.sp = e.sp;
     ['empId', 'title', 'certs', 'courses'].forEach(k => { if (e[k] != null) f[k] = e[k]; });
-    if (e.basis != null) f.basis = e.basis;
     if (e.det) f.det = e.det;
     if (Array.isArray(e.res)) f.resAdd = (b.resAdd || []).concat(e.res);
     if (e.deg) f.deg = e.deg;
@@ -1324,7 +1315,7 @@ class Component extends DCLogic {
     if (n(e.yr) != null) f.yr = n(e.yr);
     if (n(e.fte) != null) f.fte = n(e.fte);
     if (n(e.ics) != null) f.ics = n(e.ics);
-    ['st', 'sr', 'ss'].forEach((k, i) => { if (e[k] != null) { f.split[i] = n(e[k]) || 0; f.pct = f.split[0] + f.split[1] + f.split[2]; } });
+    f.man = {}; ['st', 'sr', 'ss'].forEach((k, i) => { if (e[k] != null && e[k] !== '') { f.man[k] = true; f.split[i] = n(e[k]) || 0; f.pct = f.split[0] + f.split[1] + f.split[2]; } });
     if (e.hours != null || e.role) {
       const h = n(e.hours) ?? (b.P + b.S), role = e.role || (b.P > 0 || b.S === 0 ? 'P' : 'S');
       f.P = role === 'P' ? h : 0; f.S = role === 'S' ? h : 0;
@@ -1381,6 +1372,12 @@ class Component extends DCLogic {
     });
     Object.entries(DT).forEach(([k, list]) => { if (PUBC.includes(k) || !/^[AP]\d+$/.test(k) || !Array.isArray(list) || !list.length) return; const t = k[0] === 'A' ? f.a : f.p; t[k] = { n: list.length, det: list.length + ' from imported CV', fromCv: true }; if (k === 'P10') t[k].u = Math.floor(list.length / 5); if (k[0] === 'P') f.pEdited = true; });
     f.fte = f.ft === 'FT' ? 1 : Math.min(1, Math.round((f.P + f.S) / 270 * 100) / 100);
+    { const man = f.man || {}, r2 = v => Math.round(v * 100) / 100; f.split = [...(f.split || [0, 0, 0])];
+      if (!man.st) f.split[0] = r2(Math.min(60, (f.P + f.S) / 270 * 60));
+      if (!man.sr) f.split[1] = r2(Math.min(30, (f.icCr || 0) / 4 * 30));
+      if (!man.ss) f.split[2] = f.ft === 'FT' ? 10 : 5;
+      f.pct = r2(f.split[0] + f.split[1] + f.split[2]); }
+    if (f.res.length) f.other = f.res.filter(o => o.code === 'OTHER').length;
     const g = k => (f.a[k] || f.p[k] || { n: 0 }).n;
     f.aea = Object.values(f.a).reduce((s, x) => s + x.n, 0);
     f.a1 = g('A1'); f.p1 = g('P1');
@@ -1636,8 +1633,8 @@ class Component extends DCLogic {
       const deco = r => { const k = r.code, key = f.id + ':' + k, items = (DET[k] || []).map(x => ({ t: x.t, sub: x.sub }));
         let src = 'From the imported CV';
         if (TYM[k]) { items.length = 0; ((f.pubItems || {})[k] || []).forEach(o => items.push({ t: o.t, sub: o.sub })); src = 'From the research list and the faculty CV'; }
-        const open = this.state.openCode === key;
-        return { ...r, isPub: !!TYM[k], noPubText: 'No outputs in the research list or CV are classified as ' + k + ((f.a[k] || {}).master ? ' (the master list showed ' + f.a[k].master + ')' : '') + '. Add an output under Research output, or edit an output\'s Policy code to reassign it.', open, chev: open ? '▾' : '▸', onToggle: () => this.setState(s => ({ openCode: s.openCode === key ? null : key })), details: items, hasDetails: open && items.length > 0, noDetails: open && !items.length && !TYM[k], noPub: open && !items.length && !!TYM[k], detSrc: src + ' · ' + items.length + ' item' + (items.length === 1 ? '' : 's'), rowBg: open ? '#FBF7EC' : '#fff' }; };
+        const can = !!TYM[k] || items.length > 0, open = can && this.state.openCode === key;
+        return { ...r, isPub: !!TYM[k], noPubText: 'No outputs in the research list or CV are classified as ' + k + ((f.a[k] || {}).master ? ' (the master list showed ' + f.a[k].master + ')' : '') + '. Add an output under Research output, or edit an output\'s Policy code to reassign it.', open, chev: can ? (open ? '▾' : '▸') : '', onToggle: can ? () => this.setState(s => ({ openCode: s.openCode === key ? null : key })) : undefined, details: items, hasDetails: open && items.length > 0, noDetails: open && !items.length && !TYM[k], noPub: open && !items.length && !!TYM[k], detSrc: src + ' · ' + items.length + ' item' + (items.length === 1 ? '' : 's'), rowBg: open ? '#FBF7EC' : '#fff' }; };
       
       aRows.sort((x, y) => ord(x.code) - ord(y.code));
       aRows = aRows.map(deco); pRows = pRows.map(deco);
@@ -1664,7 +1661,7 @@ class Component extends DCLogic {
           fld('Professional certifications', 'certs', b.certs, { placeholder: 'e.g. ACCA; CPA' }),
           fld('Courses taught', 'courses', b.courses, { placeholder: 'Separate with ;' }),
           fld('Teaching % of time (≤60)', 'st', f.split[0], { hint: 'Set from teaching hours (270 h = 60%) unless entered here' }),
-          fld('Research % of time (≤30)', 'sr', b.split[1]),
+          fld('Research % of time (≤30)', 'sr', f.split[1], { hint: 'Set from IC credits (4 credits = 30%) unless entered here' }),
           fld('Service % of time (≤10)', 'ss', b.split[2])
         ],
         evidence: [
@@ -1674,8 +1671,7 @@ class Component extends DCLogic {
         ],
         acad: Object.keys(AD).map(k => { const ro = (!!TYM[k] && (f.res.length > 0 || (DET[k] || []).length > 0)) || (!TYM[k] && (DET[k] || []).length > 0); return { code: k, label: AD[k] + (ro ? (TYM[k] ? ' · counted from Research output' : ' · counted from imported CV') : ''), ro, value: ro ? String((f.a[k] || { n: 0 }).n) : (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.a[k] ? b.a[k].n : 0), onChange: ev => { if (!ro) this.setCount(f.id, k, ev.target.value); } }; }),
         prof: Object.keys(PD).filter(k => k !== 'P9').map(k => { const ro = (DET[k] || []).length > 0; return { code: k, label: (k === 'P10' ? 'Professional events (number of participations)' : PD[k][0]) + (ro ? ' · counted from imported CV' : ''), ro, value: ro ? String((f.p[k] || { n: 0 }).n) : (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.p[k] ? b.p[k].n : 0), onChange: ev => { if (!ro) this.setCount(f.id, k, ev.target.value); } }; }),
-        note: cur('note', b.note), onNote: set('note'),
-        basis: cur('basis', b.basis), onBasis: set('basis'), basisAuto: this.autoBasis(f)
+        note: cur('note', b.note), onNote: set('note')
       };
       const matrix = ['SA', 'PA', 'SP', 'IP'].map(c => {
         const m = this.check(f, c).maint.filter(x => !/Teaching effectiveness/.test(x.label));
@@ -1694,7 +1690,7 @@ class Component extends DCLogic {
         figures: [
           { label: 'Teaching hours ' + year, value: (f.P + f.S).toLocaleString('en-US'), sub: role },
           { label: 'Programs taught', value: f.progs.join(' · ') || '—', sub: 'BAF ' + f.bafH + ' h · MSAF ' + f.msafH + ' h' + (f.othH ? ' · Other ' + f.othH + ' h' : '') + (f.progAssumed ? ' · split not recorded' : '') },
-          { label: 'Intellectual contributions', value: f.res.length || f.ics, sub: (f.res.length ? fmt(f.icCr) + ' credits · ' : '') + (year - 5) + '–' + year },
+          { label: 'Intellectual contributions', value: f.res.length, sub: (f.res.length ? fmt(f.icCr) + ' credits · ' : '') + (year - 5) + '–' + year },
           { label: 'Academic engagement', value: f.aea, sub: 'A-code activities' },
           { label: 'Professional engagement', value: f.peaNA ? '—' : f.pea, sub: f.peaNA ? 'Not assessed' : 'P-code activities counted' }
         ],
