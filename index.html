@@ -719,6 +719,14 @@ input::placeholder{color:#8A8F96}
                         </sc-for>
                       </div>
                     </sc-if>
+                    <sc-if value="{{ r.noDetails }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;gap:12px;align-items:flex-start;padding:0 18px 12px 92px">
+                        <span style="flex:1;font-size:13.5px;color:#6F6A5F;text-wrap:pretty">{{ r.origin }}</span>
+                        <sc-if value="{{ r.canRemoveCount }}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{ r.onRemoveCount }}" style="flex:none;height:30px;padding:0 12px;border-radius:5px;border:1px solid #DDD3BD;background:#fff;color:#8E2A2A;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="border-color:#8E2A2A">Remove</button>
+                        </sc-if>
+                      </div>
+                    </sc-if>
                     <sc-if value="{{ r.noPub }}" hint-placeholder-val="{{ false }}">
                       <div style="padding:0 18px 12px 92px;font-size:13.5px;color:#6F6A5F;text-wrap:pretty">{{ r.noPubText }}</div>
                     </sc-if>
@@ -1664,7 +1672,7 @@ class Component extends DCLogic {
         return { code: k, desc: PD[k][0], detail: [k === 'P10' || k === 'P9' ? x.n + ' recorded' : '', PD[k][1], k === 'P9' ? '' : (k === 'P10' || k === 'P11' ? 'counts as ' + u : ''), x.det].filter(Boolean).join(' · '), n: u };
       });
       const TYM = { A1: 1, A2: 1, A3: 1, A4: 1, A5: 1, A6: 1, A8: 1, A9: 1 }, DET = f.det || {};
-      const IE = this.state.itemEdit, ce = this.canEdit();
+      const IE = this.state.itemEdit, ce = this.canEdit(), B0 = bases.find(x => x.id === f.id) || { a: {}, p: {} }, E0 = edits[f.id] || {};
       const mk = (k, x, i) => { const id = f.id + ':' + k + ':' + i, ed = IE && IE.id === id, src = x.res ? { res: x.res } : { ci: x.ci != null ? x.ci : i };
         return { t: x.t, sub: x.sub, editing: ed, viewing: !ed, canEdit: ce && !ed, eT: ed ? IE.t : '', eSub: ed ? IE.sub : '', subLabel: x.res ? 'Journal or outlet' : 'Details',
           onEdit: () => this.setState({ itemEdit: { id, t: x.t, sub: x.ed != null ? x.ed : x.sub } }), onT: ev => { const v = ev.target.value; this.setState(s => ({ itemEdit: { ...s.itemEdit, t: v } })); }, onSub: ev => { const v = ev.target.value; this.setState(s => ({ itemEdit: { ...s.itemEdit, sub: v } })); },
@@ -1672,8 +1680,11 @@ class Component extends DCLogic {
       const deco = r => { const k = r.code, key = f.id + ':' + k, items = (DET[k] || []).map((x, i) => mk(k, { ...x, ci: i, ed: x.sub || '' }, i));
         let src = 'From the imported CV';
         if (TYM[k]) { items.length = 0; ((f.pubItems || {})[k] || []).forEach((o, i) => items.push(mk(k, o, i))); src = 'From the research list and the faculty CV'; }
-        const can = !!TYM[k] || items.length > 0, open = can && this.state.openCode === key;
-        return { ...r, isPub: !!TYM[k], noPubText: 'No outputs in the research list or CV are classified as ' + k + ((f.a[k] || {}).master ? ' (the master list showed ' + f.a[k].master + ')' : '') + '. Add an output under Research output, or edit an output\'s Policy code to reassign it.', open, chev: can ? (open ? '▾' : '▸') : '', onToggle: can ? () => this.setState(s => ({ openCode: s.openCode === key ? null : key })) : undefined, details: items, hasDetails: open && items.length > 0, noDetails: open && !items.length && !TYM[k], noPub: open && !items.length && !!TYM[k], detSrc: src + ' · ' + items.length + ' item' + (items.length === 1 ? '' : 's'), rowBg: open ? '#FBF7EC' : '#fff' }; };
+        const inCnt = E0.cnt && E0.cnt[k] != null && E0.cnt[k] !== '', inMan = E0.pman && E0.pman[k] != null && E0.pman[k] !== '', inBase = !!((k[0] === 'A' ? B0.a : B0.p) || {})[k];
+        const noList = !TYM[k] && !items.length && k !== 'P9';
+        const origin = inMan || inCnt ? 'Entered on this profile in the portal (Update details), not from a CV. No individual activities are listed.' : inBase ? 'Count comes from the faculty record imported from the 2026 master list. No individual activities are listed.' : 'Count saved on the faculty record. No individual activities are listed.';
+        const can = !!TYM[k] || items.length > 0 || noList, open = can && this.state.openCode === key;
+        return { ...r, isPub: !!TYM[k], noPubText: 'No outputs in the research list or CV are classified as ' + k + ((f.a[k] || {}).master ? ' (the master list showed ' + f.a[k].master + ')' : '') + '. Add an output under Research output, or edit an output\'s Policy code to reassign it.', open, chev: can ? (open ? '▾' : '▸') : '', onToggle: can ? () => this.setState(s => ({ openCode: s.openCode === key ? null : key })) : undefined, details: items, hasDetails: open && items.length > 0, noDetails: open && noList, origin, canRemoveCount: ce, onRemoveCount: () => { if (!confirm('Remove ' + k + ' from this profile? The count becomes 0.')) return; if (inMan) this.setPman(f.id, k, ''); this.setCount(f.id, k, '0'); this.setState({ openCode: null }); }, noPub: open && !items.length && !!TYM[k], detSrc: src + ' · ' + items.length + ' item' + (items.length === 1 ? '' : 's'), rowBg: open ? '#FBF7EC' : '#fff' }; };
       
       aRows.sort((x, y) => ord(x.code) - ord(y.code));
       aRows = aRows.map(deco); pRows = pRows.map(deco);
