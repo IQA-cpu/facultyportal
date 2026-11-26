@@ -694,8 +694,27 @@ input::placeholder{color:#8A8F96}
                         <span style="font-size:12.5px;color:#8A6512;font-weight:600;padding-bottom:4px">{{ r.detSrc }}</span>
                         <sc-for list="{{ r.details }}" as="d" hint-placeholder-count="3">
                           <div style="display:flex;flex-direction:column;padding:6px 0;border-top:1px solid #F1EBDD">
-                            <span style="text-wrap:pretty">{{ d.t }}</span>
-                            <span style="font-size:13px;color:#6F6A5F">{{ d.sub }}</span>
+                            <sc-if value="{{ d.viewing }}" hint-placeholder-val="{{ true }}">
+                              <div style="display:flex;gap:12px;align-items:flex-start">
+                                <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="text-wrap:pretty">{{ d.t }}</span><span style="font-size:13px;color:#6F6A5F">{{ d.sub }}</span></span>
+                                <sc-if value="{{ d.canEdit }}" hint-placeholder-val="{{ false }}">
+                                  <span style="display:flex;gap:6px;flex:none">
+                                    <button onClick="{{ d.onEdit }}" style="height:30px;padding:0 12px;border-radius:5px;border:1px solid #DDD3BD;background:#fff;color:#3F3A33;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="border-color:#6B1E24;color:#6B1E24">Edit</button>
+                                    <button onClick="{{ d.onRemove }}" style="height:30px;padding:0 12px;border-radius:5px;border:1px solid #DDD3BD;background:#fff;color:#8E2A2A;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="border-color:#8E2A2A">Remove</button>
+                                  </span>
+                                </sc-if>
+                              </div>
+                            </sc-if>
+                            <sc-if value="{{ d.editing }}" hint-placeholder-val="{{ false }}">
+                              <div style="display:flex;flex-direction:column;gap:8px;padding:4px 0">
+                                <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13px;color:#6F6A5F">Title or role</span><input value="{{ d.eT }}" onChange="{{ d.onT }}" style="height:38px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none" style-focus="border-color:#6B1E24"></label>
+                                <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13px;color:#6F6A5F">{{ d.subLabel }}</span><input value="{{ d.eSub }}" onChange="{{ d.onSub }}" style="height:38px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none" style-focus="border-color:#6B1E24"></label>
+                                <span style="display:flex;gap:8px">
+                                  <button onClick="{{ d.onSave }}" style="height:34px;padding:0 14px;border-radius:5px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:600 13.5px 'IBM Plex Sans',sans-serif;cursor:pointer">Save</button>
+                                  <button onClick="{{ d.onCancel }}" style="height:34px;padding:0 14px;border-radius:5px;border:1px solid #DDD3BD;background:#fff;color:#3F3A33;font:600 13.5px 'IBM Plex Sans',sans-serif;cursor:pointer">Cancel</button>
+                                </span>
+                              </div>
+                            </sc-if>
                           </div>
                         </sc-for>
                       </div>
@@ -981,6 +1000,18 @@ class Component extends DCLogic {
   }
   setEdit(id, k, v) { this.updYear(y => ({ ...y, edits: { ...y.edits, [id]: { ...(y.edits[id] || {}), [k]: v } } })); }
   setCount(id, k, v) { this.updYear(y => { const c = y.edits[id] || {}; return { ...y, edits: { ...y.edits, [id]: { ...c, cnt: { ...(c.cnt || {}), [k]: v } } } }; }); }
+  setPman(id, k, v) { this.updYear(y => { const c = y.edits[id] || {}; return { ...y, edits: { ...y.edits, [id]: { ...c, pman: { ...(c.pman || {}), [k]: v } } } }; }); }
+  saveItem(f, k, src) { const IE = this.state.itemEdit; if (!IE) return; const t = String(IE.t || '').trim(), sub = String(IE.sub || '').trim(); if (!t) { alert('Enter a title.'); return; }
+    if (src.res) { const o = src.res, nk = this.nk(f.rn || f.n), rec = { y: o.y, t, j: sub, p: o.p, ty: o.ty, c: o.c, code: o.code || '' }, rk = o.k || '';
+      if (rk[0] === 'a') { const list = this.addedFor(nk).map(x => x.k === rk ? { ...x, ...rec } : x); this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
+      else if (rk[0] === 'b' || rk[0] === 'r') this.updRes(e => ({ ...e, mod: { ...e.mod, [rk]: rec } }), () => ({ mod: { [rk]: rec } }));
+      else if (rk) { this.delRes(rk); this.addRes(nk, { ...rec, au: o.au || '' }); } }
+    else { const det = f.det || {}, list = (det[k] || []).map((x, i) => i === src.ci ? { ...x, t, sub } : x); this.setEdit(f.id, 'det', { ...det, [k]: list }); }
+    this.setState({ itemEdit: null }); }
+  removeItem(f, k, src, title) { if (!confirm('Remove "' + title + '" from ' + k + '?')) return;
+    if (src.res) { if (src.res.k) this.delRes(src.res.k); }
+    else { const det = f.det || {}, list = (det[k] || []).filter((x, i) => i !== src.ci); this.setEdit(f.id, 'det', { ...det, [k]: list }); if (!list.length) this.setCount(f.id, k, '0'); }
+    this.setState({ itemEdit: null }); }
   revert(id) { this.updYear(y => { const edits = { ...y.edits }; delete edits[id]; return { ...y, edits }; }); }
   addFaculty() {
     if (!this.canEdit()) return;
@@ -1228,6 +1259,7 @@ class Component extends DCLogic {
     Object.entries(byCode).forEach(([k, list]) => this.setCount(f.id, k, String(list.length)));
     R.pubs.filter(p => p.on && p.code && p.code !== 'OTHER').forEach(p => { (byCode[p.code] ||= []).push({ t: p.t, sub: [p.y, p.j].filter(Boolean).join(' · ') }); });
     if (Object.keys(byCode).length) this.setEdit(f.id, 'det', { ...(f.det || {}), ...byCode });
+    Object.keys(byCode).filter(k => k[0] === 'P').forEach(k => this.setPman(f.id, k, ''));
     const recs = R.pubs.filter(p => p.on && !p.dup).map(p => ({ y: p.y, t: p.t, j: p.j, au: p.au, p: p.p, ty: p.ty, c: p.c, code: p.code || '' })).concat(extra).map((p, i) => ({ ...p, k: 'a' + Date.now().toString(36) + i }));
     if (recs.length) { const nk = this.nk(f.rn || f.n), list = [...this.addedFor(nk), ...recs]; this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
     const n = R.items.filter(x => x.on).length + (R.acts || []).filter(a => a.on && a.code !== 'skip').length;
@@ -1312,6 +1344,7 @@ class Component extends DCLogic {
     if (Array.isArray(e.res)) f.resAdd = (b.resAdd || []).concat(e.res);
     if (e.deg) f.deg = e.deg;
     if (e.note != null) f.note = e.note;
+    if (e.pman) f.pman = e.pman;
     if (n(e.yr) != null) f.yr = n(e.yr);
     if (n(e.fte) != null) f.fte = n(e.fte);
     if (n(e.ics) != null) f.ics = n(e.ics);
@@ -1362,15 +1395,16 @@ class Component extends DCLogic {
         f.indexGuess++; if (left > 0) { o.code = 'A1'; left--; } else o.code = 'A2'; });
     }
     if (f.res.length || PUBC.some(k => (DT[k] || []).length)) PUBC.forEach(k => {
-      const list = f.res.filter(o => o.code === k).map(o => ({ t: o.t, sub: [o.y, o.j, 'credit ' + o.c, 'research list'].filter(Boolean).join(' · '), n: tn(o.t) }));
+      const list = f.res.filter(o => o.code === k).map(o => ({ t: o.t, sub: [o.y, o.j, 'credit ' + o.c, 'research list'].filter(Boolean).join(' · '), n: tn(o.t), res: o, ed: o.j || '' }));
       const fromRes = list.length; let fromCv = 0;
-      (DT[k] || []).forEach(x => { const n = tn(x.t); if (!list.some(l => same(l.n, n))) { list.push({ t: x.t, sub: [x.sub, 'CV only'].filter(Boolean).join(' · '), n }); fromCv++; } });
+      (DT[k] || []).forEach((x, ci) => { const n = tn(x.t); if (!list.some(l => same(l.n, n))) { list.push({ t: x.t, sub: [x.sub, 'CV only'].filter(Boolean).join(' · '), n, ci, ed: x.sub || '' }); fromCv++; } });
       f.pubItems[k] = list;
       const master = f.a[k] ? f.a[k].n : 0, n = list.length;
       if (!n && !master) { delete f.a[k]; return; }
       f.a[k] = { n, det: [fromRes ? fromRes + ' in research list' : '', fromCv ? fromCv + ' from CV only' : '', (k === 'A1' || k === 'A2') && f.indexGuess ? 'indexing not confirmed for ' + f.indexGuess + ' article' + (f.indexGuess === 1 ? '' : 's') + ', check Policy code' : ''].filter(Boolean).join(' · '), master, auto: true };
     });
     Object.entries(DT).forEach(([k, list]) => { if (PUBC.includes(k) || !/^[AP]\d+$/.test(k) || !Array.isArray(list) || !list.length) return; const t = k[0] === 'A' ? f.a : f.p; t[k] = { n: list.length, det: list.length + ' from imported CV', fromCv: true }; if (k === 'P10') t[k].u = Math.floor(list.length / 5); if (k[0] === 'P') f.pEdited = true; });
+    Object.entries(f.pman || {}).forEach(([k, v]) => { if (v === '' || v == null || PUBC.includes(k)) return; const c = Math.max(0, Math.round(Number(v)) || 0), cvN = (DT[k] || []).length, T = k[0] === 'A' ? f.a : f.p; if (k[0] === 'P') f.pEdited = true; if (!c) { delete T[k]; return; } T[k] = { n: c, det: 'set manually' + (cvN ? ' · CV showed ' + cvN : ''), manual: true }; if (k === 'P10') T[k].u = Math.floor(c / 5); });
     f.fte = f.ft === 'FT' ? 1 : Math.min(1, Math.round((f.P + f.S) / 270 * 100) / 100);
     { const man = f.man || {}, r2 = v => Math.round(v * 100) / 100; f.split = [...(f.split || [0, 0, 0])];
       if (!man.st) f.split[0] = r2(Math.min(60, (f.P + f.S) / 270 * 60));
@@ -1630,9 +1664,14 @@ class Component extends DCLogic {
         return { code: k, desc: PD[k][0], detail: [k === 'P10' || k === 'P9' ? x.n + ' recorded' : '', PD[k][1], k === 'P9' ? '' : (k === 'P10' || k === 'P11' ? 'counts as ' + u : ''), x.det].filter(Boolean).join(' · '), n: u };
       });
       const TYM = { A1: 1, A2: 1, A3: 1, A4: 1, A5: 1, A6: 1, A8: 1, A9: 1 }, DET = f.det || {};
-      const deco = r => { const k = r.code, key = f.id + ':' + k, items = (DET[k] || []).map(x => ({ t: x.t, sub: x.sub }));
+      const IE = this.state.itemEdit, ce = this.canEdit();
+      const mk = (k, x, i) => { const id = f.id + ':' + k + ':' + i, ed = IE && IE.id === id, src = x.res ? { res: x.res } : { ci: x.ci != null ? x.ci : i };
+        return { t: x.t, sub: x.sub, editing: ed, viewing: !ed, canEdit: ce && !ed, eT: ed ? IE.t : '', eSub: ed ? IE.sub : '', subLabel: x.res ? 'Journal or outlet' : 'Details',
+          onEdit: () => this.setState({ itemEdit: { id, t: x.t, sub: x.ed != null ? x.ed : x.sub } }), onT: ev => { const v = ev.target.value; this.setState(s => ({ itemEdit: { ...s.itemEdit, t: v } })); }, onSub: ev => { const v = ev.target.value; this.setState(s => ({ itemEdit: { ...s.itemEdit, sub: v } })); },
+          onSave: () => this.saveItem(f, k, src), onCancel: () => this.setState({ itemEdit: null }), onRemove: () => this.removeItem(f, k, src, x.t) }; };
+      const deco = r => { const k = r.code, key = f.id + ':' + k, items = (DET[k] || []).map((x, i) => mk(k, { ...x, ci: i, ed: x.sub || '' }, i));
         let src = 'From the imported CV';
-        if (TYM[k]) { items.length = 0; ((f.pubItems || {})[k] || []).forEach(o => items.push({ t: o.t, sub: o.sub })); src = 'From the research list and the faculty CV'; }
+        if (TYM[k]) { items.length = 0; ((f.pubItems || {})[k] || []).forEach((o, i) => items.push(mk(k, o, i))); src = 'From the research list and the faculty CV'; }
         const can = !!TYM[k] || items.length > 0, open = can && this.state.openCode === key;
         return { ...r, isPub: !!TYM[k], noPubText: 'No outputs in the research list or CV are classified as ' + k + ((f.a[k] || {}).master ? ' (the master list showed ' + f.a[k].master + ')' : '') + '. Add an output under Research output, or edit an output\'s Policy code to reassign it.', open, chev: can ? (open ? '▾' : '▸') : '', onToggle: can ? () => this.setState(s => ({ openCode: s.openCode === key ? null : key })) : undefined, details: items, hasDetails: open && items.length > 0, noDetails: open && !items.length && !TYM[k], noPub: open && !items.length && !!TYM[k], detSrc: src + ' · ' + items.length + ' item' + (items.length === 1 ? '' : 's'), rowBg: open ? '#FBF7EC' : '#fff' }; };
       
@@ -1669,8 +1708,8 @@ class Component extends DCLogic {
           fld('Years of professional experience', 'exp', null, { placeholder: 'e.g. 8', hint: 'In the field of teaching · needed for SP and IP' }),
           fld('CPD hours attended (P9)', 'p9h', null, { placeholder: 'e.g. 40', hint: '36 hours = 1 activity' })
         ],
-        acad: Object.keys(AD).map(k => { const ro = (!!TYM[k] && (f.res.length > 0 || (DET[k] || []).length > 0)) || (!TYM[k] && (DET[k] || []).length > 0); return { code: k, label: AD[k] + (ro ? (TYM[k] ? ' · counted from Research output' : ' · counted from imported CV') : ''), ro, value: ro ? String((f.a[k] || { n: 0 }).n) : (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.a[k] ? b.a[k].n : 0), onChange: ev => { if (!ro) this.setCount(f.id, k, ev.target.value); } }; }),
-        prof: Object.keys(PD).filter(k => k !== 'P9').map(k => { const ro = (DET[k] || []).length > 0; return { code: k, label: (k === 'P10' ? 'Professional events (number of participations)' : PD[k][0]) + (ro ? ' · counted from imported CV' : ''), ro, value: ro ? String((f.p[k] || { n: 0 }).n) : (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.p[k] ? b.p[k].n : 0), onChange: ev => { if (!ro) this.setCount(f.id, k, ev.target.value); } }; }),
+        acad: Object.keys(AD).map(k => { const ro = !!TYM[k] && (f.res.length > 0 || (DET[k] || []).length > 0), cvN = !TYM[k] ? (DET[k] || []).length : 0, pm = (e.pman || {})[k]; return { code: k, label: AD[k] + (ro ? ' · counted from Research output (edit items in the table)' : cvN ? ' · CV shows ' + cvN : ''), ro, value: ro ? String((f.a[k] || { n: 0 }).n) : pm != null && pm !== '' ? String(pm) : cvN ? String((f.a[k] || { n: 0 }).n) : (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.a[k] ? b.a[k].n : 0), onChange: ev => { if (ro) return; if (cvN) this.setPman(f.id, k, ev.target.value); else this.setCount(f.id, k, ev.target.value); } }; }),
+        prof: Object.keys(PD).filter(k => k !== 'P9').map(k => { const cvN = (DET[k] || []).length, pm = (e.pman || {})[k]; return { code: k, label: (k === 'P10' ? 'Professional events (number of participations)' : PD[k][0]) + (cvN ? ' · CV shows ' + cvN : ''), ro: false, value: pm != null && pm !== '' ? String(pm) : cvN ? String((f.p[k] || { n: 0 }).n) : (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.p[k] ? b.p[k].n : 0), onChange: ev => { if (cvN) this.setPman(f.id, k, ev.target.value); else this.setCount(f.id, k, ev.target.value); } }; }),
         note: cur('note', b.note), onNote: set('note')
       };
       const matrix = ['SA', 'PA', 'SP', 'IP'].map(c => {
