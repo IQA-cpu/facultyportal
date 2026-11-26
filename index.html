@@ -1010,9 +1010,11 @@ class Component extends DCLogic {
   }
   // Policy v3 renumbering: old P9 (CPD attended) removed, old P10 -> P9, old P11 -> P10. Records without pv:2 use the old codes.
   pmap(o) { if (!o || typeof o !== 'object') return o; const r = { ...o }; delete r.P9; delete r.P10; delete r.P11; if (o.P10 != null) r.P9 = o.P10; if (o.P11 != null) r.P10 = o.P11; return r; }
-  migE(e) { if (!e || (e.pv === 2 && !(e.cnt && e.cnt.P11 != null) && !(e.pman && e.pman.P11 != null) && !(e.det && e.det.P11))) return e; const r = { ...e, pv: 2 }; ['cnt', 'pman', 'det'].forEach(k => { if (e[k]) r[k] = this.pmap(e[k]); }); delete r.p9h; return r; }
+  migE(e) { if (!e || (e.pv === 2 && !(e.cnt && e.cnt.P11 != null) && !(e.pman && e.pman.P11 != null) && !(e.det && e.det.P11))) return this.fixP10(e); const r = { ...e, pv: 2 }; ['cnt', 'pman', 'det'].forEach(k => { if (e[k]) r[k] = this.pmap(e[k]); }); delete r.p9h; return this.fixP10(r); }
+  // Remove event records left in P10 by imports made before the renumbering (any P10 item that also appears in P9).
+  fixP10(e) { const d = e && e.det; if (!d || !Array.isArray(d.P10) || !d.P10.length || !Array.isArray(d.P9)) return e; const t = x => String((x && x.t) || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); const s = new Set(d.P9.map(t)); const keep = d.P10.filter(x => !s.has(t(x))); if (keep.length === d.P10.length) return e; const r = { ...e, det: { ...d } }; if (keep.length) r.det.P10 = keep; else delete r.det.P10; if (r.cnt && r.cnt.P10 != null) { r.cnt = { ...r.cnt }; if (keep.length) r.cnt.P10 = String(keep.length); else delete r.cnt.P10; } if (r.pman && r.pman.P10 != null && !keep.length) { r.pman = { ...r.pman }; delete r.pman.P10; } if (r.p && r.p.P10 && !keep.length) { r.p = { ...r.p }; delete r.p.P10; } return r; }
   stale(o) { return !!o && (o.P11 != null || (o.P10 != null && o.P10.u != null)); }
-  migB(b) { if (!b || (b.pv === 2 && !this.stale(b.p))) return b; return { ...b, p: this.pmap(b.p || {}), det: b.det ? this.pmap(b.det) : b.det, p9h: null, pv: 2 }; }
+  migB(b) { if (!b || (b.pv === 2 && !this.stale(b.p))) return this.fixP10(b); return this.fixP10({ ...b, p: this.pmap(b.p || {}), det: b.det ? this.pmap(b.det) : b.det, p9h: null, pv: 2 }); }
   setEdit(id, k, v) { this.updYear(y => ({ ...y, edits: { ...y.edits, [id]: { ...(this.migE(y.edits[id]) || { pv: 2 }), [k]: v } } })); }
   setCount(id, k, v) { this.updYear(y => { const c = this.migE(y.edits[id]) || { pv: 2 }; return { ...y, edits: { ...y.edits, [id]: { ...c, cnt: { ...(c.cnt || {}), [k]: v } } } }; }); }
   setPman(id, k, v) { this.updYear(y => { const c = this.migE(y.edits[id]) || { pv: 2 }; return { ...y, edits: { ...y.edits, [id]: { ...c, pman: { ...(c.pman || {}), [k]: v } } } }; }); }
