@@ -708,6 +708,7 @@ input::placeholder{color:#8A8F96}
                             <sc-if value="{{ d.editing }}" hint-placeholder-val="{{ false }}">
                               <div style="display:flex;flex-direction:column;gap:8px;padding:4px 0">
                                 <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13px;color:#6F6A5F">Title or role</span><input value="{{ d.eT }}" onChange="{{ d.onT }}" style="height:38px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none" style-focus="border-color:#6B1E24"></label>
+                                <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13px;color:#6F6A5F">Policy code</span><select value="{{ d.eCode }}" onChange="{{ d.onCode }}" style="height:38px;max-width:100%;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A"><sc-for list="{{ d.codes }}" as="o" hint-placeholder-count="20"><option value="{{ o.key }}">{{ o.label }}</option></sc-for></select></label>
                                 <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13px;color:#6F6A5F">{{ d.subLabel }}</span><input value="{{ d.eSub }}" onChange="{{ d.onSub }}" style="height:38px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none" style-focus="border-color:#6B1E24"></label>
                                 <span style="display:flex;gap:8px">
                                   <button onClick="{{ d.onSave }}" style="height:34px;padding:0 14px;border-radius:5px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:600 13.5px 'IBM Plex Sans',sans-serif;cursor:pointer">Save</button>
@@ -1009,12 +1010,14 @@ class Component extends DCLogic {
   setEdit(id, k, v) { this.updYear(y => ({ ...y, edits: { ...y.edits, [id]: { ...(y.edits[id] || {}), [k]: v } } })); }
   setCount(id, k, v) { this.updYear(y => { const c = y.edits[id] || {}; return { ...y, edits: { ...y.edits, [id]: { ...c, cnt: { ...(c.cnt || {}), [k]: v } } } }; }); }
   setPman(id, k, v) { this.updYear(y => { const c = y.edits[id] || {}; return { ...y, edits: { ...y.edits, [id]: { ...c, pman: { ...(c.pman || {}), [k]: v } } } }; }); }
-  saveItem(f, k, src) { const IE = this.state.itemEdit; if (!IE) return; const t = String(IE.t || '').trim(), sub = String(IE.sub || '').trim(); if (!t) { alert('Enter a title.'); return; }
-    if (src.res) { const o = src.res, nk = this.nk(f.rn || f.n), rec = { y: o.y, t, j: sub, p: o.p, ty: o.ty, c: o.c, code: o.code || '' }, rk = o.k || '';
+  saveItem(f, k, src) { const IE = this.state.itemEdit; if (!IE) return; const t = String(IE.t || '').trim(), sub = String(IE.sub || '').trim(), nc = IE.code || k; if (!t) { alert('Enter a title.'); return; }
+    if (src.res) { const o = src.res, nk = this.nk(f.rn || f.n), rec = { y: o.y, t, j: sub, p: o.p, ty: o.ty, c: o.c, code: nc }, rk = o.k || '';
       if (rk[0] === 'a') { const list = this.addedFor(nk).map(x => x.k === rk ? { ...x, ...rec } : x); this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
       else if (rk[0] === 'b' || rk[0] === 'r') this.updRes(e => ({ ...e, mod: { ...e.mod, [rk]: rec } }), () => ({ mod: { [rk]: rec } }));
       else if (rk) { this.delRes(rk); this.addRes(nk, { ...rec, au: o.au || '' }); } }
-    else { const det = f.det || {}, list = (det[k] || []).map((x, i) => i === src.ci ? { ...x, t, sub } : x); this.setEdit(f.id, 'det', { ...det, [k]: list }); }
+    else if (nc === k) { const det = f.det || {}, list = (det[k] || []).map((x, i) => i === src.ci ? { ...x, t, sub } : x); this.setEdit(f.id, 'det', { ...det, [k]: list }); }
+    else { const det = f.det || {}, old = det[k] || [], item = { ...(old[src.ci] || {}), t, sub }, rest = old.filter((x, i) => i !== src.ci);
+      this.setEdit(f.id, 'det', { ...det, [k]: rest, [nc]: [...(det[nc] || []), item] }); if (!rest.length) this.setCount(f.id, k, '0'); this.setState({ openCode: f.id + ':' + nc }); }
     this.setState({ itemEdit: null }); }
   removeItem(f, k, src, title) { if (!confirm('Remove "' + title + '" from ' + k + '?')) return;
     if (src.res) { if (src.res.k) this.delRes(src.res.k); }
@@ -1672,10 +1675,11 @@ class Component extends DCLogic {
         return { code: k, desc: PD[k][0], detail: [k === 'P10' || k === 'P9' ? x.n + ' recorded' : '', PD[k][1], k === 'P9' ? '' : (k === 'P10' || k === 'P11' ? 'counts as ' + u : ''), x.det].filter(Boolean).join(' · '), n: u };
       });
       const TYM = { A1: 1, A2: 1, A3: 1, A4: 1, A5: 1, A6: 1, A8: 1, A9: 1 }, DET = f.det || {};
+      const PUBK = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A8', 'A9'], ALLC = [...Object.keys(AD).map(c => ({ key: c, label: c + ' · ' + AD[c] })), ...Object.keys(PD).filter(c => c !== 'P9').map(c => ({ key: c, label: c + ' · ' + PD[c][0] }))], PUBO = ALLC.filter(o => PUBK.includes(o.key));
       const IE = this.state.itemEdit, ce = this.canEdit(), B0 = bases.find(x => x.id === f.id) || { a: {}, p: {} }, E0 = edits[f.id] || {};
       const mk = (k, x, i) => { const id = f.id + ':' + k + ':' + i, ed = IE && IE.id === id, src = x.res ? { res: x.res } : { ci: x.ci != null ? x.ci : i };
-        return { t: x.t, sub: x.sub, editing: ed, viewing: !ed, canEdit: ce && !ed, eT: ed ? IE.t : '', eSub: ed ? IE.sub : '', subLabel: x.res ? 'Journal or outlet' : 'Details',
-          onEdit: () => this.setState({ itemEdit: { id, t: x.t, sub: x.ed != null ? x.ed : x.sub } }), onT: ev => { const v = ev.target.value; this.setState(s => ({ itemEdit: { ...s.itemEdit, t: v } })); }, onSub: ev => { const v = ev.target.value; this.setState(s => ({ itemEdit: { ...s.itemEdit, sub: v } })); },
+        return { t: x.t, sub: x.sub, editing: ed, viewing: !ed, canEdit: ce && !ed, eT: ed ? IE.t : '', eSub: ed ? IE.sub : '', eCode: ed ? IE.code : k, codes: x.res ? PUBO : ALLC, onCode: ev => { const v = ev.target.value; this.setState(s => ({ itemEdit: { ...s.itemEdit, code: v } })); }, subLabel: x.res ? 'Journal or outlet' : 'Details',
+          onEdit: () => this.setState({ itemEdit: { id, t: x.t, sub: x.ed != null ? x.ed : x.sub, code: k } }), onT: ev => { const v = ev.target.value; this.setState(s => ({ itemEdit: { ...s.itemEdit, t: v } })); }, onSub: ev => { const v = ev.target.value; this.setState(s => ({ itemEdit: { ...s.itemEdit, sub: v } })); },
           onSave: () => this.saveItem(f, k, src), onCancel: () => this.setState({ itemEdit: null }), onRemove: () => this.removeItem(f, k, src, x.t) }; };
       const deco = r => { const k = r.code, key = f.id + ':' + k, items = (DET[k] || []).map((x, i) => mk(k, { ...x, ci: i, ed: x.sub || '' }, i));
         let src = 'From the imported CV';
