@@ -87,21 +87,21 @@ export function summarizeCV(cv, opts) {
   const det = (k, rows, fn) => { if (rows.length) (out.items[k] ||= []).push(...rows.map(fn)); };
   const when = (a, b) => (a && b && a !== b ? a + ' – ' + b : a || '');
   const dateRows = (k, si, ei) => (T[k] || []).filter(r => inWin(r[si], r[ei]));
-  const tr = dateRows('TRAINING COURSE/WORKSHOP /SEMINAR', 3, 4); cnt('P9', tr.length); det('P9', tr, r => ({ t: r[2], sub: [r[0], r[1], when(r[3], r[4])].filter(Boolean).join(' · ') }));
+  const tr = dateRows('TRAINING COURSE/WORKSHOP /SEMINAR', 3, 4); // training attended is not a policy code (policy v3)
   const conf = dateRows('CONFERENCE /WEBINAR /SYMPOSIUM', 3, 4);
   const speak = conf.filter(r => /speaker|presenter|trainer|panel|keynote|resource|facilitator|moderator/i.test(r[2]));
-  cnt('A16', speak.length); cnt('P10', conf.length - speak.length);
+  cnt('A16', speak.length); cnt('P9', conf.length - speak.length);
   const cf = r => ({ t: r[0], sub: [r[2], r[1], when(r[3], r[4])].filter(Boolean).join(' · ') });
-  det('A16', speak, cf); det('P10', conf.filter(r => !speak.includes(r)), cf);
-  const nw = dateRows('NETWORKING EVENT', 2, 3); cnt('P10', nw.length); det('P10', nw, r => ({ t: r[1], sub: ['Networking', r[0], when(r[2], r[3])].filter(Boolean).join(' · ') }));
+  det('A16', speak, cf); det('P9', conf.filter(r => !speak.includes(r)), cf);
+  const nw = dateRows('NETWORKING EVENT', 2, 3); cnt('P9', nw.length); det('P9', nw, r => ({ t: r[1], sub: ['Networking', r[0], when(r[2], r[3])].filter(Boolean).join(' · ') }));
   const sv = dateRows('SUPERVISION OF STUDENT PROJECTS /RESEARCH /CLUB', 2, 3).filter(r => !/club/i.test(r[1])); cnt('A15', sv.length); det('A15', sv, r => ({ t: r[1], sub: [r[0], when(r[2], r[3])].filter(Boolean).join(' · ') }));
   const as = dateRows('BUSINESS PROFESSIONAL ASSOCIATION', 2, 3); cnt('P6', as.length); det('P6', as, r => ({ t: r[1], sub: [r[0], when(r[2], r[3])].filter(Boolean).join(' · ') }));
   const cs = dateRows('CONSULTANCY PROJECT', 3, 4); cnt('P7', cs.length); det('P7', cs, r => ({ t: r[2], sub: [r[1], r[0], when(r[3], r[4])].filter(Boolean).join(' · ') }));
   const acts = []; let aid = 0;
   const act = (src, code, t, sub) => acts.push({ id: 'x' + (aid++), src, code, t: t || '(untitled)', sub });
-  tr.forEach(r => act('Training and development', 'P9', r[2], [r[0], r[1], when(r[3], r[4])].filter(Boolean).join(' · ')));
-  conf.forEach(r => act('Conferences, webinars and symposiums', speak.includes(r) ? 'A16' : 'P10', r[0], [r[2], r[1], when(r[3], r[4])].filter(Boolean).join(' · ')));
-  nw.forEach(r => act('Networking events', 'P10', r[1], [r[0], when(r[2], r[3])].filter(Boolean).join(' · ')));
+  tr.forEach(r => act('Training and development', /trainer|facilitator|speaker|presenter|instructor|lecturer/i.test(r[1] + ' ' + r[0]) ? 'P8' : 'skip', r[2], [r[0], r[1], when(r[3], r[4])].filter(Boolean).join(' · ')));
+  conf.forEach(r => act('Conferences, webinars and symposiums', speak.includes(r) ? 'A16' : 'P9', r[0], [r[2], r[1], when(r[3], r[4])].filter(Boolean).join(' · ')));
+  nw.forEach(r => act('Networking events', 'P9', r[1], [r[0], when(r[2], r[3])].filter(Boolean).join(' · ')));
   dateRows('SUPERVISION OF STUDENT PROJECTS /RESEARCH /CLUB', 2, 3).forEach(r => act('Supervision of students', /club/i.test(r[1]) ? 'skip' : 'A15', r[1], [r[0], when(r[2], r[3])].filter(Boolean).join(' · ')));
   as.forEach(r => act('Professional associations', 'P6', r[1], [r[0], when(r[2], r[3])].filter(Boolean).join(' · ')));
   cs.forEach(r => act('Consultancy projects', 'P7', r[2], [r[1], r[0], when(r[3], r[4])].filter(Boolean).join(' · ')));

@@ -463,6 +463,7 @@ input::placeholder{color:#8A8F96}
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px">
             <button onClick="{{ p.toggleEdit }}" style="flex:none;white-space:nowrap;height:40px;padding:0 16px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:500 14.5px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#541519">{{ p.editLabel }}</button>
             <label style="flex:none;white-space:nowrap;height:40px;padding:0 16px;border-radius:6px;border:1px solid #6B1E24;background:#fff;color:#6B1E24;font:600 14.5px 'IBM Plex Sans',sans-serif;display:flex;align-items:center;cursor:pointer" title="Upload a Faculty Portal CV (PDF) to fill in this profile">{{ p.cvLabel }}<input type="file" accept=".pdf,application/pdf" onChange="{{ p.onCV }}" style="display:none"></label>
+            <button onClick="{{ p.onPdf }}" title="Opens the print dialog. Choose Save as PDF." style="flex:none;white-space:nowrap;height:40px;padding:0 16px;border-radius:6px;border:1px solid #DDD3BD;background:#fff;color:#3F3A33;font:600 14.5px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="border-color:#6B1E24;color:#6B1E24">Download profile (PDF)</button>
             <sc-if value="{{ p.edited }}" hint-placeholder-val="{{ false }}">
               <span style="display:flex;align-items:center;gap:12px;font-size:13.5px;color:#6F6A5F">
                 <span style="padding:2px 8px;border-radius:10px;background:#F6EBD0;color:#6B1E24;font-weight:600">{{ p.editedTag }}</span>
@@ -590,7 +591,6 @@ input::placeholder{color:#8A8F96}
                         <input value="{{ x.value }}" onChange="{{ x.onChange }}" readOnly="{{ x.ro }}" inputMode="numeric" style="height:30px;width:64px;padding:0 8px;border:1px solid #DDD3BD;border-radius:5px;background:#fff;font:500 14.5px 'IBM Plex Mono',monospace;text-align:right;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
                       </label>
                     </sc-for>
-                    <span style="font-size:12.5px;color:#8A8F96">CPD hours (P9) are entered under Policy evidence.</span>
                   </div>
                 </div>
                 
@@ -1008,9 +1008,13 @@ class Component extends DCLogic {
       this.setState({ saving: false, saveErr: null });
     } catch (err) { console.error(err); this.setState({ saving: false, saveErr: 'Could not save: ' + err.message }); }
   }
-  setEdit(id, k, v) { this.updYear(y => ({ ...y, edits: { ...y.edits, [id]: { ...(y.edits[id] || {}), [k]: v } } })); }
-  setCount(id, k, v) { this.updYear(y => { const c = y.edits[id] || {}; return { ...y, edits: { ...y.edits, [id]: { ...c, cnt: { ...(c.cnt || {}), [k]: v } } } }; }); }
-  setPman(id, k, v) { this.updYear(y => { const c = y.edits[id] || {}; return { ...y, edits: { ...y.edits, [id]: { ...c, pman: { ...(c.pman || {}), [k]: v } } } }; }); }
+  // Policy v3 renumbering: old P9 (CPD attended) removed, old P10 -> P9, old P11 -> P10. Records without pv:2 use the old codes.
+  pmap(o) { if (!o || typeof o !== 'object') return o; const r = { ...o }; delete r.P9; delete r.P10; delete r.P11; if (o.P10 != null) r.P9 = o.P10; if (o.P11 != null) r.P10 = o.P11; return r; }
+  migE(e) { if (!e || e.pv === 2) return e; const r = { ...e, pv: 2 }; ['cnt', 'pman', 'det'].forEach(k => { if (e[k]) r[k] = this.pmap(e[k]); }); delete r.p9h; return r; }
+  migB(b) { if (!b || b.pv === 2) return b; return { ...b, p: this.pmap(b.p || {}), det: b.det ? this.pmap(b.det) : b.det, p9h: null, pv: 2 }; }
+  setEdit(id, k, v) { this.updYear(y => ({ ...y, edits: { ...y.edits, [id]: { ...(this.migE(y.edits[id]) || { pv: 2 }), [k]: v } } })); }
+  setCount(id, k, v) { this.updYear(y => { const c = this.migE(y.edits[id]) || { pv: 2 }; return { ...y, edits: { ...y.edits, [id]: { ...c, cnt: { ...(c.cnt || {}), [k]: v } } } }; }); }
+  setPman(id, k, v) { this.updYear(y => { const c = this.migE(y.edits[id]) || { pv: 2 }; return { ...y, edits: { ...y.edits, [id]: { ...c, pman: { ...(c.pman || {}), [k]: v } } } }; }); }
   saveItem(f, k, src) { const IE = this.state.itemEdit; if (!IE) return; const t = String(IE.t || '').trim(), sub = String(IE.sub || '').trim(), nc = IE.code || k; if (!t) { alert('Enter a title.'); return; }
     if (src.res) { const o = src.res, nk = this.nk(f.rn || f.n), rec = { y: o.y, t, j: sub, p: o.p, ty: o.ty, c: o.c, code: nc }, rk = o.k || '';
       if (rk[0] === 'a') { const list = this.addedFor(nk).map(x => x.k === rk ? { ...x, ...rec } : x); this.updRes(e => ({ ...e, add: { ...e.add, [nk]: list } }), () => ({ add: { [nk]: this.clean(list) } })); }
@@ -1044,11 +1048,11 @@ class Component extends DCLogic {
   bases(store) {
     const st = store || this.state.store, y = st.years[st.cur] || { edits: {}, added: [], removed: [] };
     const base = y.seed || this.master;
-    return base.filter(r => !y.removed.includes(r.id)).concat(y.added);
+    return base.filter(r => !y.removed.includes(r.id)).concat(y.added).map(b => this.migB(b));
   }
   snapshot(f) {
     const { id, n, rn, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, resAdd, det } = f;
-    return JSON.parse(JSON.stringify({ id, n, rn: rn || n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, det: det || {}, resAdd: resAdd || [] }));
+    return JSON.parse(JSON.stringify({ pv: 2, id, n, rn: rn || n, d, sp, deg, yr, P, S, c, pct, split, ics, ft, fte, a, p, other, note, flag, te, exp, p9h, baf, msaf, empId, title, certs, courses, det: det || {}, resAdd: resAdd || [] }));
   }
   setCur(cur, extra) { localStorage.setItem(this.CURKEY, cur); this.setState(s => ({ store: { ...s.store, cur }, sel: null, editing: false, ...(extra || {}) })); }
   async switchYear(v) {
@@ -1074,17 +1078,17 @@ class Component extends DCLogic {
     const store = { ...st, years, cur: '2026' }; this.save(store); this.setState({ store, sel: null, editing: false });
   }
   autoBasis(f, part) {
-    const L = { A1: 'PRJs (Scopus/ABDC)', A2: 'Other indexed PRJs', A3: 'Editorial-reviewed journals', A4: 'Conference proceedings', A5: 'Teaching cases', A6: 'Commissioned policy documents/reports', A7: 'Research income', A8: 'Books/book chapters', A9: 'Research/consulting grant reports', A10: 'Technologies developed', A11: 'Patents', A12: 'Editorial board memberships', A13: 'Academic advisor roles', A14: 'Formal roles in academic organisations', A15: 'Student research projects supervised', A16: 'Invited presentations/speaker roles', A17: 'Academic awards/fellowships', P1: 'Work in government/industry', P2: 'Practitioner journal publications', P3: 'Practitioner books/chapters', P4: 'Entrepreneur/business owner (2+ yrs)', P5: 'Business/organisational leadership (2+ yrs)', P6: 'Professional association memberships', P7: 'Consultancy projects', P8: 'Training delivered to industry', P9: 'Training/CPD attended', P10: 'Professional events/networking', P11: 'Student industry projects supervised' };
+    const L = { A1: 'PRJs (Scopus/ABDC)', A2: 'Other indexed PRJs', A3: 'Editorial-reviewed journals', A4: 'Conference proceedings', A5: 'Teaching cases', A6: 'Commissioned policy documents/reports', A7: 'Research income', A8: 'Books/book chapters', A9: 'Research/consulting grant reports', A10: 'Technologies developed', A11: 'Patents', A12: 'Editorial board memberships', A13: 'Academic advisor roles', A14: 'Formal roles in academic organisations', A15: 'Student research projects supervised', A16: 'Invited presentations/speaker roles', A17: 'Academic awards/fellowships', P1: 'Work in government/industry', P2: 'Practitioner journal publications', P3: 'Practitioner books/chapters', P4: 'Entrepreneur/business owner (2+ yrs)', P5: 'Business/organisational leadership (2+ yrs)', P6: 'Professional association memberships', P7: 'Consultancy projects', P8: 'Training delivered to industry', P9: 'Professional events/networking', P10: 'Student industry projects supervised' };
     const ord = k => +k.slice(1), out = [], pe = [];
     const abd = (f.deg.match(/\(([^)]*ABD[^)]*)\)/) || [])[1];
     if (abd) out.push('- ' + abd.replace(/\s+/g, ''));
     const ak = Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) <= 14);
-    ak.forEach(k => out.push('- ' + L[k] + ': ' + f.a[k].n + (f.a[k].det && f.a[k].det !== 'Updated in portal' ? ' (' + f.a[k].det + ')' : '')));
+    ak.forEach(k => out.push(k + '- ' + L[k] + ': ' + f.a[k].n + (f.a[k].det && f.a[k].det !== 'Updated in portal' ? ' (' + f.a[k].det + ')' : '')));
     if (f.other) out.push('- Other ICs (reports, op-eds, etc.): ' + f.other);
     if (!ak.length && !f.other) out.push('- No ICs recorded (' + (this.curYear() - 5) + '–' + this.curYear() + ')');
     const pk = Object.keys(f.p).sort((x, y) => ord(x) - ord(y));
-    pk.forEach(k => { const x = f.p[k]; if (k === 'P10') pe.push('- ' + L[k] + ': ' + x.n + ' (= ' + x.u + ' activities)'); else if (k === 'P9') pe.push('- ' + L[k] + (f.p9h != null ? ': ' + f.p9h + ' hours' : ': ' + x.n)); else pe.push('- ' + L[k] + ': ' + x.n); });
-    Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) > 14).forEach(k => pe.push('- ' + L[k] + ': ' + f.a[k].n));
+    pk.forEach(k => { const x = f.p[k]; if (k === 'P9') pe.push(k + '- ' + L[k] + ': ' + x.n + ' (= ' + x.u + ' activit' + (x.u === 1 ? 'y' : 'ies') + ')'); else if (k === 'P10') pe.push(k + '- ' + L[k] + ': ' + x.n + (x.n > 2 ? ' (max. 2 activities)' : '')); else pe.push(k + '- ' + L[k] + ': ' + x.n); });
+    Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) > 14).forEach(k => pe.push(k + '- ' + L[k] + ': ' + f.a[k].n));
     if (!pk.length) pe.push('- No professional engagement recorded');
     if (f.te != null) pe.push('- Teaching effectiveness: ' + f.te + '/7.0');
     return (part === 'ic' ? out : part === 'pe' ? pe : out.concat(pe)).join('\n');
@@ -1195,7 +1199,7 @@ class Component extends DCLogic {
   }
   buildCvReview(f, sum, fname) {
     const DN = { accounting: 'ACC', finance: 'FIN', economics: 'ECO', management: 'MGT', 'law and taxation': 'LAW', 'ict and statistics': 'ICT' };
-    const LBL = { A1: 'PRJs in Scopus/ABDC journals', A2: 'Other indexed PRJs', A3: 'Editorial-reviewed journals', A4: 'Conference proceedings', A15: 'Student research projects supervised', A16: 'Invited presentations / speaker roles', P6: 'Professional association memberships', P7: 'Consultancy projects', P9: 'Training / CPD attended (entries)', P10: 'Professional events / networking (participations)' };
+    const LBL = { A1: 'PRJs in Scopus/ABDC journals', A2: 'Other indexed PRJs', A3: 'Editorial-reviewed journals', A4: 'Conference proceedings', A15: 'Student research projects supervised', A16: 'Invited presentations / speaker roles', P6: 'Professional association memberships', P7: 'Consultancy projects', P9: 'Professional events / networking (participations)' };
     const items = [], fx = sum.fields;
     const push = (kind, key, label, cur, val) => { if (val === '' || val == null) return; if (String(cur ?? '').trim().toLowerCase() === String(val).trim().toLowerCase()) return; items.push({ kind, key, label, cur: (cur === '' || cur == null) ? '—' : String(cur), val: String(val), on: true }); };
     push('edit', 'title', 'Academic title', f.title, fx.title);
@@ -1344,6 +1348,7 @@ class Component extends DCLogic {
   }
   num(v) { if (v === '' || v == null) return null; const n = Number(v); return isFinite(n) ? n : null; }
   apply(b, e) {
+    e = this.migE(e);
     const f = { ...b, a: { ...b.a }, p: { ...b.p }, split: [...b.split], te: b.te ?? null, exp: b.exp ?? null, p9h: b.p9h ?? null, baf: b.baf ?? null, msaf: b.msaf ?? null, edited: false, pEdited: false, rn: b.rn || b.n };
     if (!e || !Object.keys(e).length) return f;
     const n = this.num.bind(this);
@@ -1373,13 +1378,13 @@ class Component extends DCLogic {
     if (e.p9h != null) f.p9h = n(e.p9h);
     if (e.baf != null) f.baf = n(e.baf);
     if (e.msaf != null) f.msaf = n(e.msaf);
-    if (f.p9h != null) { f.pEdited = true; if (!f.p.P9) f.p.P9 = { n: 0, det: '' }; }
+    
     Object.entries(e.cnt || {}).forEach(([k, v]) => {
       const c = n(v) || 0, t = k[0] === 'A' ? f.a : f.p, old = t[k];
       if (k[0] === 'P') f.pEdited = true;
       if (!c) { delete t[k]; return; }
       t[k] = { n: c, det: old && old.n === c ? old.det : 'Updated in portal', manual: true };
-      if (k === 'P10') t[k].u = Math.floor(c / 5);
+      if (k === 'P9') t[k].u = Math.floor(c / 5);
     });
     return f;
   }
@@ -1415,8 +1420,8 @@ class Component extends DCLogic {
       if (!n && !master) { delete f.a[k]; return; }
       f.a[k] = { n, det: [fromRes ? fromRes + ' in research list' : '', fromCv ? fromCv + ' from CV only' : '', (k === 'A1' || k === 'A2') && f.indexGuess ? 'indexing not confirmed for ' + f.indexGuess + ' article' + (f.indexGuess === 1 ? '' : 's') + ', check Policy code' : ''].filter(Boolean).join(' · '), master, auto: true };
     });
-    Object.entries(DT).forEach(([k, list]) => { if (PUBC.includes(k) || !/^[AP]\d+$/.test(k) || !Array.isArray(list) || !list.length) return; const t = k[0] === 'A' ? f.a : f.p; t[k] = { n: list.length, det: list.length + ' from imported CV', fromCv: true }; if (k === 'P10') t[k].u = Math.floor(list.length / 5); if (k[0] === 'P') f.pEdited = true; });
-    Object.entries(f.pman || {}).forEach(([k, v]) => { if (v === '' || v == null || PUBC.includes(k)) return; const c = Math.max(0, Math.round(Number(v)) || 0), cvN = (DT[k] || []).length, T = k[0] === 'A' ? f.a : f.p; if (k[0] === 'P') f.pEdited = true; if (!c) { delete T[k]; return; } T[k] = { n: c, det: 'set manually' + (cvN ? ' · CV showed ' + cvN : ''), manual: true }; if (k === 'P10') T[k].u = Math.floor(c / 5); });
+    Object.entries(DT).forEach(([k, list]) => { if (PUBC.includes(k) || !/^[AP]\d+$/.test(k) || !Array.isArray(list) || !list.length) return; const t = k[0] === 'A' ? f.a : f.p; t[k] = { n: list.length, det: list.length + ' from imported CV', fromCv: true }; if (k === 'P9') t[k].u = Math.floor(list.length / 5); if (k[0] === 'P') f.pEdited = true; });
+    Object.entries(f.pman || {}).forEach(([k, v]) => { if (v === '' || v == null || PUBC.includes(k)) return; const c = Math.max(0, Math.round(Number(v)) || 0), cvN = (DT[k] || []).length, T = k[0] === 'A' ? f.a : f.p; if (k[0] === 'P') f.pEdited = true; if (!c) { delete T[k]; return; } T[k] = { n: c, det: 'set manually' + (cvN ? ' · CV showed ' + cvN : ''), manual: true }; if (k === 'P9') T[k].u = Math.floor(c / 5); });
     f.fte = f.ft === 'FT' ? 1 : Math.min(1, Math.round((f.P + f.S) / 270 * 100) / 100);
     { const man = f.man || {}, r2 = v => Math.round(v * 100) / 100; f.split = [...(f.split || [0, 0, 0])];
       if (!man.st) f.split[0] = r2(Math.min(60, (f.P + f.S) / 270 * 60));
@@ -1444,10 +1449,36 @@ class Component extends DCLogic {
     return f;
   }
 
+  printProfile(p, f, year) {
+    const E = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const sec = (t, body) => '<section><h2>' + E(t) + '</h2>' + body + '</section>';
+    const kv = (rows) => '<table class="kv">' + rows.map(([a, b]) => '<tr><th>' + E(a) + '</th><td>' + E(b) + '</td></tr>').join('') + '</table>';
+    const facts = [['Classification', p.cls + ' · ' + p.clsName], ['Discipline and status', p.meta], ['Specialty and degree', p.specLine], ['Time devoted to mission', p.pctLine]].concat((p.facts || []).map(x => [x.label, x.value]));
+    const figs = '<div class="figs">' + (p.figures || []).map(x => '<div><span>' + E(x.label) + '</span><b>' + E(x.value) + '</b><small>' + E(x.sub) + '</small></div>').join('') + '</div>';
+    const split = '<div class="figs">' + (p.split || []).map(x => '<div><span>' + E(x.label) + '</span><b>' + E(x.value) + '</b></div>').join('') + '</div>';
+    const checks = (p.checkCols || []).map(c => '<h3>' + E(c.title) + '</h3><table class="grid"><tr><th>Requirement</th><th>Evidence</th><th>Status</th></tr>' + c.items.map(x => '<tr><td>' + E(x.label) + '</td><td>' + E(x.value) + '</td><td class="st" style="color:' + x.color + '">' + E(x.statusLabel) + '</td></tr>').join('') + '</table>').join('');
+    const matrix = '<p class="muted">' + (p.matrix || []).map(m => E(m.mark + ' ' + m.title)).join(' &nbsp;·&nbsp; ') + '</p>';
+    const tbl = t => '<h3>' + E(t.title) + ' <span class="muted">· ' + E(t.summary) + '</span></h3>' + (t.empty ? '<p class="muted">' + E(t.emptyText) + '</p>' : '<table class="grid"><tr><th style="width:52px">Code</th><th>Activity and details</th><th style="width:56px;text-align:right">Count</th></tr>' + t.rows.map(r => '<tr><td class="code">' + E(r.code) + '</td><td><b>' + E(r.desc) + '</b><div class="muted">' + E(r.detail) + '</div>' + ((r.details || []).length ? '<ul>' + r.details.map(d => '<li>' + E(d.t) + (d.sub ? '<div class="muted">' + E(d.sub) + '</div>' : '') + '</li>').join('') + '</ul>' : (r.origin && !r.isPub ? '<div class="muted"><i>' + E(r.origin) + '</i></div>' : '')) + '</td><td class="n">' + E(r.n) + '</td></tr>').join('') + '</table>');
+    const R = p.research || {}, rr = R.rows || [];
+    const research = rr.length ? '<table class="grid"><tr><th style="width:44px">Year</th><th>Output</th><th style="width:52px;text-align:right">Credit</th></tr>' + rr.map(r => '<tr><td>' + E(r.year) + '</td><td><b>' + E(r.title) + '</b><div class="muted">' + E(r.journal) + '</div><div class="muted">' + E(r.tags) + '</div></td><td class="n">' + E(r.credit) + '</td></tr>').join('') + '</table>' : '<p class="muted">No research outputs recorded.</p>';
+    const basis = '<pre>' + E(this.autoBasis(f)) + '</pre>';
+    const css = '@page{size:A4;margin:16mm 14mm}*{box-sizing:border-box}body{font:10.5pt/1.45 "IBM Plex Sans",Arial,sans-serif;color:#221E1A;margin:0}header{border-bottom:3px solid #6B1E24;padding-bottom:10px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}h1{font-size:19pt;margin:0}h2{font-size:12.5pt;color:#6B1E24;border-bottom:1px solid #D9C28A;padding-bottom:3px;margin:18px 0 8px}h3{font-size:11pt;margin:12px 0 6px}.muted{color:#6F6A5F;font-size:9.5pt}table{border-collapse:collapse;width:100%}tr{break-inside:avoid}.kv th{text-align:left;font-weight:500;color:#6F6A5F;width:34%;padding:3px 8px 3px 0;vertical-align:top}.kv td{padding:3px 0}.grid th{text-align:left;font-size:9pt;text-transform:uppercase;letter-spacing:.05em;color:#8A6512;border-bottom:1px solid #D9C28A;padding:5px 6px}.grid td{border-bottom:1px solid #EFE8D8;padding:6px;vertical-align:top}.code{font-family:"IBM Plex Mono",monospace;color:#6B1E24;font-weight:600}.n{text-align:right;font-weight:600}.st{font-weight:600;white-space:nowrap}ul{margin:4px 0 0;padding-left:16px}li{margin:3px 0}.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:6px 0}.figs div{border:1px solid #EAE2CF;border-radius:5px;padding:6px 8px;display:flex;flex-direction:column}.figs span{font-size:8.5pt;color:#6F6A5F}.figs b{font-size:13pt}.figs small{font-size:8.5pt;color:#6F6A5F}pre{white-space:pre-wrap;font:10pt/1.5 "IBM Plex Sans",Arial,sans-serif;background:#FBF7EC;border:1px solid #EAE2CF;padding:8px 10px;margin:0}';
+    const html = '<!doctype html><html><head><meta charset="utf-8"><title>Faculty profile · ' + E(f.n) + ' · ' + year + '</title><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><style>' + css + '</style></head><body>'
+      + '<header><div><div class="muted">CamEd Business School · Faculty profile ' + year + '</div><h1>' + E(f.n) + '</h1></div><div class="muted">Generated ' + new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + '</div></header>'
+      + sec('Profile', kv(facts.filter(x => x[1]))) + sec('Summary ' + (year - 5) + '–' + year, figs + split)
+      + sec('Classification check · ' + (p.verdict || ''), '<p class="muted">' + E(p.section) + '</p>' + checks + matrix)
+      + sec('Basis for qualification (Table 3-1A)', basis)
+      + sec('Engagement activities', (p.tables || []).map(tbl).join(''))
+      + sec('Research outputs (' + rr.length + ')', research)
+      + (f.note ? sec('Note', '<p>' + E(f.note) + '</p>') : '') + '</body></html>';
+    const fr = document.createElement('iframe'); fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(fr);
+    const d = fr.contentDocument; d.open(); d.write(html); d.close();
+    const go = () => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch (err) { const w = window.open('', '_blank'); if (w) { w.document.write(html); w.document.close(); w.print(); } } setTimeout(() => fr.remove(), 60000); };
+    (d.fonts && d.fonts.ready ? d.fonts.ready : Promise.resolve()).then(() => setTimeout(go, 300));
+  }
   unit(k, x, f) {
-    if (k === 'P9') return f && f.p9h != null ? Math.floor(f.p9h / 36) : 0;
-    if (k === 'P10') return x.u;
-    if (k === 'P11') return Math.min(x.n, 2);
+    if (k === 'P9') return x.u != null ? x.u : Math.floor(x.n / 5);
+    if (k === 'P10') return Math.min(x.n, 2);
     return x.n;
   }
 
@@ -1667,16 +1698,15 @@ class Component extends DCLogic {
       const mapC = x => ({ ...x, statusLabel: ST[x.status][0], color: ST[x.status][1], tint: ST[x.status][2] });
       const role = f.P > 0 ? 'Participating (P)' : 'Supporting (S)';
       const AD = { A1: 'Peer-reviewed journals indexed in Scopus or ABDC', A2: 'Other indexed peer-reviewed journals', A3: 'Editorial-reviewed journals', A4: 'Peer-reviewed conference proceedings', A5: 'Teaching case by academic press', A6: 'Policy document or report for government or industry', A7: 'Research income from government or industry', A8: 'Academic book or book chapter', A9: 'Report from research or consulting grants', A10: 'Technologies for practical application in business', A11: 'Patents', A12: 'Editorial board of indexed journals', A13: 'Academic advisor to government or industry', A14: 'Formal role in academic organisations', A15: 'Supervision of student research projects', A16: 'Invited presentations or keynote speeches', A17: 'Academic awards or fellow status' };
-      const PD = { P1: ['Ongoing or regular work in government or industry', ''], P2: ['Practitioner journal publications', '1 publication = 1 activity'], P3: ['Practitioner book or chapter', '1 book = 2; 2 chapters = 1'], P4: ['Entrepreneur or business owner (2+ years)', '2 years = 1 activity'], P5: ['Business or organisational leadership (2+ years)', '2 years = 1 activity'], P6: ['Professional association memberships', '1 membership = 1 activity'], P7: ['Consultancy projects for government or industry', '1 project = 1 activity'], P8: ['Training delivered to government or industry', '8 hours = 1 activity'], P9: ['CPD / training attended', 'Hours not recorded; 36 hours = 1 activity, not counted'], P10: ['Professional events and associations', '5 participations = 1 activity'], P11: ['Supervision of student industry projects', '1 project = 1 activity, max. 2'] };
+      const PD = { P1: ['Ongoing or regular work in government or industry', ''], P2: ['Practitioner journal publications', '1 publication = 1 activity'], P3: ['Practitioner book or chapter', '1 book = 2; 2 chapters = 1'], P4: ['Entrepreneur or business owner (2+ years)', '2 years = 1 activity'], P5: ['Business or organisational leadership (2+ years)', '2 years = 1 activity'], P6: ['Professional association memberships', '1 membership = 1 activity'], P7: ['Consultancy projects for government or industry', '1 project = 1 activity'], P8: ['Training delivered to government or industry', '8 hours = 1 activity'], P9: ['Significant participation in professional events, businesses or associations', '5 participations = 1 activity'], P10: ['Supervision of student industry projects', '1 project = 1 activity, max. 2'] };
       const ord = k => +k.slice(1);
       let aRows = Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).map(k => ({ code: k, desc: AD[k], detail: f.a[k].det, n: f.a[k].n }));
       let pRows = Object.keys(f.p).sort((x, y) => ord(x) - ord(y)).map(k => {
         const x = f.p[k], u = this.unit(k, x);
-        if (k === 'P9' && f.p9h != null) return { code: k, desc: PD[k][0], detail: [x.n ? x.n + ' entries' : '', f.p9h + ' hours', '36 hours = 1 activity'].filter(Boolean).join(' · '), n: u };
-        return { code: k, desc: PD[k][0], detail: [k === 'P10' || k === 'P9' ? x.n + ' recorded' : '', PD[k][1], k === 'P9' ? '' : (k === 'P10' || k === 'P11' ? 'counts as ' + u : ''), x.det].filter(Boolean).join(' · '), n: u };
+        return { code: k, desc: PD[k][0], detail: [k === 'P9' ? x.n + ' recorded' : '', PD[k][1], k === 'P9' || k === 'P10' ? 'counts as ' + u : '', x.det].filter(Boolean).join(' · '), n: u };
       });
       const TYM = { A1: 1, A2: 1, A3: 1, A4: 1, A5: 1, A6: 1, A8: 1, A9: 1 }, DET = f.det || {};
-      const PUBK = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A8', 'A9'], ALLC = [...Object.keys(AD).map(c => ({ key: c, label: c + ' · ' + AD[c] })), ...Object.keys(PD).filter(c => c !== 'P9').map(c => ({ key: c, label: c + ' · ' + PD[c][0] }))], PUBO = ALLC.filter(o => PUBK.includes(o.key));
+      const PUBK = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A8', 'A9'], ALLC = [...Object.keys(AD).map(c => ({ key: c, label: c + ' · ' + AD[c] })), ...Object.keys(PD).map(c => ({ key: c, label: c + ' · ' + PD[c][0] }))], PUBO = ALLC.filter(o => PUBK.includes(o.key));
       const IE = this.state.itemEdit, ce = this.canEdit(), B0 = bases.find(x => x.id === f.id) || { a: {}, p: {} }, E0 = edits[f.id] || {};
       const mk = (k, x, i) => { const id = f.id + ':' + k + ':' + i, ed = IE && IE.id === id, src = x.res ? { res: x.res } : { ci: x.ci != null ? x.ci : i };
         return { t: x.t, sub: x.sub, editing: ed, viewing: !ed, canEdit: ce && !ed, eT: ed ? IE.t : '', eSub: ed ? IE.sub : '', eCode: ed ? IE.code : k, codes: x.res ? PUBO : ALLC, onCode: ev => { const v = ev.target.value; this.setState(s => ({ itemEdit: { ...s.itemEdit, code: v } })); }, subLabel: x.res ? 'Journal or outlet' : 'Details',
@@ -1686,7 +1716,7 @@ class Component extends DCLogic {
         let src = 'From the imported CV';
         if (TYM[k]) { items.length = 0; ((f.pubItems || {})[k] || []).forEach((o, i) => items.push(mk(k, o, i))); src = 'From the research list and the faculty CV'; }
         const inCnt = E0.cnt && E0.cnt[k] != null && E0.cnt[k] !== '', inMan = E0.pman && E0.pman[k] != null && E0.pman[k] !== '', inBase = !!((k[0] === 'A' ? B0.a : B0.p) || {})[k];
-        const noList = !TYM[k] && !items.length && k !== 'P9';
+        const noList = !TYM[k] && !items.length;
         const origin = inMan || inCnt ? 'Entered on this profile in the portal (Update details), not from a CV. No individual activities are listed.' : inBase ? 'Count comes from the faculty record imported from the 2026 master list. No individual activities are listed.' : 'Count saved on the faculty record. No individual activities are listed.';
         const can = !!TYM[k] || items.length > 0 || noList, open = can && this.state.openCode === key;
         return { ...r, isPub: !!TYM[k], noPubText: 'No outputs in the research list or CV are classified as ' + k + ((f.a[k] || {}).master ? ' (the master list showed ' + f.a[k].master + ')' : '') + '. Add an output under Research output, or edit an output\'s Policy code to reassign it.', open, chev: can ? (open ? '▾' : '▸') : '', onToggle: can ? () => this.setState(s => ({ openCode: s.openCode === key ? null : key })) : undefined, details: items, hasDetails: open && items.length > 0, noDetails: open && noList, origin, canRemoveCount: ce, onRemoveCount: () => { if (!confirm('Remove ' + k + ' from this profile? The count becomes 0.')) return; if (inMan) this.setPman(f.id, k, ''); this.setCount(f.id, k, '0'); this.setState({ openCode: null }); }, noPub: open && !items.length && !!TYM[k], detSrc: src + ' · ' + items.length + ' item' + (items.length === 1 ? '' : 's'), rowBg: open ? '#FBF7EC' : '#fff' }; };
@@ -1722,11 +1752,10 @@ class Component extends DCLogic {
         ],
         evidence: [
           fld('Teaching effectiveness (out of 7.0)', 'te', null, { placeholder: 'e.g. 5.8', hint: 'Most recent annual or rolling 2-year average' }),
-          fld('Years of professional experience', 'exp', null, { placeholder: 'e.g. 8', hint: 'In the field of teaching · needed for SP and IP' }),
-          fld('CPD hours attended (P9)', 'p9h', null, { placeholder: 'e.g. 40', hint: '36 hours = 1 activity' })
+          fld('Years of professional experience', 'exp', null, { placeholder: 'e.g. 8', hint: 'In the field of teaching · needed for SP and IP' })
         ],
         acad: Object.keys(AD).map(k => { const ro = !!TYM[k] && (f.res.length > 0 || (DET[k] || []).length > 0), cvN = !TYM[k] ? (DET[k] || []).length : 0, pm = (e.pman || {})[k]; return { code: k, label: AD[k] + (ro ? ' · counted from Research output (edit items in the table)' : cvN ? ' · CV shows ' + cvN : ''), ro, value: ro ? String((f.a[k] || { n: 0 }).n) : pm != null && pm !== '' ? String(pm) : cvN ? String((f.a[k] || { n: 0 }).n) : (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.a[k] ? b.a[k].n : 0), onChange: ev => { if (ro) return; if (cvN) this.setPman(f.id, k, ev.target.value); else this.setCount(f.id, k, ev.target.value); } }; }),
-        prof: Object.keys(PD).filter(k => k !== 'P9').map(k => { const cvN = (DET[k] || []).length, pm = (e.pman || {})[k]; return { code: k, label: (k === 'P10' ? 'Professional events (number of participations)' : PD[k][0]) + (cvN ? ' · CV shows ' + cvN : ''), ro: false, value: pm != null && pm !== '' ? String(pm) : cvN ? String((f.p[k] || { n: 0 }).n) : (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.p[k] ? b.p[k].n : 0), onChange: ev => { if (cvN) this.setPman(f.id, k, ev.target.value); else this.setCount(f.id, k, ev.target.value); } }; }),
+        prof: Object.keys(PD).map(k => { const cvN = (DET[k] || []).length, pm = (e.pman || {})[k]; return { code: k, label: (k === 'P9' ? 'Professional events (number of participations)' : PD[k][0]) + (cvN ? ' · CV shows ' + cvN : ''), ro: false, value: pm != null && pm !== '' ? String(pm) : cvN ? String((f.p[k] || { n: 0 }).n) : (e.cnt && e.cnt[k] != null) ? String(e.cnt[k]) : String(b.p[k] ? b.p[k].n : 0), onChange: ev => { if (cvN) this.setPman(f.id, k, ev.target.value); else this.setCount(f.id, k, ev.target.value); } }; }),
         note: cur('note', b.note), onNote: set('note')
       };
       const matrix = ['SA', 'PA', 'SP', 'IP'].map(c => {
@@ -1765,7 +1794,7 @@ class Component extends DCLogic {
           const TL = { F: 'Peer-reviewed journal article', G: 'Additional peer-/editorial-reviewed', H: 'All other ICs' }, PL = { B: 'Basic', C: 'Applied', D: 'Teaching and learning' };
           const items = R.items.map((x, i) => ({ label: x.label, cur: x.cur, val: x.val, on: x.on, onToggle: () => this.cvToggle('items', i) }));
           const pubs = R.pubs.map((p, i) => ({ title: p.y + ' · ' + p.t, sub: [p.j, PL[p.p], TL[p.ty], 'credit ' + p.c].filter(Boolean).join(' · '), on: p.on, dup: p.dup, onToggle: () => this.cvToggle('pubs', i) }));
-          const CODES = [['A1', 'A1 · Scopus/ABDC journal article'], ['A2', 'A2 · Other indexed journal article'], ['A3', 'A3 · Editorial-reviewed journal'], ['A4', 'A4 · Conference proceedings'], ['A5', 'A5 · Teaching case'], ['A6', 'A6 · Commissioned policy document/report'], ['A7', 'A7 · Research income / grant'], ['A8', 'A8 · Book or chapter'], ['A9', 'A9 · Research/consulting grant report'], ['A10', 'A10 · Technology developed'], ['A11', 'A11 · Patent'], ['A12', 'A12 · Editorial board'], ['A13', 'A13 · Academic advisor'], ['A14', 'A14 · Role in academic organisation'], ['A15', 'A15 · Student research supervision'], ['A16', 'A16 · Invited presentation / speaker'], ['A17', 'A17 · Academic award / fellow'], ['P1', 'P1 · Work in government/industry'], ['P2', 'P2 · Practitioner publication'], ['P3', 'P3 · Practitioner book/chapter'], ['P4', 'P4 · Entrepreneur / owner'], ['P5', 'P5 · Leadership / management'], ['P6', 'P6 · Professional association'], ['P7', 'P7 · Consultancy'], ['P8', 'P8 · Training delivered'], ['P9', 'P9 · Training / CPD attended'], ['P10', 'P10 · Professional event'], ['P11', 'P11 · Student industry project'], ['skip', "Don't count"]].map(([key, label]) => ({ key, label }));
+          const CODES = [['A1', 'A1 · Scopus/ABDC journal article'], ['A2', 'A2 · Other indexed journal article'], ['A3', 'A3 · Editorial-reviewed journal'], ['A4', 'A4 · Conference proceedings'], ['A5', 'A5 · Teaching case'], ['A6', 'A6 · Commissioned policy document/report'], ['A7', 'A7 · Research income / grant'], ['A8', 'A8 · Book or chapter'], ['A9', 'A9 · Research/consulting grant report'], ['A10', 'A10 · Technology developed'], ['A11', 'A11 · Patent'], ['A12', 'A12 · Editorial board'], ['A13', 'A13 · Academic advisor'], ['A14', 'A14 · Role in academic organisation'], ['A15', 'A15 · Student research supervision'], ['A16', 'A16 · Invited presentation / speaker'], ['A17', 'A17 · Academic award / fellow'], ['P1', 'P1 · Work in government/industry'], ['P2', 'P2 · Practitioner publication'], ['P3', 'P3 · Practitioner book/chapter'], ['P4', 'P4 · Entrepreneur / owner'], ['P5', 'P5 · Leadership / management'], ['P6', 'P6 · Professional association'], ['P7', 'P7 · Consultancy'], ['P8', 'P8 · Training delivered'], ['P9', 'P9 · Professional event / participation'], ['P10', 'P10 · Student industry project'], ['skip', "Don't count"]].map(([key, label]) => ({ key, label }));
           const PC = [['A1', 'A1 · Scopus/ABDC journal'], ['A2', 'A2 · Other indexed journal'], ['A3', 'A3 · Editorial-reviewed'], ['A4', 'A4 · Conference proceedings'], ['A5', 'A5 · Teaching case'], ['A6', 'A6 · Commissioned report'], ['A8', 'A8 · Book / chapter'], ['A9', 'A9 · Grant report'], ['OTHER', 'Other IC (no code)']].map(([key, label]) => ({ key, label }));
           const groups = []; (R.acts || []).forEach((a, i) => { let g = groups.find(x => x.label === a.src); if (!g) { g = { label: a.src, rows: [] }; groups.push(g); }
             g.rows.push({ t: a.t, sub: a.sub, on: a.on, code: a.code, codes: CODES, onToggle: () => this.cvToggle('acts', i), onCode: e => this.cvSet('acts', i, 'code', e.target.value) }); });
@@ -1803,6 +1832,7 @@ class Component extends DCLogic {
         toggleEdit: () => this.setState(s => ({ editing: !s.editing, resEditKey: null })),
         revert: () => { if (confirm('Discard the ' + st.cur + ' portal updates for ' + f.n + '?')) this.revert(f.id); }
       };
+      { const pp = p; pp.onPdf = () => this.printProfile(pp, f, year); }
     }
 
     return {
