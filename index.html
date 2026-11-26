@@ -1010,8 +1010,9 @@ class Component extends DCLogic {
   }
   // Policy v3 renumbering: old P9 (CPD attended) removed, old P10 -> P9, old P11 -> P10. Records without pv:2 use the old codes.
   pmap(o) { if (!o || typeof o !== 'object') return o; const r = { ...o }; delete r.P9; delete r.P10; delete r.P11; if (o.P10 != null) r.P9 = o.P10; if (o.P11 != null) r.P10 = o.P11; return r; }
-  migE(e) { if (!e || e.pv === 2) return e; const r = { ...e, pv: 2 }; ['cnt', 'pman', 'det'].forEach(k => { if (e[k]) r[k] = this.pmap(e[k]); }); delete r.p9h; return r; }
-  migB(b) { if (!b || b.pv === 2) return b; return { ...b, p: this.pmap(b.p || {}), det: b.det ? this.pmap(b.det) : b.det, p9h: null, pv: 2 }; }
+  migE(e) { if (!e || (e.pv === 2 && !(e.cnt && e.cnt.P11 != null) && !(e.pman && e.pman.P11 != null) && !(e.det && e.det.P11))) return e; const r = { ...e, pv: 2 }; ['cnt', 'pman', 'det'].forEach(k => { if (e[k]) r[k] = this.pmap(e[k]); }); delete r.p9h; return r; }
+  stale(o) { return !!o && (o.P11 != null || (o.P10 != null && o.P10.u != null)); }
+  migB(b) { if (!b || (b.pv === 2 && !this.stale(b.p))) return b; return { ...b, p: this.pmap(b.p || {}), det: b.det ? this.pmap(b.det) : b.det, p9h: null, pv: 2 }; }
   setEdit(id, k, v) { this.updYear(y => ({ ...y, edits: { ...y.edits, [id]: { ...(this.migE(y.edits[id]) || { pv: 2 }), [k]: v } } })); }
   setCount(id, k, v) { this.updYear(y => { const c = this.migE(y.edits[id]) || { pv: 2 }; return { ...y, edits: { ...y.edits, [id]: { ...c, cnt: { ...(c.cnt || {}), [k]: v } } } }; }); }
   setPman(id, k, v) { this.updYear(y => { const c = this.migE(y.edits[id]) || { pv: 2 }; return { ...y, edits: { ...y.edits, [id]: { ...c, pman: { ...(c.pman || {}), [k]: v } } } }; }); }
