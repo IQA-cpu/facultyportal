@@ -1082,13 +1082,13 @@ class Component extends DCLogic {
     const ord = k => +k.slice(1), out = [], pe = [];
     const abd = (f.deg.match(/\(([^)]*ABD[^)]*)\)/) || [])[1];
     if (abd) out.push('- ' + abd.replace(/\s+/g, ''));
-    const ak = Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) <= 14);
+    const ak = Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) <= 14 && f.a[k].n);
     ak.forEach(k => out.push(k + '- ' + L[k] + ': ' + f.a[k].n + (f.a[k].det && f.a[k].det !== 'Updated in portal' ? ' (' + f.a[k].det + ')' : '')));
     if (f.other) out.push('- Other ICs (reports, op-eds, etc.): ' + f.other);
     if (!ak.length && !f.other) out.push('- No ICs recorded (' + (this.curYear() - 5) + '–' + this.curYear() + ')');
-    const pk = Object.keys(f.p).sort((x, y) => ord(x) - ord(y));
+    Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) > 14 && f.a[k].n).forEach(k => pe.push(k + '- ' + L[k] + ': ' + f.a[k].n));
+    const pk = Object.keys(f.p).sort((x, y) => ord(x) - ord(y)).filter(k => f.p[k].n);
     pk.forEach(k => { const x = f.p[k]; if (k === 'P9') pe.push(k + '- ' + L[k] + ': ' + x.n + ' (= ' + x.u + ' activit' + (x.u === 1 ? 'y' : 'ies') + ')'); else if (k === 'P10') pe.push(k + '- ' + L[k] + ': ' + x.n + (x.n > 2 ? ' (max. 2 activities)' : '')); else pe.push(k + '- ' + L[k] + ': ' + x.n); });
-    Object.keys(f.a).sort((x, y) => ord(x) - ord(y)).filter(k => ord(k) > 14).forEach(k => pe.push(k + '- ' + L[k] + ': ' + f.a[k].n));
     if (!pk.length) pe.push('- No professional engagement recorded');
     if (f.te != null) pe.push('- Teaching effectiveness: ' + f.te + '/7.0');
     return (part === 'ic' ? out : part === 'pe' ? pe : out.concat(pe)).join('\n');
