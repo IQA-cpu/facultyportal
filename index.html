@@ -551,8 +551,9 @@ input::placeholder{color:#8A8F96}
                           </select>
                         </sc-if>
                         <sc-if value="{{ x.isInput }}" hint-placeholder-val="{{ true }}">
-                          <input value="{{ x.value }}" onChange="{{ x.onChange }}" style="height:40px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
+                          <input value="{{ x.value }}" onChange="{{ x.onChange }}" placeholder="{{ x.placeholder }}" style="height:40px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:inherit;color:#221E1A;outline:none" style-focus="border-color:#6B1E24">
                         </sc-if>
+                        <sc-if value="{{ x.hint }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;color:#8A8F96;text-wrap:pretty">{{ x.hint }}</span></sc-if>
                       </label>
                     </sc-for>
                   </div>
@@ -1359,7 +1360,7 @@ class Component extends DCLogic {
     if (n(e.yr) != null) f.yr = n(e.yr);
     if (n(e.fte) != null) f.fte = n(e.fte);
     if (n(e.ics) != null) f.ics = n(e.ics);
-    f.man = {}; ['st', 'sr', 'ss'].forEach((k, i) => { if (e[k] != null && e[k] !== '') { f.man[k] = true; f.split[i] = n(e[k]) || 0; f.pct = f.split[0] + f.split[1] + f.split[2]; } });
+    f.man = {}; ['st', 'sr', 'ss'].forEach((k, i) => { if (e[k] != null && e[k] !== '' && n(e[k]) !== (b.split || [])[i]) { f.man[k] = true; f.split[i] = n(e[k]) || 0; f.pct = f.split[0] + f.split[1] + f.split[2]; } });
     if (e.hours != null || e.role) {
       const h = n(e.hours) ?? (b.P + b.S), role = e.role || (b.P > 0 || b.S === 0 ? 'P' : 'S');
       f.P = role === 'P' ? h : 0; f.S = role === 'S' ? h : 0;
@@ -1695,6 +1696,7 @@ class Component extends DCLogic {
       const b = bases.find(x => x.id === f.id), e = edits[f.id] || {};
       const cur = (k, bv) => e[k] != null ? String(e[k]) : (bv == null ? '' : String(bv));
       const set = k => ev => this.setEdit(f.id, k, ev.target.value);
+      const r2_ = v => Math.round(v * 100) / 100, autoT = r2_(Math.min(60, (f.P + f.S) / 270 * 60)), autoR = r2_(Math.min(30, (f.icCr || 0) / 4 * 30)), autoS = f.ft === 'FT' ? 10 : 5;
       const fld = (label, k, bv, extra) => ({ label, value: cur(k, bv), onChange: set(k), isInput: true, isSelect: false, placeholder: '', hint: '', options: [], ...extra });
       const sel_ = (label, k, bv, options) => ({ label, value: cur(k, bv), onChange: set(k), isInput: false, isSelect: true, options, hint: '' });
       const form = {
@@ -1714,9 +1716,9 @@ class Component extends DCLogic {
           fld('of which MSAF hours', 'msaf', f.msaf, { placeholder: '0 if blank' }),
           fld('Professional certifications', 'certs', b.certs, { placeholder: 'e.g. ACCA; CPA' }),
           fld('Courses taught', 'courses', b.courses, { placeholder: 'Separate with ;' }),
-          fld('Teaching % of time (≤60)', 'st', f.split[0], { hint: 'Set from teaching hours (270 h = 60%) unless entered here' }),
-          fld('Research % of time (≤30)', 'sr', f.split[1], { hint: 'Set from IC credits (4 credits = 30%) unless entered here' }),
-          fld('Service % of time (≤10)', 'ss', b.split[2])
+          fld('Teaching % of time (≤60)', 'st', null, { value: (f.man || {}).st ? String(e.st) : '', placeholder: 'Auto: ' + autoT + '%', hint: (f.man || {}).st ? 'Manual entry. Clear it to use ' + autoT + '% from ' + (f.P + f.S) + ' teaching hours' : 'Auto from ' + (f.P + f.S) + ' teaching hours (270 h = 60%)' }),
+          fld('Research % of time (≤30)', 'sr', null, { value: (f.man || {}).sr ? String(e.sr) : '', placeholder: 'Auto: ' + autoR + '%', hint: (f.man || {}).sr ? 'Manual entry. Clear it to use ' + autoR + '% from ' + fmt(f.icCr || 0) + ' IC credits' : 'Auto from ' + fmt(f.icCr || 0) + ' IC credits in Research output (4 credits = 30%)' }),
+          fld('Service % of time (≤10)', 'ss', null, { value: (f.man || {}).ss ? String(e.ss) : '', placeholder: 'Auto: ' + autoS + '%', hint: (f.man || {}).ss ? 'Manual entry. Clear it to use ' + autoS + '%' : 'Auto from ' + (f.ft === 'FT' ? 'full-time (10%)' : 'part-time (5%)') + ' status' })
         ],
         evidence: [
           fld('Teaching effectiveness (out of 7.0)', 'te', null, { placeholder: 'e.g. 5.8', hint: 'Most recent annual or rolling 2-year average' }),

@@ -9,7 +9,7 @@ const SECTIONS = {
   'BUSINESS PROFESSIONAL ASSOCIATION': 'date', 'CONSULTANCY PROJECT': 'date', 'NETWORKING EVENT': 'date'
 };
 const OTHER = ['QUALIFICATION', 'TRAINING AND DEVELOPMENT', 'WORK EXPERIENCE', 'ACADEMIC ENGAGEMENT ACTIVITY', 'PROFESSIONAL ENGAGEMENT ACTIVITY'];
-const HEAD_WORDS = new Set('institution country degree field of study start date end training topic name conference/webinar/symposium role position title research year publication category journal/book type journal author student project/research/club program/course business professional association funding organization consultancy event'.split(' '));
+const HEAD_WORDS = new Set('institution country degree field of study start date end training topic name conference/webinar/symposium role position title research year publication category journal/book type journal author student project/research/club program/course business professional association funding organization organisation consultancy project projects title client sector description event business'.split(' '));
 const key = t => t.replace(/\s+/g, '').toUpperCase();
 const SKEYS = Object.keys(SECTIONS).reduce((o, k) => { o[key(k)] = k; return o; }, {});
 const OKEYS = new Set(OTHER.map(key));
@@ -37,7 +37,7 @@ async function readLines(pdfjs, buf) {
   return lines;
 }
 
-function isHeaderLine(L) { const words = L.text.toLowerCase().split(/\s+/).filter(Boolean); return words.length > 0 && words.every(w => HEAD_WORDS.has(w)); }
+function isHeaderLine(L) { if (DATE_IN.test(L.text) || /^No records found/i.test(L.text)) return false; const words = L.text.toLowerCase().split(/\s+/).filter(Boolean), hit = words.filter(w => HEAD_WORDS.has(w)).length; return words.length > 0 && (hit === words.length || (/\bdate\b/.test(L.text.toLowerCase()) && hit / words.length >= 0.75)); }
 
 function parseTable(lines, mode) {
   if (!lines.length) return [];
