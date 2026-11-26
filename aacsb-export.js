@@ -172,12 +172,12 @@ function buildTable31A(m, S) {
   const rows = [], merges = [], N = 21, blank = () => new Array(N).fill(null);
   const put = (r, j, v, s) => { r.c[j] = [v, s]; };
   rows.push({ ht: 20, c: [['Table 3-1A: Faculty Sufficiency, Qualifications and Basis for Qualification (60/30/10 Model), January–December ' + m.year, S.title]] });
-  rows.push({ c: [['Teaching share = teaching hours ÷ 270 × 60% (max 60%). Research share from ICs (max 30%). Service: 10% full-time, 5% part-time.', S.sub]] });
+  rows.push({ c: [['Teaching share = teaching hours ÷ 270 × 60% (max 60%). Research share = ICs ÷ 4 × 30% (max 30%); each faculty author gets full credit (1 per output) in Tables 3-1 and 3-1A. Service: 10% full-time, 5% part-time.', S.sub]] });
   const g = { ht: 30, c: blank().map(() => [null, S.hdr]) };
   put(g, 0, 'Faculty Portfolio by Discipline', S.hdr); put(g, 4, 'Faculty Sufficiency Related to Teaching (SCH)', S.hdr); put(g, 6, 'Faculty Qualifications with Respect to Percent of Time Devoted to Mission', S.hdr);
   put(g, 11, 'Brief Description of Basis for Qualification', S.hdr); put(g, 12, 'Time Devoted to Mission (60/30/10 Model)', S.hdr); put(g, 16, 'Workload and Status', S.hdr); put(g, 20, 'Note', S.hdr);
   rows.push(g); merges.push('A3:D3', 'E3:F3', 'G3:K3', 'L3:L4', 'M3:P3', 'Q3:T3', 'U3:U4');
-  rows.push({ ht: 52, c: ['Faculty Member Name', 'Specialty Field', 'Highest Degree', 'Year Earned', 'Participating Faculty Teaching Productivity (P)', 'Supporting Faculty Teaching Productivity (S)', 'Scholarly Academic (SA)', 'Practice Academic (PA)', 'Scholarly Practitioner (SP)', 'Instructional Practitioner (IP)', 'Additional Faculty (A)', null, 'Total', 'Teaching (≤60%)', 'Research (≤30%)', 'Service (≤10%)', 'Teaching hours / year', 'IC credits (' + (m.year - 5) + '–' + m.year + ')', 'FT / PT', 'FTE', null].map(v => [v, S.hdr]) });
+  rows.push({ ht: 52, c: ['Faculty Member Name', 'Specialty Field', 'Highest Degree', 'Year Earned', 'Participating Faculty Teaching Productivity (P)', 'Supporting Faculty Teaching Productivity (S)', 'Scholarly Academic (SA)', 'Practice Academic (PA)', 'Scholarly Practitioner (SP)', 'Instructional Practitioner (IP)', 'Additional Faculty (A)', null, 'Total', 'Teaching (≤60%)', 'Research (≤30%)', 'Service (≤10%)', 'Teaching hours / year', 'ICs, full credit (' + (m.year - 5) + '–' + m.year + ')', 'FT / PT', 'FTE', null].map(v => [v, S.hdr]) });
   const CL = { SA: 6, PA: 7, SP: 8, IP: 9, A: 10 }, totRows = [], grand = new Array(N).fill(0); let count = 0;
   const isDec = j => (j >= 6 && j <= 10) || j === 19;
   m.disciplines.forEach(d => {
@@ -191,8 +191,8 @@ function buildTable31A(m, S) {
       put(r, 11, f.basis || '', S.txt);
       const sp = f.split || [0, 0, 0];
       put(r, 12, R2(f.pct / 100), S.pct1); put(r, 13, R2(sp[0] / 100), S.pct1); put(r, 14, R2(sp[1] / 100), S.pct1); put(r, 15, R2(sp[2] / 100), S.pct1);
-      put(r, 16, f.hours || 0, S.num); put(r, 17, f.icCr || 0, S.num); put(r, 18, f.ft === 'PT' ? 'Part-time' : 'Full-time', S.cen); put(r, 19, R2(f.fte || 0), S.dec); put(r, 20, f.note || '', S.txt);
-      sum[4] += f.P || 0; sum[5] += f.S || 0; sum[CL[f.cls]] += f.pct; sum[16] += f.hours || 0; sum[17] += f.icCr || 0; sum[19] += f.fte || 0;
+      put(r, 16, f.hours || 0, S.num); put(r, 17, f.icFull || 0, S.num); put(r, 18, f.ft === 'PT' ? 'Part-time' : 'Full-time', S.cen); put(r, 19, R2(f.fte || 0), S.dec); put(r, 20, f.note || '', S.txt);
+      sum[4] += f.P || 0; sum[5] += f.S || 0; sum[CL[f.cls]] += f.pct; sum[16] += f.hours || 0; sum[17] += f.icFull || 0; sum[19] += f.fte || 0;
       rows.push(r);
     });
     const last = rows.length, t = last + 1, tr = { c: blank().map(() => [null, S.numB]) };

@@ -1331,7 +1331,7 @@ class Component extends DCLogic {
       const model = {
         year,
         disciplines: used.map(([k, name, offered], i) => ({ letter: String.fromCharCode(65 + i), name, offered: !!offered,
-          faculty: D.filter(f => f.d === k).map(f => ({ name: f.n, spec: f.sp, deg: f.deg.split(' (')[0], yr: f.yr, P: f.P, S: f.S, cls: f.c, pct: f.pct, basis: this.autoBasis(f), split: f.split, hours: f.P + f.S, icCr: f.icCr || 0, nRes: f.res.length, ft: f.ft, fte: f.fte, note: f.note || '', icBy: f.icBy, icText: this.autoBasis(f, 'ic'), peText: this.autoBasis(f, 'pe') })) })),
+          faculty: D.filter(f => f.d === k).map(f => ({ name: f.n, spec: f.sp, deg: f.deg.split(' (')[0], yr: f.yr, P: f.P, S: f.S, cls: f.c, pct: f.pct, basis: this.autoBasis(f), split: f.split, hours: f.P + f.S, icCr: f.icCr || 0, icFull: f.icFull || 0, nRes: f.res.length, ft: f.ft, fte: f.fte, note: f.note || '', icBy: f.icBy, icText: this.autoBasis(f, 'ic'), peText: this.autoBasis(f, 'pe') })) })),
         programs: ['bafH', 'msafH'].map(k => { const s = { SA: 0, PA: 0, SP: 0, IP: 0, A: 0 }; let t = 0; D.forEach(f => { const h = f[k] || 0; s[f.c] += h; t += h; }); const o = { total: t ? 1 : 0 }; Object.keys(s).forEach(c => { o[c] = t ? s[c] / t : 0; }); return o; }),
         ic: this.icTable(D)
       };
@@ -1393,7 +1393,7 @@ class Component extends DCLogic {
     f.resRemoved = inWin.filter(r => (RE.del || {})[r.k]);
     f.res = inWin.filter(r => !(RE.del || {})[r.k]).map(r => ({ ...r, code: this.resCode(r), autoCode: !r.code })).sort((a, b) => b.y - a.y);
     f.icBy = { B: 0, C: 0, D: 0, F: 0, G: 0, H: 0 }; f.icCr = 0;
-    f.res.forEach(r => { f.icBy[r.p] += r.c; f.icBy[r.ty] += r.c; f.icCr += r.c; });
+    f.res.forEach(r => { f.icBy[r.p] += r.c; f.icBy[r.ty] += r.c; f.icCr += r.c; }); f.icFull = f.res.length;
     const PUBC = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A8', 'A9'], DT = f.det || {};
     const tn = t => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
     const same = (a, b) => a === b || (a.length > 25 && b.length > 25 && (a.startsWith(b.slice(0, 40)) || b.startsWith(a.slice(0, 40))));
@@ -1420,7 +1420,7 @@ class Component extends DCLogic {
     f.fte = f.ft === 'FT' ? 1 : Math.min(1, Math.round((f.P + f.S) / 270 * 100) / 100);
     { const man = f.man || {}, r2 = v => Math.round(v * 100) / 100; f.split = [...(f.split || [0, 0, 0])];
       if (!man.st) f.split[0] = r2(Math.min(60, (f.P + f.S) / 270 * 60));
-      if (!man.sr) f.split[1] = r2(Math.min(30, (f.icCr || 0) / 4 * 30));
+      if (!man.sr) f.split[1] = r2(Math.min(30, (f.icFull || 0) / 4 * 30));
       if (!man.ss) f.split[2] = f.ft === 'FT' ? 10 : 5;
       f.pct = r2(f.split[0] + f.split[1] + f.split[2]); }
     if (f.res.length) f.other = f.res.filter(o => o.code === 'OTHER').length;
@@ -1696,7 +1696,7 @@ class Component extends DCLogic {
       const b = bases.find(x => x.id === f.id), e = edits[f.id] || {};
       const cur = (k, bv) => e[k] != null ? String(e[k]) : (bv == null ? '' : String(bv));
       const set = k => ev => this.setEdit(f.id, k, ev.target.value);
-      const r2_ = v => Math.round(v * 100) / 100, autoT = r2_(Math.min(60, (f.P + f.S) / 270 * 60)), autoR = r2_(Math.min(30, (f.icCr || 0) / 4 * 30)), autoS = f.ft === 'FT' ? 10 : 5;
+      const r2_ = v => Math.round(v * 100) / 100, autoT = r2_(Math.min(60, (f.P + f.S) / 270 * 60)), autoR = r2_(Math.min(30, (f.icFull || 0) / 4 * 30)), autoS = f.ft === 'FT' ? 10 : 5;
       const fld = (label, k, bv, extra) => ({ label, value: cur(k, bv), onChange: set(k), isInput: true, isSelect: false, placeholder: '', hint: '', options: [], ...extra });
       const sel_ = (label, k, bv, options) => ({ label, value: cur(k, bv), onChange: set(k), isInput: false, isSelect: true, options, hint: '' });
       const form = {
@@ -1717,7 +1717,7 @@ class Component extends DCLogic {
           fld('Professional certifications', 'certs', b.certs, { placeholder: 'e.g. ACCA; CPA' }),
           fld('Courses taught', 'courses', b.courses, { placeholder: 'Separate with ;' }),
           fld('Teaching % of time (≤60)', 'st', null, { value: (f.man || {}).st ? String(e.st) : '', placeholder: 'Auto: ' + autoT + '%', hint: (f.man || {}).st ? 'Manual entry. Clear it to use ' + autoT + '% from ' + (f.P + f.S) + ' teaching hours' : 'Auto from ' + (f.P + f.S) + ' teaching hours (270 h = 60%)' }),
-          fld('Research % of time (≤30)', 'sr', null, { value: (f.man || {}).sr ? String(e.sr) : '', placeholder: 'Auto: ' + autoR + '%', hint: (f.man || {}).sr ? 'Manual entry. Clear it to use ' + autoR + '% from ' + fmt(f.icCr || 0) + ' IC credits' : 'Auto from ' + fmt(f.icCr || 0) + ' IC credits in Research output (4 credits = 30%)' }),
+          fld('Research % of time (≤30)', 'sr', null, { value: (f.man || {}).sr ? String(e.sr) : '', placeholder: 'Auto: ' + autoR + '%', hint: (f.man || {}).sr ? 'Manual entry. Clear it to use ' + autoR + '% from ' + (f.icFull || 0) + ' research outputs' : 'Auto from ' + (f.icFull || 0) + ' research outputs at full credit (4 = 30%)' }),
           fld('Service % of time (≤10)', 'ss', null, { value: (f.man || {}).ss ? String(e.ss) : '', placeholder: 'Auto: ' + autoS + '%', hint: (f.man || {}).ss ? 'Manual entry. Clear it to use ' + autoS + '%' : 'Auto from ' + (f.ft === 'FT' ? 'full-time (10%)' : 'part-time (5%)') + ' status' })
         ],
         evidence: [
