@@ -74,6 +74,46 @@ input::placeholder{color:#8A8F96}
           <sc-for list="{{ yearOptions }}" as="o" hint-placeholder-count="2"><option value="{{ o.key }}">{{ o.label }}</option></sc-for>
         </select>
       </label>
+      <button onClick="{{ onExportAll }}" title="All faculty, activities and research in one workbook, ready to filter" style="height:40px;padding:0 14px;border-radius:6px;border:1px solid #6B1E24;background:#fff;color:#6B1E24;font:500 14.5px 'IBM Plex Sans',sans-serif;white-space:nowrap;cursor:pointer" style-hover="background:#F5EEE6">{{ exportAllLabel }}</button>
+      <sc-if value="{{ pk.open }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ pk.onClose }}" style="position:fixed;inset:0;z-index:1000;background:rgba(34,30,26,0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+          <div onClick="{{ pk.stop }}" style="width:min(640px,100%);max-height:min(760px,calc(100vh - 48px));display:flex;flex-direction:column;background:#FFFDF8;border-radius:10px;border-top:3px solid #6B1E24;box-shadow:0 20px 60px rgba(0,0,0,0.25);font-family:'IBM Plex Sans',sans-serif;color:#221E1A;white-space:normal">
+            <div style="display:flex;flex-direction:column;gap:4px;padding:20px 24px 14px">
+              <span style="font:600 22px 'IBM Plex Serif',serif;color:#6B1E24">Export faculty data</span>
+              <span style="font-size:14px;color:#6F6A5F">Choose the faculty members to include in the Excel file.</span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 24px 12px">
+              <input value="{{ pk.q }}" onChange="{{ pk.onQ }}" placeholder="Search name" style="flex:1;min-width:160px;height:36px;padding:0 10px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:400 14.5px 'IBM Plex Sans',sans-serif">
+              <select value="{{ pk.disc }}" onChange="{{ pk.onDisc }}" style="height:36px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:400 14.5px 'IBM Plex Sans',sans-serif">
+                <sc-for list="{{ pk.discOpts }}" as="o" hint-placeholder-count="7"><option value="{{ o.key }}">{{ o.label }}</option></sc-for>
+              </select>
+              <select value="{{ pk.cls }}" onChange="{{ pk.onCls }}" style="height:36px;padding:0 8px;border:1px solid #DDD3BD;border-radius:6px;background:#fff;font:400 14.5px 'IBM Plex Sans',sans-serif">
+                <sc-for list="{{ pk.clsOpts }}" as="o" hint-placeholder-count="6"><option value="{{ o.key }}">{{ o.label }}</option></sc-for>
+              </select>
+            </div>
+            <div style="display:flex;gap:16px;align-items:center;padding:0 24px 10px;font-size:13.5px">
+              <button onClick="{{ pk.onAll }}" style="border:0;background:none;padding:0;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">Select shown</button>
+              <button onClick="{{ pk.onNone }}" style="border:0;background:none;padding:0;font:500 13.5px 'IBM Plex Sans',sans-serif;color:#6B1E24;cursor:pointer">Clear shown</button>
+              <span style="margin-left:auto;color:#6F6A5F">{{ pk.countText }}</span>
+            </div>
+            <div style="flex:1;min-height:0;overflow:auto;border-top:1px solid #EDE5D3;border-bottom:1px solid #EDE5D3">
+              <sc-for list="{{ pk.rows }}" as="r" hint-placeholder-count="8">
+                <label style="display:grid;grid-template-columns:20px minmax(0,1fr) auto 36px;gap:12px;align-items:center;padding:9px 24px;border-bottom:1px solid #F3EDE0;cursor:pointer;font-size:14.5px" style-hover="background:#F7F1E6">
+                  <input type="checkbox" checked="{{ r.on }}" onChange="{{ r.onToggle }}" style="width:18px;height:18px;margin:0;accent-color:#6B1E24;cursor:pointer">
+                  <span>{{ r.name }}</span>
+                  <span style="font-size:13px;color:#6F6A5F">{{ r.disc }}</span>
+                  <span style="font:500 12.5px 'IBM Plex Mono',monospace;color:#6B1E24;text-align:right">{{ r.cls }}</span>
+                </label>
+              </sc-for>
+              <sc-if value="{{ pk.empty }}" hint-placeholder-val="{{ false }}"><div style="padding:20px 24px;font-size:14px;color:#6F6A5F">No faculty match these filters.</div></sc-if>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;padding:14px 24px">
+              <button onClick="{{ pk.onClose }}" style="height:40px;padding:0 16px;border-radius:6px;border:1px solid #DDD3BD;background:#fff;color:#221E1A;font:500 14.5px 'IBM Plex Sans',sans-serif;cursor:pointer">Cancel</button>
+              <button onClick="{{ pk.onGo }}" disabled="{{ pk.none }}" style="height:40px;padding:0 16px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:500 14.5px 'IBM Plex Sans',sans-serif;white-space:nowrap;cursor:pointer" style-hover="background:#541519">{{ pk.goLabel }}</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
       <button onClick="{{ onExportXlsx }}" title="Table 3-1, Table 3-2 and Table 8-1 in the AACSB template" style="height:40px;padding:0 14px;border-radius:6px;border:1px solid #6B1E24;background:#6B1E24;color:#fff;font:500 14.5px 'IBM Plex Sans',sans-serif;white-space:nowrap;cursor:pointer" style-hover="background:#541519">{{ exportLabel }}</button>
       <sc-if value="{{ canDeleteYear }}" hint-placeholder-val="{{ false }}">
         <button onClick="{{ onDeleteYear }}" style="border:0;background:none;padding:0;font:500 13.5px 'IBM Plex Sans',sans-serif;color:oklch(0.5 0.17 28);cursor:pointer">Delete year</button>
@@ -1326,6 +1366,74 @@ class Component extends DCLogic {
     const cur = ((this.state.store.years[this.state.store.cur].edits[id] || {}).res) || [];
     this.setEdit(id, 'res', cur.filter((_, j) => j !== i));
   }
+  loadExcelJS() { if (window.ExcelJS) return Promise.resolve(window.ExcelJS); return new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js'; s.onload = () => ok(window.ExcelJS); s.onerror = () => no(new Error('Could not load the Excel library')); document.head.appendChild(s); }); }
+  pickList() { const st = this.state.store, Y = st.years[st.cur]; const O = ['ACC', 'FIN', 'ECO', 'MGT', 'LAW', 'ICT']; return this.bases().map(b => this.apply(b, Y.edits[b.id])).sort((a, b) => (O.indexOf(a.d) - O.indexOf(b.d)) || a.n.localeCompare(b.n)); }
+  openPick() { const sel = {}; this.pickList().forEach(f => { sel[f.id] = true; }); this.setState({ pick: { open: true, sel, q: '', disc: '', cls: '' } }); }
+  pickVals() {
+    const P = this.state.pick; if (!P || !P.open) return { open: false };
+    const DN = { ACC: 'Accounting', FIN: 'Finance', ECO: 'Economics', MGT: 'Management', LAW: 'Law and Taxation', ICT: 'ICT and Statistics' };
+    const all = this.pickList(), q = (P.q || '').toLowerCase().trim();
+    const shown = all.filter(f => (!P.disc || f.d === P.disc) && (!P.cls || f.c === P.cls) && (!q || f.n.toLowerCase().includes(q)));
+    const up = o => this.setState(s => ({ pick: { ...s.pick, ...o } })), n = all.filter(f => P.sel[f.id]).length;
+    const setShown = v => this.setState(s => { const sel = { ...s.pick.sel }; shown.forEach(f => { sel[f.id] = v; }); return { pick: { ...s.pick, sel } }; });
+    return { open: true, q: P.q, disc: P.disc, cls: P.cls,
+      onQ: e => up({ q: e.target.value }), onDisc: e => up({ disc: e.target.value }), onCls: e => up({ cls: e.target.value }),
+      discOpts: [{ key: '', label: 'All disciplines' }, ...Object.keys(DN).filter(k => all.some(f => f.d === k)).map(k => ({ key: k, label: DN[k] }))],
+      clsOpts: [{ key: '', label: 'All classifications' }, ...['SA', 'PA', 'SP', 'IP', 'A'].map(k => ({ key: k, label: k }))],
+      rows: shown.map(f => ({ name: f.n, disc: DN[f.d] || f.d, cls: f.c, on: !!P.sel[f.id], onToggle: () => this.setState(s => ({ pick: { ...s.pick, sel: { ...s.pick.sel, [f.id]: !s.pick.sel[f.id] } } })) })),
+      empty: !shown.length, onAll: () => setShown(true), onNone: () => setShown(false),
+      countText: n + ' of ' + all.length + ' selected', none: !n || !!this.state.exportingAll,
+      goLabel: this.state.exportingAll ? 'Preparing…' : 'Export ' + n + ' faculty',
+      stop: e => e.stopPropagation(), onClose: () => this.setState({ pick: null }),
+      onGo: () => this.exportAll(all.filter(f => P.sel[f.id]).map(f => f.id)) };
+  }
+  async exportAll(ids) {
+    if (this.state.exportingAll) return;
+    this.setState({ exportingAll: true });
+    try {
+      const st = this.state.store, Y = st.years[st.cur], year = st.cur, keep = ids ? new Set(ids) : null;
+      const D = this.bases().filter(b => !keep || keep.has(b.id)).map(b => this.derive(this.apply(b, Y.edits[b.id])));
+      const AD = { A1: 'Peer-reviewed journals indexed in Scopus or ABDC', A2: 'Other indexed peer-reviewed journals', A3: 'Editorial-reviewed journals', A4: 'Peer-reviewed conference proceedings', A5: 'Teaching case by academic press', A6: 'Policy document or report for government or industry', A7: 'Research income from government or industry', A8: 'Academic book or book chapter', A9: 'Report from research or consulting grants', A10: 'Technologies for practical application in business', A11: 'Patents', A12: 'Editorial board of indexed journals', A13: 'Academic advisor to government or industry', A14: 'Formal role in academic organisations', A15: 'Supervision of student research projects', A16: 'Invited presentations or keynote speeches', A17: 'Academic awards or fellow status' };
+      const PD = { P1: 'Ongoing or regular work in government or industry', P2: 'Practitioner journal publications', P3: 'Practitioner book or chapter', P4: 'Entrepreneur or business owner (2+ years)', P5: 'Business or organisational leadership (2+ years)', P6: 'Professional association memberships', P7: 'Consultancy projects for government or industry', P8: 'Training delivered to government or industry', P9: 'Significant participation in professional events, businesses or associations', P10: 'Supervision of student industry projects' };
+      const AK = Object.keys(AD), PK = Object.keys(PD), CL = { SA: 'Scholarly Academic', PA: 'Practice Academic', SP: 'Scholarly Practitioner', IP: 'Instructional Practitioner', A: 'Additional' };
+      const DN = { ACC: 'Accounting', FIN: 'Finance', ECO: 'Economics', MGT: 'Management', LAW: 'Law and Taxation', ICT: 'ICT and Statistics' };
+      const PL = { B: 'Basic or discovery', C: 'Applied or integration', D: 'Teaching and learning' }, TL = { F: 'Peer-reviewed journal article', G: 'Additional peer-/editorial-reviewed', H: 'All other' };
+      const pc = v => v == null || v === '' ? null : Number(v) / 100;
+      const ExcelJS = await this.loadExcelJS(), wb = new ExcelJS.Workbook(); wb.creator = 'CamEd Faculty Portal';
+      const sheet = (name, cols, rows) => {
+        const ws = wb.addWorksheet(name, { views: [{ state: 'frozen', xSplit: 2, ySplit: 1 }] });
+        ws.columns = cols.map(c => ({ header: c[0], key: c[1], width: c[2] || 14, style: c[3] ? { numFmt: c[3] } : {} }));
+        rows.forEach(r => ws.addRow(r));
+        const h = ws.getRow(1); h.height = 32; h.eachCell(c => { c.font = { bold: true, color: { argb: 'FFFFFFFF' } }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6B1E24' } }; c.alignment = { vertical: 'middle', wrapText: true }; });
+        ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: Math.max(1, rows.length + 1), column: cols.length } };
+        return ws;
+      };
+      const base = f => ({ emp: f.empId || '', name: f.n, disc: DN[f.d] || f.d, cls: f.c, clsName: CL[f.c] || f.c });
+      const P = '0%', N2 = '0.00';
+      sheet('Faculty', [['Employee ID', 'emp', 12], ['Faculty name', 'name', 30], ['Discipline', 'disc', 16], ['Classification', 'cls', 9], ['Classification name', 'clsName', 22], ['Title', 'title', 22], ['Specialisation', 'sp', 26], ['Highest degree', 'deg', 34], ['Degree year', 'yr', 9], ['FT / PT', 'ft', 8], ['FTE', 'fte', 7, N2], ['Participating hours', 'P', 11], ['Supporting hours', 'S', 11], ['Total hours', 'hrs', 10], ['BAF hours', 'baf', 9], ['MSAF hours', 'msaf', 9], ['Other hours', 'oth', 9], ['Teaching %', 't', 10, P], ['Research %', 'r', 10, P], ['Service %', 's', 10, P], ['Total %', 'pct', 9, P], ['Research outputs (full credit)', 'icFull', 12], ['IC credits (shared)', 'icCr', 11, N2], ['Academic activities total', 'aea', 11], ['Professional activities total', 'pea', 11],
+        ...AK.map(k => [k, k, 6]), ...PK.map(k => [k, k, 6]), ['Teaching effectiveness (/7)', 'te', 11], ['Years of experience', 'exp', 10], ['Certifications', 'certs', 26], ['Note', 'note', 30], ['Academic qualification basis', 'ic', 50], ['Professional engagement basis', 'pe', 50]],
+        D.map(f => { const r = { ...base(f), title: f.title || '', sp: f.sp, deg: f.deg, yr: f.yr, ft: f.ft, fte: f.fte, P: f.P, S: f.S, hrs: f.P + f.S, baf: f.bafH || 0, msaf: f.msafH || 0, oth: f.othH || 0, t: pc(f.split[0]), r: pc(f.split[1]), s: pc(f.split[2]), pct: pc(f.pct), icFull: f.icFull || 0, icCr: f.icCr || 0, te: f.te, exp: f.exp, certs: Array.isArray(f.certs) ? f.certs.join('; ') : (f.certs || ''), note: f.note || '', ic: this.autoBasis(f, 'ic'), pe: this.autoBasis(f, 'pe') };
+          let aT = 0, pT = 0; AK.forEach(k => { const n = (f.a[k] || { n: 0 }).n; r[k] = n || null; aT += n; }); PK.forEach(k => { const x = f.p[k]; const u = x ? this.unit(k, x) : 0; r[k] = u || null; pT += u; }); r.aea = aT; r.pea = pT; return r; })).eachRow((row, i) => { if (i > 1) ['ic', 'pe'].forEach(k => { row.getCell(k).alignment = { wrapText: true, vertical: 'top' }; }); });
+      const acts = [];
+      D.forEach(f => [...AK.map(k => [k, 'Academic', f.a[k]]), ...PK.map(k => [k, 'Professional', f.p[k]])].forEach(([k, grp, x]) => { if (!x || !x.n) return;
+        const items = ((f.pubItems || {})[k]) || ((f.det || {})[k]) || [], counts = grp === 'Professional' ? this.unit(k, x) : x.n, desc = (AD[k] || PD[k]);
+        const src = it => it.res ? 'Research list' : x.manual ? 'Set in portal' : 'Imported CV';
+        if (Array.isArray(items) && items.length) items.forEach((it, i) => acts.push({ ...base(f), grp, code: k, desc, i: i + 1, t: it.t || '', sub: it.ed != null && it.ed !== '' ? it.ed : (it.sub || ''), src: src(it), n: x.n, u: counts }));
+        else acts.push({ ...base(f), grp, code: k, desc, i: null, t: '(count only, no item details)', sub: x.det || '', src: x.manual ? 'Set in portal' : 'Master list', n: x.n, u: counts }); }));
+      const ord = k => (k[0] === 'A' ? 0 : 100) + +k.slice(1);
+      acts.sort((a, b) => a.name.localeCompare(b.name) || ord(a.code) - ord(b.code) || (a.i || 0) - (b.i || 0));
+      sheet('Activities', [['Employee ID', 'emp', 12], ['Faculty name', 'name', 30], ['Discipline', 'disc', 16], ['Classification', 'cls', 9], ['Classification name', 'clsName', 22], ['Area', 'grp', 13], ['Policy code', 'code', 9], ['Code description', 'desc', 40], ['#', 'i', 5], ['Activity title', 't', 60], ['Details', 'sub', 50], ['Source', 'src', 14], ['Code total recorded', 'n', 10], ['Code counts as', 'u', 10]], acts);
+      const res = []; D.forEach(f => f.res.forEach(o => res.push({ ...base(f), y: o.y, t: o.t, j: o.j || '', au: o.au || '', p: PL[o.p] || o.p, ty: TL[o.ty] || o.ty, c: o.c, full: 1, code: o.code === 'OTHER' ? 'Other' : o.code, desc: AD[o.code] || PD[o.code] || '', src: o.src && o.src !== 'base' ? 'Added in portal' : (o.edited ? 'Edited in portal' : 'Research list') })));
+      res.sort((a, b) => a.name.localeCompare(b.name) || b.y - a.y);
+      sheet('Research', [['Employee ID', 'emp', 12], ['Faculty name', 'name', 30], ['Discipline', 'disc', 16], ['Classification', 'cls', 9], ['Classification name', 'clsName', 22], ['Year', 'y', 7], ['Title', 't', 60], ['Journal / source', 'j', 36], ['Authors', 'au', 30], ['Portfolio of IC', 'p', 20], ['Type of IC', 'ty', 26], ['Credit (shared)', 'c', 9, N2], ['Credit (full)', 'full', 9], ['Policy code', 'code', 9], ['Code description', 'desc', 36], ['Source', 'src', 14]], res);
+      const lg = wb.addWorksheet('Codes'); lg.columns = [{ header: 'Policy code', key: 'k', width: 11 }, { header: 'Area', key: 'g', width: 13 }, { header: 'Description', key: 'd', width: 70 }];
+      AK.forEach(k => lg.addRow({ k, g: 'Academic', d: AD[k] })); PK.forEach(k => lg.addRow({ k, g: 'Professional', d: PD[k] })); lg.getRow(1).font = { bold: true };
+      const buf = await wb.xlsx.writeBuffer(), blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Faculty data ' + year + (keep && D.length < this.bases().length ? (D.length === 1 ? ' - ' + D[0].n : ' - ' + D.length + ' faculty') : '') + '.xlsx'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      this.setState({ pick: null });
+    } catch (err) { console.error(err); alert('Export failed: ' + err.message); }
+    this.setState({ exportingAll: false });
+  }
   async exportExcel() {
     if (this.state.exporting) return;
     this.setState({ exporting: true });
@@ -1848,7 +1956,7 @@ class Component extends DCLogic {
       curYear: st.cur, period: 'Engagement period ' + (year - 5) + '–' + year, tableYear: 'AACSB Table 3-1 · Jan–Dec ' + st.cur,
       yearSource: Y.from ? 'Started from ' + Y.from + ' list' : 'Master list · updated 10 Nov 2026', canDeleteYear: st.cur !== '2026' && this.canEdit(), onDeleteYear: () => this.deleteYear(),
       yearOptions: Object.keys(st.years).sort((a, b) => b - a).map(k => ({ key: k, label: k })).concat(this.canEdit() ? [{ key: '__new', label: '+ Start ' + (Math.max(...Object.keys(st.years).map(Number)) + 1) }] : []),
-      onYear: ev => this.switchYear(ev.target.value), onExportXlsx: () => this.exportExcel(), exportLabel: this.state.exporting ? 'Preparing…' : 'Export AACSB tables (.xlsx)', onAdd: () => this.addFaculty(),
+      onYear: ev => this.switchYear(ev.target.value), onExportXlsx: () => this.exportExcel(), onExportAll: () => this.openPick(), pk: this.pickVals(), exportAllLabel: this.state.exportingAll ? 'Preparing…' : 'Export all faculty data (.xlsx)', exportLabel: this.state.exporting ? 'Preparing…' : 'Export AACSB tables (.xlsx)', onAdd: () => this.addFaculty(),
       onExport: () => this.exportEdits(), onImport: ev => this.importEdits(ev), totals, discRows, legend, gaps, p: p || {}, showMatrix
     };
   }
